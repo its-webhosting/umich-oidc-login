@@ -10,20 +10,17 @@
     ],
     "scripts": {
 	    "lint": [
-		    "./vendor/bin/phpcs --config-set installed_paths $(pwd)/vendor-bin/wpcs/vendor/wp-coding-standards/wpcs/",
-		    "./vendor/bin/phpcs --standard=WordPress *.php includes"
+		    "phpcs --config-set installed_paths $(pwd)/vendor-bin/wpcs/vendor/wp-coding-standards/wpcs/",
+		    "phpcs --standard=WordPress *.php includes"
 	    ]
     },
     "require": {
+        "php": ">=7.3",
         "jumbojett/openid-connect-php": "^0.9.10",
         "wp-user-manager/wp-optionskit": "^1.1"
     },
-    "require-dev": {
-        "bamarni/composer-bin-plugin": "^1.8"
-    },
     "config": {
         "allow-plugins": {
-            "bamarni/composer-bin-plugin": true,
             "composer/installers": true
         }
     }

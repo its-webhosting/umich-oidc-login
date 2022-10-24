@@ -36,7 +36,6 @@ return [
                 'test_old',
                 'tests',
                 'Tests',
-                'vendor-bin',
             ])
             ->in('vendor'),
         Finder::create()->append([
