@@ -10,7 +10,7 @@
     ],
     "scripts": {
 	    "lint": [
-		    "phpcs --config-set installed_paths $(pwd)/vendor-bin/wpcs/vendor/wp-coding-standards/wpcs/",
+		    "phpcs --config-set installed_paths ~/.config/composer/vendor/wp-coding-standards/wpcs",
 		    "phpcs --standard=WordPress *.php includes"
 	    ]
     },
