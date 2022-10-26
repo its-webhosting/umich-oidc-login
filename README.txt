@@ -52,7 +52,7 @@ Search results from WordPress' built-in search will only show content that the s
 1. You can now use the settings on the General tab to control access to the website, as well as login and logout behavior.  You can restrict access to individual posts and pages by editing them and changing their document settings.  You can also use shortcodes from the Shortcodes tab in your theme and/or website content.  Adding the following shortcodes to your theme will display a greeting and a login/logout button.
 
 ```
-[umich_oidc_userinfo type="given_name" default="stranger"]
+Hello, [umich_oidc_userinfo type="given_name" default="stranger"]
 [umich_oidc_button]
 ```
 
