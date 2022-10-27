@@ -93,7 +93,7 @@ class OIDC {
 	}
 
 	/**
-	 * Handle errors by redirecting the user to the login form.
+	 * Display an error message and exit.
 	 *
 	 * @param string $header    Non-technical error summary (2-5 words).
 	 * @param string $details   Error messages (technical details).
@@ -102,19 +102,60 @@ class OIDC {
 	 *
 	 * @since 1.0.0
 	 */
-	public function error_redirect( $header, $details ) {
+	public function fatal_error( $header, $details ) {
 		log_message( "{$header}: {$details}" );
 
 		$this->logout();  // Be very safe and clear everyhing.
 
-		// Redirect user back to login page.
-		$session = $this->ctx->session;
-		$session->set( 'error_header', $header );
-		$session->set( 'error_details', $details );
-		$session->set( 'error_site', \site_url() );
-		$session->set( 'error_home', \home_url() );
-		$session->close();
-		$this->redirect( \site_url( '/wp-content/plugins/umich-oidc-login/error.php' ) );
+		// wp_die() functions differently for page/post requests than
+		// for AJAX requests.  Force our callback actions to be treated
+		// as page/post requests so the user sees a pretty error
+		// message.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- verification not needed
+		if ( \wp_doing_ajax() && isset( $_GET['action'] ) &&
+			( 'openid-connect-authorize' === $_GET['action'] || 'umich-oidc-logout' === $_GET['action'] )
+		) {
+			\add_filter(
+				'wp_doing_ajax',
+				function ( $value ) {
+					return false;
+				},
+				10000
+			);
+		}
+
+		$header  = \esc_html( $header );
+		$details = \esc_html( $details );
+		$home    = \home_url();
+		$login   = \site_url() . '/wp-admin/admin-ajax.php?action=openid-connect-authorize';
+
+		$help  = '';
+		$email = \get_option( 'admin_email' );
+		if ( is_string( $email ) && '' !== $email ) {
+			$email = \esc_html( $email );
+			$help  = "For assistance or to report a problem, contact <a href='mailto:{$email}'>{$email}</a>.";
+		}
+
+		$message = "
+			<h1>{$header}</h1>
+			<p>We're sorry for the problem.  Please try the options below. ${help}</p>
+			<ul>
+			<li><a href='{$home}'>Go to the main page</a></li>
+			<li><a href='{$login}'>Try logging in again</a></li>
+			<li><a href='javascript:history.back()'>Go back to the page you were just on</a></li>
+			</ul>
+			<p>Technical details:</p>
+			<code>${details}</code>
+			";
+		\wp_die(
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- we escaped everything above.
+			$message,
+			'Authentication error',
+			array(
+				'response' => 500,
+			)
+		);
+
 	}
 
 	/**
@@ -216,7 +257,7 @@ class OIDC {
 		}
 
 		if ( ! isset( $_REQUEST['umich-oidc-verifier'] ) ) {
-			$this->error_redirect( $error_header, 'Unsafe login/logout link (missing nonce).' );
+			$this->fatal_error( $error_header, 'Unsafe login/logout link (missing nonce).' );
 		}
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- We're doing our own verification and sanitization.
@@ -224,12 +265,12 @@ class OIDC {
 		log_message( "check_return_url: {$return_url}" );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- We're doing our own verification and sanitization.
 		if ( false === $this->check_verifier( $_REQUEST['umich-oidc-verifier'], $return_url ) ) {
-			$this->error_redirect( $error_header, 'Unsafe login/logout link (incorrect nonce).' );
+			$this->fatal_error( $error_header, 'Unsafe login/logout link (incorrect nonce).' );
 		}
 
 		$return_url = \esc_url_raw( $return_url );
 		if ( '' === $return_url || '' === \wp_validate_redirect( $return_url ) ) {
-			$this->error_redirect( $error_header, 'Bad Login/Logout Destination URL: ' . \esc_url( $return_url ) );
+			$this->fatal_error( $error_header, 'Bad Login/Logout Destination URL: ' . \esc_url( $return_url ) );
 		}
 
 		// phpcs:enable
@@ -452,7 +493,7 @@ class OIDC {
 		foreach ( $required_options as $opt ) {
 			if ( ! \array_key_exists( $opt, $options ) ||
 				'' === $options[ $opt ] ) {
-				$this->error_redirect(
+				$this->fatal_error(
 					'Login failed (configuration)',
 					"Login needs to be configured by the website owner. Required option {$opt} is missing."
 				);
@@ -485,18 +526,18 @@ class OIDC {
 			$jj_oidc->setRedirectURL( $redirect_url );
 			$jj_oidc->addScope( $scopes );
 		} catch ( \Exception $e ) {
-			$this->error_redirect(
+			$this->fatal_error(
 				'Login failed (setup)',
-				\esc_html( $e->getMessage() )
+				$e->getMessage()
 			);
 		}
 
 		try {
 			$jj_oidc->authenticate();
 		} catch ( \Exception $e ) {
-			$this->error_redirect(
+			$this->fatal_error(
 				'Login failed',
-				\esc_html( $e->getMessage() ),
+				$e->getMessage()
 			);
 		}
 
@@ -504,9 +545,9 @@ class OIDC {
 		try {
 			$userinfo = $jj_oidc->requestUserInfo();
 		} catch ( \Exception $e ) {
-			$this->error_redirect(
+			$this->fatal_error(
 				'Login failed (userinfo)',
-				\esc_html( $e->getMessage() ),
+				$e->getMessage()
 			);
 		}
 
@@ -527,17 +568,17 @@ class OIDC {
 		$username_claim = $options['claim_for_username'];
 		if ( ! \property_exists( $userinfo, $username_claim ) ) {
 			$this->logout();
-			$this->error_redirect(
+			$this->fatal_error(
 				'Login failed (userinfo)',
-				'OIDC claim mapping for <code>username</code> not present in userinfo.',
+				'OIDC claim mapping for "username" not present in userinfo.'
 			);
 		}
 		$username = $userinfo->$username_claim;
 		if ( ! \is_string( $username ) || '' === $username ) {
 			$this->logout();
-			$this->error_redirect(
+			$this->fatal_error(
 				'Login failed (userinfo)',
-				'Unable to determine username.',
+				'Unable to determine username.'
 			);
 		}
 		log_message( "Logged in OIDC username: {$username}" );
@@ -564,9 +605,9 @@ class OIDC {
 
 		if ( ! is_a( $user, 'WP_User' ) || ! $user->exists() ) {
 			$this->logout();
-			$this->error_redirect(
+			$this->fatal_error(
 				'WordPress user issue',
-				'WordPress did not return the expected information for the user.',
+				'WordPress did not return the expected information for the user.'
 			);
 		}
 
