@@ -15,9 +15,11 @@ Restrict access to the whole site or only certain parts based on OpenID Connect 
 This plugin is for a very specific use case:  Your WordPress website is part of an organization that uses OpenID Connect (OIDC) for web single-sign-on as well as for group-based authorization.  In that case, this plugin will let you restrict access to parts of your WordPress website based on OIDC login and group membership information.
 
 This plugin has been tested with:
-* [Shibboleth](https://www.shibboleth.net/) OIDC using the eduperson_ismemberof attribute for LDAP group membership.
+
+* [Shibboleth](https://www.shibboleth.net/) OIDC using the `eduperson_ismemberof` attribute for LDAP group membership.
 
 Features:
+
 * Allow site visitors to log in via OIDC without needing a WordPress user account.
 * Optionally allow WordPress users to log in via OIDC instead of user their WordPress password.
 * Optionally restrict access to the entire site to logged-in users or only members of specific groups.
@@ -40,7 +42,7 @@ You can prevent content from showing up in web search engine results by restrict
 
 Search results from WordPress' built-in search will only show content that the searching user has access to.
 
-**WARNING:** WordPress search plugins may show content that the user does not have access to, leaking private information.  Please test search plugin before enabling them.  If a search plugin provides an appropriate WordPress hook for limiting search results, contact us and we may be able to add support for it to UMich_OIDC_Login.
+**WARNING:** WordPress search plugins may show content that the user does not have access to, leaking private information.  Please test search plugin before enabling them.  If a search plugin provides an appropriate WordPress hook for limiting search results, contact us and we may be able to add support for it to UMich OIDC Login.
 
 
 == Installation ==
@@ -65,11 +67,14 @@ Currently, UMich OIDC Login is designed to work with OIDC Identity Providers tha
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+1. Allows visitors to log in via OIDC without needing a WordPress user acccount.  WordPress can get information about logged-in visitors from the OIDC Identity Provider.
+2. WordPress users can log in using either OIDC or their WordPress username and password.
+3. Control what happens when visitors/users log in and log out.
+4. Use group information obtained through OIDC to control access to the website.
+5. Use group information obtained through OIDC to control access to individual posts and pages.
+6. OIDC authentication settings.
+7. Access OIDC user information from within WordPress.  Control which OIDC claims should be used for each piece of information.
+8. Use shortcodes to control who sees which things within pages, posts, and themes.
 
 == Changelog ==
 
