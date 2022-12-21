@@ -267,11 +267,7 @@ class Restrict_Access {
 	 */
 	public function restrict_site_single_post() {
 
-		$singular = \is_singular();
-		log_message( 'restricting site single post, singular=' . ( $singular ? 'true' : 'false' ) );
-		if ( ! $singular ) {
-			return;
-		}
+		log_message( 'restricting site single post' );
 
 		// Always allow the AJAX calls for logging users in & out.
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- verification not needed
