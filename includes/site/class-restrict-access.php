@@ -5,7 +5,6 @@
  * @package    UMich_OIDC_Login\Site
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  */
 
 namespace UMich_OIDC_Login\Site;
@@ -21,7 +20,6 @@ use function UMich_OIDC_Login\Core\log_message as log_message;
  * Enforces access restrictions
  *
  * @package    UMich_OIDC_Login\Site
- * @since      1.0.0
  */
 class Restrict_Access {
 
@@ -34,8 +32,6 @@ class Restrict_Access {
 	 * Context for this WordPress request / this run of the plugin.
 	 *
 	 * @var      object    $ctx    Context passed to us by our creator.
-	 *
-	 * @since    1.0.0
 	 */
 	private $ctx;
 
@@ -43,8 +39,6 @@ class Restrict_Access {
 	 * Cache result from check_site_access()
 	 *
 	 * @var      integer  $site_access_result  Cached result from check_site_access()
-	 *
-	 * @since    1.0.0
 	 */
 	private $site_access_result = self::NOT_INITIALIZED;
 
@@ -52,8 +46,6 @@ class Restrict_Access {
 	 * Create and initialize the Restrict_Access object.
 	 *
 	 * @param object $ctx Context for this WordPress request / this run of the plugin.
-	 *
-	 * @since 1.0.0
 	 */
 	public function __construct( $ctx ) {
 		$this->ctx = $ctx;
@@ -65,8 +57,6 @@ class Restrict_Access {
 	 * @param array $access List of groups that can access the resource being checked.
 	 *
 	 * @return int  One of ALLOWED, DENIED_NOT_LOGGED_IN, DENIED_NOT_IN_GROUPS.
-	 *
-	 * @since 1.0.0
 	 */
 	public function check_access( $access ) {
 
@@ -111,8 +101,6 @@ class Restrict_Access {
 	 * Check to see if the current user has the specified access.
 	 *
 	 * @return int  One of ALLOWED, DENIED_NOT_LOGGED_IN, DENIED_NOT_IN_GROUPS.
-	 *
-	 * @since 1.0.0
 	 */
 	public function check_site_access() {
 
@@ -140,8 +128,6 @@ class Restrict_Access {
 	 * @param int $type Type of denial: DENIED_NOT_LOGGED_IN, DENIED_NOT_IN_GROUPS.
 	 *
 	 * @return void Does not return, ends script
-	 *
-	 * @since 1.0.0
 	 */
 	public function denial_redirect( $type ) {
 
@@ -196,8 +182,6 @@ class Restrict_Access {
 	 * Called by the template_redirect action.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function restrict_site() {
 
@@ -232,8 +216,6 @@ class Restrict_Access {
 	 * @param string $content The original content for the feed.
 	 *
 	 * @return string The original content, or a "Permission denied" message.
-	 *
-	 * @since 1.0.0
 	 */
 	public function restrict_feed( $content ) {
 
@@ -262,8 +244,6 @@ class Restrict_Access {
 	 * user won't see the site header, footer, sidebar and so on.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function restrict_site_single_post() {
 
@@ -301,8 +281,6 @@ class Restrict_Access {
 	 * @param string $excerpt The page/post excerpt.
 	 *
 	 * @return string the excerpt if the user has access, otherwise an "access forbidden" message
-	 *
-	 * @since 1.0.0
 	 */
 	public function get_the_excerpt( $excerpt ) {
 		global $post;
@@ -334,8 +312,6 @@ class Restrict_Access {
 	 * @param string $content The page/post content.
 	 *
 	 * @return string the content if the user has access, otherwise an "access forbidden" message
-	 *
-	 * @since 1.0.0
 	 */
 	public function the_content( $content ) {
 
@@ -374,8 +350,6 @@ class Restrict_Access {
 	 * @param string $posts The list of posts.
 	 *
 	 * @return array The filtered list of posts that the current user has access to.
-	 *
-	 * @since 1.0.0
 	 */
 	public function restrict_list( $posts ) {
 		$allowed = array();
@@ -398,8 +372,6 @@ class Restrict_Access {
 	 * @param integer $status   HTTP status code for the error.
 	 *
 	 * @return object The original response, if the current user has access to the post; otherwise, a permission denied response.
-	 *
-	 * @since 1.0.0
 	 */
 	private function rest_error( $code, $message, $status ) {
 		return new \WP_REST_Response(
@@ -420,8 +392,6 @@ class Restrict_Access {
 	 * @param object  $response The WP_REST_Response object.
 	 *
 	 * @return object The original response, if the current user has access to the post; otherwise, a permission denied response.
-	 *
-	 * @since 1.0.0
 	 */
 	private function rest_access( $id, $response ) {
 
@@ -458,8 +428,6 @@ class Restrict_Access {
 	 * @param object $request The WP_REST_Request object.
 	 *
 	 * @return object The original response, if the current user has access to the post; otherwise, a permission denied response.
-	 *
-	 * @since 1.0.0
 	 */
 	public function rest_prepare_post( $response, $post, $request ) {
 		$id = isset( $post->ID ) ? $post->ID : 0;
@@ -474,8 +442,6 @@ class Restrict_Access {
 	 * @param object $request The WP_REST_Request object.
 	 *
 	 * @return object The original response, if the current user has access to the post; otherwise, a permission denied response.
-	 *
-	 * @since 1.0.0
 	 */
 	public function rest_prepare_revision( $response, $post, $request ) {
 		$id = isset( $post->post_parent ) ? $post->post_parent : 0;
@@ -490,8 +456,6 @@ class Restrict_Access {
 	 * @param object $request The WP_REST_Request object.
 	 *
 	 * @return object The original response, if the current user has access to the comment's post; otherwise, a permission denied response.
-	 *
-	 * @since 1.0.0
 	 */
 	public function rest_prepare_comment( $response, $comment, $request ) {
 		$id = isset( $comment->comment_post_ID ) ? $comment->comment_post_ID : 0;
@@ -514,8 +478,6 @@ class Restrict_Access {
 	 * @param object  $query       The WP_Quest object.
 	 *
 	 * @return integer The modified number of posts after doing access control filtering.
-	 *
-	 * @since 1.0.0
 	 */
 	public function found_posts( $found_posts, $query ) {
 
@@ -569,8 +531,6 @@ class Restrict_Access {
 	 * @param array $fields An array of post fields.
 	 *
 	 * @return array The filtered $_post
-	 *
-	 * @since 1.0.0
 	 */
 	public function xmlrpc_prepare_post( $_post, $post, $fields ) {
 
@@ -605,8 +565,6 @@ class Restrict_Access {
 	 * @param string $message  Error message.
 	 *
 	 * @return array A comment array with the error message and without sensitive data.
-	 *
-	 * @since 1.0.0
 	 */
 	private function xmlrpc_block_comment( $comment, $message ) {
 		$_comment = array(
@@ -632,8 +590,6 @@ class Restrict_Access {
 	 * @param array $comment   An array of comment data.
 	 *
 	 * @return array The filtered $_comment
-	 *
-	 * @since 1.0.0
 	 */
 	public function xmlrpc_prepare_comment( $_comment, $comment ) {
 
@@ -660,8 +616,6 @@ class Restrict_Access {
 	 * @param object  $server   The XML-RPC server instance.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function xmlrpc_call_access( $post_id, $server ) {
 
@@ -706,8 +660,6 @@ class Restrict_Access {
 	 * @param object       $server The XML-RPC server instance.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function xmlrpc_call( $name, $args, $server ) {
 		log_message( "***** xmlrpc call: {$name}" );

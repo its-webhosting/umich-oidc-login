@@ -5,7 +5,6 @@
  * @package    UMich_OIDC_Login
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  *
  * Bassd on autoloader code designed and written by Robert Morsali and
  * published under GPLv2 or later.
@@ -20,8 +19,6 @@
  * @param string $class_name name of the class to autoload.
  *
  * @return void
- *
- * @since 1.0.0
  */
 function umich_oidc_login_autoloader( $class_name ) {
 

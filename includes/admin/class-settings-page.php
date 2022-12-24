@@ -5,7 +5,6 @@
  * @package    UMich_OIDC_Login\Admin
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  */
 
 namespace UMich_OIDC_Login\Admin;
@@ -21,7 +20,6 @@ use function UMich_OIDC_Login\Core\log_message as log_message;
  * Admin dashboard settings page
  *
  * @package    UMich_OIDC_Login\Admin
- * @since      1.0.0
  */
 class Settings_Page {
 
@@ -29,8 +27,6 @@ class Settings_Page {
 	 * Context for this WordPress request / this run of the plugin.
 	 *
 	 * @var      object    $ctx    Context passed to us by our creator.
-	 *
-	 * @since    1.0.0
 	 */
 	private $ctx;
 
@@ -38,8 +34,6 @@ class Settings_Page {
 	 * Holds the options panel controller.
 	 *
 	 * @var object $panel
-	 *
-	 * @since    1.0.0
 	 */
 	protected $panel;
 
@@ -47,8 +41,6 @@ class Settings_Page {
 	 * Settings page object.
 	 *
 	 * @param object $ctx Context for this WordPress request / this run of the plugin.
-	 *
-	 * @since 1.0.0
 	 */
 	public function __construct( $ctx ) {
 
@@ -83,8 +75,6 @@ class Settings_Page {
 	 * @param array $menu original settings of the menu.
 	 *
 	 * @return array
-	 *
-	 * @since 1.0.0
 	 */
 	public function setup_menu( $menu ) {
 		return array(
@@ -101,8 +91,6 @@ class Settings_Page {
 	 * @param array $tabs Default tabs.
 	 *
 	 * @return array
-	 *
-	 * @since 1.0.0
 	 */
 	public function register_settings_tabs( $tabs ) {
 		$tabs = array(
@@ -119,8 +107,6 @@ class Settings_Page {
 	 * @param array $sections Default sections.
 	 *
 	 * @return array
-	 *
-	 * @since 1.0.0
 	 */
 	public function register_settings_subsections( $sections ) {
 		return $sections;
@@ -132,8 +118,6 @@ class Settings_Page {
 	 * @param int $id ID of the post to return the access list for.
 	 *
 	 * @return array
-	 *
-	 * @since 1.0.0
 	 */
 	public function post_access_groups( $id ) {
 
@@ -155,8 +139,6 @@ class Settings_Page {
 	 * Return list of available groups for use in a multiselect field.
 	 *
 	 * @return array
-	 *
-	 * @since 1.0.0
 	 */
 	public function available_groups() {
 
@@ -196,8 +178,6 @@ class Settings_Page {
 	 * @param array $settings Default settings.
 	 *
 	 * @return array
-	 *
-	 * @since 1.0.0
 	 */
 	public function register_settings( $settings ) {
 
@@ -222,8 +202,6 @@ class Settings_Page {
 	 * @param object $errors WP_Errror object for errors that are found.
 	 * @param array  $setting The wp-optionskit setting array for the URL field.
 	 * @return string
-	 *
-	 * @since 1.0.0
 	 */
 	public function sanitize_provider_url( $input, $errors, $setting ) {
 
@@ -260,8 +238,6 @@ class Settings_Page {
 	 * @param object $errors WP_Errror object for errors that are found.
 	 * @param array  $setting The wp-optionskit setting array for the scopes field.
 	 * @return string
-	 *
-	 * @since 1.0.0
 	 */
 	public function sanitize_scopes( $input, $errors, $setting ) {
 
@@ -303,8 +279,6 @@ class Settings_Page {
 	 * @param object $errors WP_Errror object for errors that are found.
 	 * @param array  $setting The wp-optionskit setting array for the groups field.
 	 * @return string
-	 *
-	 * @since 1.0.0
 	 */
 	public function sanitize_group_choices( $input, $errors, $setting ) {
 
@@ -355,8 +329,6 @@ class Settings_Page {
 	 * @param object $errors WP_Errror object for errors that are found.
 	 * @param array  $setting The wp-optionskit setting array for the URL field.
 	 * @return string
-	 *
-	 * @since 1.0.0
 	 */
 	public function sanitize_url( $input, $errors, $setting ) {
 
@@ -387,8 +359,6 @@ class Settings_Page {
 	 * Called by the admin_notices action.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function admin_notices() {
 

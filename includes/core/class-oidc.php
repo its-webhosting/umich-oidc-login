@@ -5,7 +5,6 @@
  * @package    UMich_OIDC_Login\Core
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  */
 
 namespace UMich_OIDC_Login\Core;
@@ -21,7 +20,6 @@ use function UMich_OIDC_Login\Core\log_message as log_message;
  * University of Michigan OIDC
  *
  * @package    UMich_OIDC_Login\Core
- * @since      1.0.0
  */
 class OIDC {
 
@@ -29,8 +27,6 @@ class OIDC {
 	 * Context for this WordPress request / this run of the plugin.
 	 *
 	 * @var      object    $ctx    Context passed to us by our creator.
-	 *
-	 * @since    1.0.0
 	 */
 	private $ctx;
 
@@ -38,8 +34,6 @@ class OIDC {
 	 * Create and initialize the OIDC object.
 	 *
 	 * @param object $ctx Context for this WordPress request / this run of the plugin.
-	 *
-	 * @since 1.0.0
 	 */
 	public function __construct( $ctx ) {
 		$this->ctx = $ctx;
@@ -51,8 +45,6 @@ class OIDC {
 	 * @param array $hosts  Array of hostnames that are allowed in redirect URLs.
 	 *
 	 * @return array
-	 *
-	 * @since 1.0.0
 	 */
 	public function allowed_redirect_hosts( $hosts ) {
 
@@ -79,8 +71,6 @@ class OIDC {
 	 * @param string $url  Where to send the user.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function redirect( $url ) {
 		log_message( "redirecting to {$url}" );
@@ -99,8 +89,6 @@ class OIDC {
 	 * @param string $details   Error messages (technical details).
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function fatal_error( $header, $details ) {
 		log_message( "{$header}: {$details}" );
@@ -182,8 +170,6 @@ class OIDC {
 	 * @param string $data Data to verify using the verifer.
 	 *
 	 * @return string
-	 *
-	 * @since 1.0.0
 	 */
 	public function create_verifier( $data ) {
 
@@ -209,8 +195,6 @@ class OIDC {
 	 * @param string $data Data to verify.
 	 *
 	 * @return bool
-	 *
-	 * @since 1.0.0
 	 */
 	public function check_verifier( $verifier, $data ) {
 		$internals = \get_option( 'umich_oidc_internals' );
@@ -246,8 +230,6 @@ class OIDC {
 	 * @param string $error_header Header to use in error messages. Differs depending on if the return URL is for login or logout.
 	 *
 	 * @return string
-	 *
-	 * @since    1.0.0
 	 */
 	private function check_return_url( $error_header ) {
 
@@ -285,8 +267,6 @@ class OIDC {
 	 * @param string $return Where to send the user afterwards: "here" (page they were on), "home" (site home), "setting" (the Login or Logout Destination URL from the plugin options) or a site URI/URL.
 	 *
 	 * @return string Requested URL, or an empty string if $type is not "login" or "logout".
-	 *
-	 * @since 1.0.0
 	 */
 	public function get_oidc_url( $type, $return = '' ) {
 
@@ -375,8 +355,6 @@ class OIDC {
 	 * @param bool   $force_reauth Value from previous filters.
 	 *
 	 * @returns string
-	 *
-	 * @since 1.0.0
 	 */
 	public function login_url( $login_url, $redirect, $force_reauth ) {
 
@@ -406,8 +384,6 @@ class OIDC {
 	 * @param string $redirect Value from previous filters.
 	 *
 	 * @returns string
-	 *
-	 * @since 1.0.0
 	 */
 	public function logout_url( $logout_url, $redirect ) {
 
@@ -432,8 +408,6 @@ class OIDC {
 	 * accounts are linked.
 	 *
 	 * @returns void
-	 *
-	 * @since 1.0.0
 	 */
 	public function init_wp_login() {
 
@@ -480,8 +454,6 @@ class OIDC {
 	 * their IdP.
 	 *
 	 * @return void
-	 *
-	 * @since    1.0.0
 	 */
 	public function login() {
 
@@ -628,8 +600,6 @@ class OIDC {
 	 * Logout.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function logout() {
 
@@ -669,8 +639,6 @@ class OIDC {
 	 * The URL for this action can be generated using one of this plugin's shortcodes.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function logout_and_redirect() {
 

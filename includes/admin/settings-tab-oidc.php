@@ -7,7 +7,6 @@
  * @package    UMich_OIDC_Login\Admin
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  */
 
 namespace UMich_OIDC_Login\Admin;

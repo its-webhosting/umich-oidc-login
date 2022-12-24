@@ -8,7 +8,6 @@
  * @package    UMich_OIDC_Login\Core
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  */
 
 namespace UMich_OIDC_Login\Core;
@@ -24,7 +23,6 @@ use function UMich_OIDC_Login\Core\log_message as log_message;
  * Authentication checks.
  *
  * @package    UMich_OIDC_Login\Core
- * @since      1.0.0
  */
 class Auth_Check {
 
@@ -32,8 +30,6 @@ class Auth_Check {
 	 * Context for this WordPress request / this run of the plugin.
 	 *
 	 * @var      object    $ctx    Context passed to us by our creator.
-	 *
-	 * @since    1.0.0
 	 */
 	private $ctx;
 
@@ -43,8 +39,6 @@ class Auth_Check {
 	 * @param object $ctx Context for this WordPress request / this run of the plugin.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function __construct( $ctx ) {
 		$this->ctx = $ctx;
@@ -61,8 +55,6 @@ class Auth_Check {
 	 * @param bool $same_domain Value from previous filters.
 	 *
 	 * @returns bool
-	 *
-	 * @since 1.0.0
 	 */
 	public function auth_check_same_domain( $same_domain ) {
 
@@ -82,8 +74,6 @@ class Auth_Check {
 	 * an almost idenical function, wp_auth_check_load(), for admin pages.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function auth_check_load() {
 
@@ -118,8 +108,6 @@ class Auth_Check {
 	 * @param mixed $response Value from previous filters.
 	 *
 	 * @returns mixed
-	 *
-	 * @since 1.0.0
 	 */
 	public function auth_check( $response ) {
 
@@ -146,8 +134,6 @@ class Auth_Check {
 	 * @param int $length Session length in session from previous filters.
 	 *
 	 * @returns int
-	 *
-	 * @since 1.0.0
 	 */
 	public function session_length( $length ) {
 		$options    = $this->ctx->options;

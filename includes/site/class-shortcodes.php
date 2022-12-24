@@ -5,7 +5,6 @@
  * @package    UMich_OIDC_Login\Site
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  */
 
 namespace UMich_OIDC_Login\Site;
@@ -21,7 +20,6 @@ use function UMich_OIDC_Login\Core\log_message as log_message;
  * UMich OIDC shortcodes
  *
  * @package    UMich_OIDC_Login\Site
- * @since      1.0.0
  */
 class Shortcodes {
 
@@ -29,8 +27,6 @@ class Shortcodes {
 	 * Context for this WordPress request / this run of the plugin.
 	 *
 	 * @var      object    $ctx    Context passed to us by our creator.
-	 *
-	 * @since    1.0.0
 	 */
 	private $ctx;
 
@@ -38,8 +34,6 @@ class Shortcodes {
 	 * Create and initialize the Shortcodes object.
 	 *
 	 * @param object $ctx Context for this WordPress request / this run of the plugin.
-	 *
-	 * @since 1.0.0
 	 */
 	public function __construct( $ctx ) {
 		$this->ctx = $ctx;
@@ -54,8 +48,6 @@ class Shortcodes {
 	 * @param string $dictionary what to do with associative arrays: "keys" will give keys as a list, "values" will give values as a list, anything else will be used as a separator between keys and values which are then put into a list.
 	 *
 	 * @return string Shortcode output - requested user info
-	 *
-	 * @since 1.0.0
 	 *
 	 * TODO: this function could be better, for example marking the start
 	 * and end of arrays but only if they are nested.
@@ -127,8 +119,6 @@ class Shortcodes {
 	 * @param string $tag Shortcode name.
 	 *
 	 * @return string Shortcode output - requested URL, escaped.
-	 *
-	 * @since 1.0.0
 	 */
 	public function url( $atts = array(), $content = null, $tag = '' ) {
 
@@ -166,8 +156,6 @@ class Shortcodes {
 	 * @param string $tag Shortcode name.
 	 *
 	 * @return string Shortcode output - requested HTML element.
-	 *
-	 * @since 1.0.0
 	 */
 	private function element( $element, $atts = array(), $content = null, $tag = '' ) {
 
@@ -244,8 +232,6 @@ class Shortcodes {
 	 * @param string $tag Shortcode name.
 	 *
 	 * @return string Shortcode output - requested URL.
-	 *
-	 * @since 1.0.0
 	 */
 	public function link( $atts = array(), $content = null, $tag = '' ) {
 		return $this->element( 'a', $atts, $content, $tag );
@@ -261,8 +247,6 @@ class Shortcodes {
 	 * @param string $tag Shortcode name.
 	 *
 	 * @return string Shortcode output - requested URL.
-	 *
-	 * @since 1.0.0
 	 */
 	public function button( $atts = array(), $content = null, $tag = '' ) {
 		return $this->element( 'button', $atts, $content, $tag );
@@ -276,8 +260,6 @@ class Shortcodes {
 	 * @param string $tag Shortcode name.
 	 *
 	 * @return string Shortcode output - requested user info, escaped for HTML.
-	 *
-	 * @since 1.0.0
 	 */
 	public function user_info( $atts = array(), $content = null, $tag = '' ) {
 
@@ -329,8 +311,6 @@ class Shortcodes {
 	 * @param string $tag Shortcode name.
 	 *
 	 * @return string Shortcode output - content.
-	 *
-	 * @since 1.0.0
 	 */
 	public function logged_in( $atts = array(), $content = null, $tag = '' ) {
 
@@ -379,8 +359,6 @@ class Shortcodes {
 	 * @param string $tag Shortcode name.
 	 *
 	 * @return string Shortcode output - content.
-	 *
-	 * @since 1.0.0
 	 */
 	public function member( $atts = array(), $content = null, $tag = '' ) {
 
@@ -451,8 +429,6 @@ class Shortcodes {
 	 * @param string $content Login message.
 	 *
 	 * @return string Modified login message.
-	 *
-	 * @since 1.0.0
 	 */
 	public function login_form( $content ) {
 

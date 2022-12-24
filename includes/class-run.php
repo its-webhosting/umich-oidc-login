@@ -5,7 +5,6 @@
  * @package    UMich_OIDC_Login
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  */
 
 namespace UMich_OIDC_Login;
@@ -21,7 +20,6 @@ use function UMich_OIDC_Login\Core\log_message as log_message;
  * The main class used to run the plugin.
  *
  * @package    UMich_OIDC_Login\Core
- * @since      1.0.0
  */
 class Run {
 
@@ -32,8 +30,6 @@ class Run {
 	 * and set it to an empty array if \get_option returns a non-array.
 	 *
 	 * @var      array    $options    Options for the UMich OIDC Login plugin.
-	 *
-	 * @since    1.0.0
 	 */
 	public $options;
 
@@ -41,8 +37,6 @@ class Run {
 	 * Session object.
 	 *
 	 * @var      object    $session    Session object.
-	 *
-	 * @since    1.0.0
 	 */
 	public $session;
 
@@ -50,8 +44,6 @@ class Run {
 	 * OIDC_User object.
 	 *
 	 * @var      object    $oidc_user    OIDC_User object.
-	 *
-	 * @since    1.0.0
 	 */
 	public $oidc_user;
 
@@ -59,8 +51,6 @@ class Run {
 	 * OIDC object.
 	 *
 	 * @var      object    $oidc    OIDC object.
-	 *
-	 * @since    1.0.0
 	 */
 	public $oidc;
 
@@ -68,8 +58,6 @@ class Run {
 	 * Auth_Check object.
 	 *
 	 * @var      object    $auth_check    Auth_Check object.
-	 *
-	 * @since    1.0.0
 	 */
 	public $auth_check;
 
@@ -77,8 +65,6 @@ class Run {
 	 * Shortcodes object.
 	 *
 	 * @var      object    $shotcodes    Shortcodes object.
-	 *
-	 * @since    1.0.0
 	 */
 	public $shortcodes;
 
@@ -86,8 +72,6 @@ class Run {
 	 * Restrict_Access object.
 	 *
 	 * @var      object    $restrict_access    Restrict_Access object.
-	 *
-	 * @since    1.0.0
 	 */
 	public $restrict_access;
 
@@ -95,8 +79,6 @@ class Run {
 	 * Settings_Page object.
 	 *
 	 * @var      object    $settings_page    Settings_Page object.
-	 *
-	 * @since    1.0.0
 	 */
 	public $settings_page;
 
@@ -106,8 +88,6 @@ class Run {
 	 * users / members of groups).
 	 *
 	 * @var      bool    $public_resource    Whether the resource is public.
-	 *
-	 * @since    1.0.0
 	 */
 	public $public_resource = true;
 
@@ -115,8 +95,6 @@ class Run {
 	 * Initialize the plugin.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function __construct() {
 		/*

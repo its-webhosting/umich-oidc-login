@@ -5,7 +5,6 @@
  * @package           UMich_OIDC_Login
  * @copyright         2022 Regents of the University of Michigan
  * @license           https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since             1.0.0
  *
  * @wordpress-plugin
  * Plugin Name:       UMich OIDC Login
@@ -56,8 +55,6 @@ if ( ! function_exists( 'umich_oidc_login_run' ) ) {
 	 * during plugin activation.
 	 *
 	 * @return   void
-	 *
-	 * @since    1.0.0
 	 */
 	function umich_oidc_login_activate() {
 		\UMich_OIDC_Login\Core\Setup::activate();
@@ -69,8 +66,6 @@ if ( ! function_exists( 'umich_oidc_login_run' ) ) {
 	 * during plugin deactivation.
 	 *
 	 * @return   void
-	 *
-	 * @since    1.0.0
 	 */
 	function umich_oidc_login_deactivate() {
 		\UMich_OIDC_Login\Core\Setup::deactivate();
@@ -81,8 +76,6 @@ if ( ! function_exists( 'umich_oidc_login_run' ) ) {
 	 * Initialize plugin functionality.
 	 *
 	 * @return   void
-	 *
-	 * @since    1.0.0
 	 */
 	function umich_oidc_login_run() {
 		$plugin = new \UMich_OIDC_Login\Run();

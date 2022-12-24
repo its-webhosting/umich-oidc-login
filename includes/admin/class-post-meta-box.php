@@ -5,7 +5,6 @@
  * @package    UMich_OIDC_Login\Admin
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  */
 
 namespace UMich_OIDC_Login\Admin;
@@ -21,7 +20,6 @@ use function UMich_OIDC_Login\Core\log_message as log_message;
  * Post Meta Box for specifying restricted access to pages and posts.
  *
  * @package    UMich_OIDC_Login\Admin
- * @since      1.0.0
  */
 class Post_Meta_Box {
 
@@ -29,8 +27,6 @@ class Post_Meta_Box {
 	 * Context for this WordPress request / this run of the plugin.
 	 *
 	 * @var      object    $ctx    Context passed to us by our creator.
-	 *
-	 * @since    1.0.0
 	 */
 	private $ctx;
 
@@ -39,8 +35,6 @@ class Post_Meta_Box {
 	 *
 	 * @param  object $ctx  Context for this WordPress request / this run of the plugin.
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function __construct( $ctx ) {
 		$this->ctx = $ctx;
@@ -51,8 +45,6 @@ class Post_Meta_Box {
 	 *
 	 * @param  string $hook Admin page that is being rendered.
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function admin_scripts( $hook ) {
 		if ( 'post.php' === $hook || 'post-new.php' === $hook ) {
@@ -68,8 +60,6 @@ class Post_Meta_Box {
 	 *
 	 * @param    object $post  The post.
 	 * @return   void
-	 *
-	 * @since 1.0.0
 	 */
 	public function access_meta_callback( $post ) {
 
@@ -184,8 +174,6 @@ class Post_Meta_Box {
 	 * Create the Access meta box.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function access_meta_box() {
 
@@ -201,8 +189,6 @@ class Post_Meta_Box {
 	 * @param int $post_id ID of the post being saved.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public function access_meta_box_save( $post_id ) {
 

@@ -5,7 +5,6 @@
  * @package    UMich_OIDC_Login\Core
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  */
 
 namespace UMich_OIDC_Login\Core;
@@ -21,7 +20,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @package    UMich_OIDC_Login\Core
- * @since      1.0.0
  *
  * The initial version of this code came from Better WordPress Plugin
  * Boilerplate, maintained by TukuToi and published under GPLv2 or later.
@@ -33,8 +31,6 @@ class Setup {
 	 * The $_REQUEST during plugin activation.
 	 *
 	 * @var      array    $request    The $_REQUEST array during plugin activation.
-	 *
-	 * @since    1.0.0
 	 */
 	private static $request = array();
 
@@ -42,8 +38,6 @@ class Setup {
 	 * The $_REQUEST['plugin'] during plugin activation.
 	 *
 	 * @var      string    $plugin    The $_REQUEST['plugin'] value during plugin activation.
-	 *
-	 * @since 1.0.0
 	 */
 	private static $plugin = \UMICH_OIDC_LOGIN_BASE_NAME;
 
@@ -54,8 +48,6 @@ class Setup {
 	 * Place to add any custom action during plugin activation.
 	 *
 	 * @return void
-	 *
-	 * @since 1.0.0
 	 */
 	public static function activate() {
 
@@ -88,8 +80,6 @@ class Setup {
 	 * Place to add any custom action during plugin deactivation.
 	 *
 	 * @return void
-	 *
-	 * @since    1.0.0
 	 */
 	public static function deactivate() {
 
@@ -123,8 +113,6 @@ class Setup {
 	 *
 	 * @param string $action The action to perform, either 'activate' or 'deactivate'.
 	 * @return bool|array false or self::$request array.
-	 *
-	 * @since    1.0.0
 	 */
 	private static function get_request( $action ) {
 
@@ -167,8 +155,6 @@ class Setup {
 	 * @param string $action The action to perform, either 'activate' or 'deactivate'.
 	 *
 	 * @return bool false if either plugin or action does not match, else true.
-	 *
-	 * @since    1.0.0
 	 */
 	private static function validate_request( $plugin, $action ) {
 
@@ -196,8 +182,6 @@ class Setup {
 	 * We want no one else but users with activate_plugins or above to be able to active this plugin.
 	 *
 	 * @return bool false if no caps, else true.
-	 *
-	 * @since    1.0.0
 	 */
 	private static function check_caps() {
 
