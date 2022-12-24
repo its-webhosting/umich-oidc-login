@@ -508,7 +508,7 @@ class OIDC {
 		if ( isset( $_REQUEST['umich-oidc-return'] ) ) {
 			$return_url = $this->check_return_url( 'Login failed (setup)' );
 			$session->set( 'return_url', $return_url );
-			$session->close();
+			// Important: do not close the session here or Jumbojett OpenIDConnectClient will re-start it and lose the return URL.
 			log_message( "return URL set in session: {$return_url}" );
 		}
 
