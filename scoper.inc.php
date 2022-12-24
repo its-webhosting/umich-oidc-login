@@ -7,7 +7,6 @@
  * @package    UMich_OIDC_Login
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  *
  * @see        https://github.com/humbug/php-scoper
  */

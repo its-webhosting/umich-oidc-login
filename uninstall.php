@@ -5,7 +5,6 @@
  * @package    UMich_OIDC_Login\Admin
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  *
  * The initial version of this code came from Better WordPress Plugin
  * Boilerplate, maintained by TukuToi and published under GPLv2 or later.
@@ -39,8 +38,6 @@
  * then exit.
  *
  * @return void
- *
- * @since  1.0.0
  */
 function umich_oidc_login_uninstall() {
 

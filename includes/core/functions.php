@@ -5,7 +5,6 @@
  * @package    UMich_OIDC_Login
  * @copyright  2022 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
- * @since      1.0.0
  */
 
 namespace UMich_OIDC_Login\Core;
@@ -16,8 +15,6 @@ namespace UMich_OIDC_Login\Core;
  * @param string $message The message to log.
  *
  * @returns void
- *
- * @since 1.0.0
  */
 function log_message( $message ) {
 	if ( true === WP_DEBUG ) {
@@ -41,8 +38,6 @@ function log_message( $message ) {
  * @param mixed  $instance Optional instance of the UMich_Login\Core\OIDC class.  Needed the first time this function is called.
  *
  * @returns void
- *
- * @since 1.0.0
  */
 function patch_wp_logout_action( $operation, $instance = null ) {
 
