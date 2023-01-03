@@ -40,6 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! function_exists( 'umich_oidc_login_run' ) ) {
 
 	define( 'UMICH_OIDC_LOGIN_VERSION', '1.0.0' );
+	define( 'UMICH_OIDC_LOGIN_VERSION_INT', 1000001 ); // X.Y.Z-a -> XXYYZZaa.
 	define( 'UMICH_OIDC_LOGIN_BASE_NAME', plugin_basename( __FILE__ ) );
 	define( 'UMICH_OIDC_LOGIN_DIR', plugin_dir_path( __FILE__ ) );
 	define( 'UMICH_OIDC_LOGIN_DIR_URL', plugin_dir_url( __FILE__ ) );

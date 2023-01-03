@@ -65,6 +65,28 @@ Hello, [umich_oidc_userinfo type="given_name" default="stranger"]
 
 Currently, UMich OIDC Login is designed to work with OIDC Identity Providers that restrict the groups for which membership information can be released to websites.  In addition, only the official names of groups can be used; aliases will not work.  By entering the allowed groups on the settings page, the group names onlly have to be correct in a single place and access to individual pages/posts can be controlled by selecting group(s) from a dropdown list.
 
+= Help! OIDC stopped working and now I can't log in to my WordPress dashboard! =
+
+Use [WP CLI](https://wp-cli.org) to turn off OIDC for WordPress users:
+
+```
+wp option patch delete umich_oidc_settings use_oidc_for_wp_users
+```
+
+You should then be able to log in to WordPress using your WordPress username and password for your website.
+
+Or, completely turn off the UMich OIDC Login plugin.  WARNING: deactivating the plugin will make any restricted content you have publicly viewable.
+
+```
+wp plugin deactivate umich-oidc-login
+```
+
+If you don't remember your WordPress user account password, you can set a new one:
+
+```
+wp user reset-password YOUR_WORDPRESS_USERNAME
+```
+
 == Screenshots ==
 
 1. Allows visitors to log in via OIDC without needing a WordPress user acccount.  WordPress can get information about logged-in visitors from the OIDC Identity Provider.

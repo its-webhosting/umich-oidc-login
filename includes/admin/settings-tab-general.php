@@ -13,22 +13,27 @@ namespace UMich_OIDC_Login\Admin;
 
 $settings_tab_general = array(
 	array(
-		'id'   => 'link_accounts',
-		'name' => 'Use OIDC for WordPress Logins',
-		'desc' => '
-Users who have WordPress accounts log in to them using OIDC rather than their WordPress password.
-<p><b>IMPORTANT:</b> Before turning this on,</p>
+		'id'      => 'use_oidc_for_wp_users',
+		'name'    => 'Use OIDC for WordPress Users',
+		'desc'    => '
+<br /><p><b>IMPORTANT:</b> Before setting this to YES,</p>
 <ul style="list-style-type: disc;">
-<li>Make sure OIDC authentication is working correctly for OIDC / non-WordPress users. If it is not, turning on this setting will make it impossible for WordPress users to log in.</li>
-<li>Make sure the username for each user\'s WordPress account is the same as their OIDC username. WordPress accounts with usernames that are different from the person\'s OIDC username will either not be accessible at all, or will be accessible by a different person than intended.</li>
+<li>Make sure you can log in to the website using OIDC. Otherwise, you will lock yourself out of your WordPress dashboard.</li>
+<li>Make sure the username for each WordPress user is the same as their OIDC username. WordPress users with usernames that are different from the person\'s OIDC username will either not be accessible at all, or will be accessible by a different person than you intend.</li>
 </ul>
-<p>If you lock yourself out of your WordPress account by turning this on, you can run the following commands to turn it off again and set a password (if you don\'t know it) so you can log in again directly through WordPress.  Copy and paste these commands into a note so you will have them if you need them (they are also available in the documentation for this plugin).</p>
+<p>If you lock yourself out of your WordPress dashboard, you can run the following <a href="https://wp-cli.org">WP-CLI</a> commands to re-enable WordPress user passwords.  Copy and paste these commands into a note so you will have them if you need them (they are also available in the <a href="https://wordpress.org/plugins/umich-oidc-login/#faq">plugin FAQ</a>).</p>
 <pre>
-wp option patch delete umich_oidc_settings link_accounts
-wp user reset-password YOUR_USERNAME
+wp option patch delete umich_oidc_settings use_oidc_for_wp_users
+wp user reset-password YOUR_WORDPRESS_USERNAME
 </pre>
 		',
-		'type' => 'checkbox',
+		'type'    => 'radio',
+		'options' => array(
+			'no'       => 'NO: Require WordPress users to use their WordPress password, even if they are already logged in to the website using OIDC.',
+			'optional' => 'OPTIONAL: Allow people to log in to the WordPress dashboard using either OIDC or their WordPress password.  Using OIDC will log them in to both the website and the WordPress dashboard, while using their WordPress password will log them into WordPress but not log them in to the website.  WARNING: you need to make sure the OIDC user and the WordPress user are always the same person! Don\'t create a WordPress user using a different person\'s OIDC username.',
+			'yes'      => 'YES: Require WordPress users to use OIDC to log in to the WordPress dashboard.  This will also log them in to the website.',
+		),
+		'std'     => 'no',
 	),
 	array(
 		'id'      => 'login_action',

@@ -34,6 +34,19 @@ class Run {
 	public $options;
 
 	/**
+	 * Plugin internal options array.
+	 *
+	 * This array stores state that the plugin needs across multiple
+	 * sessions.
+	 *
+	 * We get this once centrally in the Run class so we can check it
+	 * and set it to an empty array if \get_option returns a non-array.
+	 *
+	 * @var      array    $internals    Internal options for the UMich OIDC Login plugin.
+	 */
+	public $internals;
+
+	/**
 	 * Session object.
 	 *
 	 * @var      object    $session    Session object.
@@ -91,12 +104,51 @@ class Run {
 	 */
 	public $public_resource = true;
 
+
+	/**
+	 * Check whether the plugin has been upgraded, and if so take care
+	 * of any database changes or other housekeeping that the upgrade
+	 * requires.
+	 *
+	 * @return void
+	 */
+	private function do_plugin_upgrade_tasks() {
+
+		if ( $this->internals['plugin_version'] >= UMICH_OIDC_LOGIN_VERSION_INT ) {
+			return;
+		}
+
+		log_message( '***** UMich OIDC Login plugin upgrade from version ' . $this->internals['plugin_version'] . ' to ' . UMICH_OIDC_LOGIN_VERSION_INT . ' *****' );
+
+		/*
+		 * Version 1.0.0 -> 1.1.0:
+		 * use_oidc_for_wp_users (no|optional|yes) replaces link_accounts (false|true).
+		 */
+		if ( \array_key_exists( 'link_accounts', $this->options ) ) {
+			$link_accounts = (bool) $this->options['link_accounts'];
+			if ( $link_accounts ) {
+				$this->options['use_oidc_for_wp_users'] = 'yes';
+			}
+			unset( $this->options['link_accounts'] );
+			\update_option( 'umich_oidc_settings', $this->options );
+		}
+		$this->internals['plugin_version'] = UMICH_OIDC_LOGIN_VERSION_INT;
+		\update_option( 'umich_oidc_internals', $this->internals );
+
+	}
+
+
 	/**
 	 * Initialize the plugin.
 	 *
 	 * @return void
 	 */
 	public function __construct() {
+
+		$option_defaults = array(
+			'use_oidc_for_wp_users' => 'no',
+		);
+
 		/*
 		 * \get_option() can return false if the option does not exist,
 		 * or it can return any other type if the plugin options got
@@ -110,7 +162,19 @@ class Run {
 			log_message( 'WARNING: plugin options not an array' );
 			$options = array();
 		}
-		$this->options = $options;
+		$this->options = \array_merge( $option_defaults, $options );
+
+		$internal_defaults = array(
+			'plugin_version' => 0,
+		);
+
+		$internals = \get_option( 'umich_oidc_internals' );
+		if ( ! \is_array( $internals ) ) {
+			$internals = array();
+		}
+		$this->internals = \array_merge( $internal_defaults, $internals );
+
+		$this->do_plugin_upgrade_tasks();
 
 		$this->session = new \UMich_OIDC_Login\Core\PHP_Session( $this );
 		$this->session->init();

@@ -1,17 +1,25 @@
 
 # Test procedures
 
-## Basic test
+## Basic tests
 
 * Set WordPress session length to be low (~10 minutes).
-* Add user to MCommunity group.
-* Log in to WordPress, ensure user has access to a page that is only accessible by members of the MCommunity group.
-* Remove the user from the MCommunity group.
+* Add user to a group used by OIDC.
+* Log in to the website using OIDC, ensure user has access to a page that is only accessible by members of the OIDC group.
+* Remove the user from the OIDC group.
 * Wait for the session to expire.
-* Click on a link to load the restricted page.  Verify that the user is not able to access the page.
+* Click on a link to load the restricted page.  Verify that the user gets redirected to authenticate.
 
 * Repeat the above procedure, except in the previous step reload the page rather than using a link.
 * Restore session length to normal.
+
+* Set "Use OIDC for WordPress Users" to "optional".
+* Go to /wp-admin and make sure both login options function correctly.
+* Go to /wp-login.php and make sure both login options function correctly.
+* Set "Use OIDC for WordPress Users" to "yes".
+* Go to /wp-admin and verify that OIDC is used and that the user is logged in to WordPress afterward.
+* Log out and verify that the user is logged out of both OIDC and their WordPress user account.
+
 
 ## REST API
 

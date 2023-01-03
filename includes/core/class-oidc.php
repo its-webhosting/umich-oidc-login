@@ -173,15 +173,11 @@ class OIDC {
 	 */
 	public function create_verifier( $data ) {
 
-		$internals = \get_option( 'umich_oidc_internals' );
-		if ( ! \is_array( $internals ) ) {
-			$internals = array();
+		if ( ! \array_key_exists( 'verifier_secret', $this->ctx->internals ) ) {
+			$this->ctx->internals['verifier_secret'] = \wp_generate_password( 32, true, true );
+			\update_option( 'umich_oidc_internals', $this->ctx->internals );
 		}
-		if ( ! \array_key_exists( 'verifier_secret', $internals ) ) {
-			$internals['verifier_secret'] = \wp_generate_password( 32, true, true );
-			\update_option( 'umich_oidc_internals', $internals );
-		}
-		$verifier_secret = $internals['verifier_secret'];
+		$verifier_secret = $this->ctx->internals['verifier_secret'];
 
 		return \substr( \wp_hash( $verifier_secret . $data, 'nonce' ), -12, 10 );
 	}
@@ -197,8 +193,8 @@ class OIDC {
 	 * @return bool
 	 */
 	public function check_verifier( $verifier, $data ) {
-		$internals = \get_option( 'umich_oidc_internals' );
-		if ( ! \is_array( $internals ) || ! \array_key_exists( 'verifier_secret', $internals ) ) {
+		$internals = $this->ctx->internals;
+		if ( ! \array_key_exists( 'verifier_secret', $internals ) ) {
 			return false;
 		}
 		$verifier_secret = $internals['verifier_secret'];
@@ -294,7 +290,13 @@ class OIDC {
 
 		if ( 'smart' === $return ) {
 			if ( 'logout' === $type ) {
-				$return = ( $ctx->public_resource ) ? 'here' : 'setting';
+				$r = isset( $_SERVER['REQUEST_URI'] ) ? \home_url( \esc_url_raw( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) : '';
+				if ( $ctx->public_resource
+					&& ! \str_starts_with( $r, \admin_url() ) ) {
+					$return = 'here';
+				} else {
+					$return = 'setting';
+				}
 			} else {
 				// "smart" can't be used with login URLs.
 				$return = 'setting';
@@ -319,6 +321,15 @@ class OIDC {
 		if ( 'here' === $return ) {
 			if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 				$return_url = \home_url( \esc_url_raw( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+				// If we're always using OIDC for logging into WordPress user accounts,
+				// we're on a dashboard page, and we're logging out, then don't
+				// redirect back to the same page as that will just log is in again.
+				// Instead, redirect to the site's main page.
+				if ( 'logout' === $type
+					&& 'yes' === $options['use_oidc_for_wp_users']
+					&& \str_starts_with( $return_url, \admin_url() ) ) {
+					$return_url = \home_url();
+				}
 			} else {
 				$return_url = \home_url();
 			}
@@ -358,18 +369,36 @@ class OIDC {
 	 */
 	public function login_url( $login_url, $redirect, $force_reauth ) {
 
-		$ctx           = $this->ctx;
-		$url           = $login_url;
-		$link_accounts = false;
+		$ctx = $this->ctx;
+		$url = $login_url;
 
-		if ( \array_key_exists( 'link_accounts', $ctx->options ) ) {
-			$link_accounts = (bool) $ctx->options['link_accounts'];
-		}
+		switch ( $ctx->options['use_oidc_for_wp_users'] ) {
 
-		// Use the OIDC login URL if OIDC/WP accounts are linked, or if
-		// the user has a valid or expired OIDC session.
-		if ( $link_accounts || 'none' !== $ctx->oidc_user->session_state() ) {
-			$url = $this->get_oidc_url( 'login', '' );
+			case 'yes':
+				// Don't use the WordPress login form, just
+				// authenticate the user automatically.
+				$url = $this->get_oidc_url( 'login', '' );
+				break;
+
+			case 'optional':
+				// Ensure the user gets sent back to the same
+				// page after authentication. This overrides
+				// WordPress' default behavior but ensures
+				// people who log in via OIDC get the same
+				// experience for both 'yes' and 'optional'.
+				// Skip this if $redirect is set, since in
+				// that case wp_login_url() already added a
+				// redirect_to query string parameter.
+				if ( empty( $redirect ) && isset( $_SERVER['REQUEST_URI'] ) ) {
+					$r   = \home_url( \esc_url_raw( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+					$url = \add_query_arg( 'redirect_to', \rawurlencode( $r ), $login_url );
+				}
+				break;
+
+			case 'no':
+			default:
+				break;
+
 		}
 
 		log_message( "login_url called:\n    login_url={$login_url}\n    redirect={$redirect}\n    returning: {$url}" );
@@ -387,38 +416,39 @@ class OIDC {
 	 */
 	public function logout_url( $logout_url, $redirect ) {
 
-		// Don't override the WordPress logout URL unless
-		// OIDC accounts are linked to WordPress accounts.
-		$options       = $this->ctx->options;
-		$link_accounts = false;
-		if ( \array_key_exists( 'link_accounts', $options ) ) {
-			$link_accounts = (bool) $options['link_accounts'];
+		$ctx = $this->ctx;
+
+		// Use the OIDC logout URL if OIDC is always used to log in to
+		// WordPress user accounts, or if the user has a valid or
+		// expired OIDC session.
+		if ( 'yes' === $ctx->options['use_oidc_for_wp_users']
+			|| 'none' !== $ctx->oidc_user->session_state() ) {
+			return $this->get_oidc_url( 'logout', '' );
 		}
-		if ( \is_admin() && ! $link_accounts ) {
+
+		// Use the WordPress logout URL if OIDC is not always used to
+		// log in to WordPress accounts but we're in the WordPress
+		// dashboard.
+		if ( \is_admin() ) {
 			return $logout_url;
 		}
 
-		// Get the OIDC logout URL.
+		// Otherwise, use the OIDC logout URL.
 		return $this->get_oidc_url( 'logout', '' );
 
 	}
 
 	/**
-	 * Action hook for login_init to redirect user to OIDC login if
-	 * accounts are linked.
+	 * Action hook for login_init to redirect user to OIDC login if the
+	 * website is configured to use OIDC for WordPress logins.
 	 *
 	 * @returns void
 	 */
 	public function init_wp_login() {
 
-		// Don't override the WordPress login form unless
-		// OIDC accounts are linked to WordPress accounts.
-		$options       = $this->ctx->options;
-		$link_accounts = false;
-		if ( \array_key_exists( 'link_accounts', $options ) ) {
-			$link_accounts = (bool) $options['link_accounts'];
-		}
-		if ( ! $link_accounts ) {
+		// Don't override the WordPress login form unless OIDC accounts
+		// are always used to log in to WordPress user accounts.
+		if ( 'yes' !== $this->ctx->options['use_oidc_for_wp_users'] ) {
 			return;
 		}
 
@@ -555,12 +585,7 @@ class OIDC {
 		}
 		log_message( "Logged in OIDC username: {$username}" );
 
-		$link_accounts = false;
-		if ( \array_key_exists( 'link_accounts', $options ) ) {
-			$link_accounts = (bool) $options['link_accounts'];
-		}
-
-		if ( ! $link_accounts ) {
+		if ( 'no' === $options['use_oidc_for_wp_users'] ) {
 			// Just OIDC, no WordPress?  We're done.
 			$this->redirect( $return_url ); // Does not return.
 		}
@@ -572,6 +597,12 @@ class OIDC {
 		$user = \get_user_by( 'login', $username );
 		if ( ! $user ) {
 			log_message( "No WordPress account for username {$username}, treating as OIDC-only user." );
+			if ( \str_starts_with( $return_url, \admin_url() ) ) {
+				$this->fatal_error(
+					'Access denied',
+					'No such WordPress user.'
+				);
+			}
 			$this->redirect( $return_url ); // Does not return.
 		}
 

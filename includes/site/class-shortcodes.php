@@ -432,6 +432,10 @@ class Shortcodes {
 	 */
 	public function login_form( $content ) {
 
+		if ( 'no' === $this->ctx->options['use_oidc_for_wp_users'] ) {
+			return $content;
+		}
+
 		$return = '';
 		if ( isset( $GLOBALS['pagenow'] ) && 'wp-login.php' === $GLOBALS['pagenow'] ) {
 			$return = 'home';

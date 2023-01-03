@@ -136,15 +136,12 @@ class Restrict_Access {
 		$options = $ctx->options;
 
 		if ( self::DENIED_NOT_LOGGED_IN === $type ) {
-			$link_accounts = false;
-			if ( \array_key_exists( 'link_accounts', $options ) ) {
-				$link_accounts = (bool) $options['link_accounts'];
-			}
-			if ( $link_accounts ) {
+			if ( 'yes' === $options['use_oidc_for_wp_users'] ) {
 				$url = $oidc->get_oidc_url( 'login', '' );
 				$oidc->redirect( $url ); // Does not return.
 			}
-			// Send user to WordPress login page.  Does not return.
+			// For both 'no' and 'optional', send user to WordPress
+			// login page.  Does not return.
 			\auth_redirect();
 		}
 
