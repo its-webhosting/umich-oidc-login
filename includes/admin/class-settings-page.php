@@ -181,6 +181,8 @@ class Settings_Page {
 	 */
 	public function register_settings( $settings ) {
 
+		$option_defaults = $this->ctx->option_defaults;
+
 		require 'settings-tab-general.php';    // sets $settings_tab_general.
 		require 'settings-tab-oidc.php';       // sets $settings_tab_oidc.
 		require 'settings-tab-shortcodes.php'; // sets $settings_tab_shortcodes.
@@ -275,10 +277,10 @@ class Settings_Page {
 	/**
 	 * Sanitize the list of available groups
 	 *
-	 * @param string $input Space separated list of groups to sanitize.
+	 * @param string $input Array of group names to sanitize.
 	 * @param object $errors WP_Errror object for errors that are found.
 	 * @param array  $setting The wp-optionskit setting array for the groups field.
-	 * @return string
+	 * @return array
 	 */
 	public function sanitize_group_choices( $input, $errors, $setting ) {
 

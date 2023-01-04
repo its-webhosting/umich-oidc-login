@@ -136,8 +136,7 @@ class Auth_Check {
 	 * @returns int
 	 */
 	public function session_length( $length ) {
-		$options    = $this->ctx->options;
-		$new_length = \array_key_exists( 'session_length', $options ) ? (int) $options['session_length'] : 0;
+		$new_length = (int) $this->ctx->options['session_length'];
 		if ( $new_length > 0 ) {
 			return $new_length;
 		}

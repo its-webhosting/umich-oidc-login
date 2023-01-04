@@ -33,7 +33,7 @@ wp user reset-password YOUR_WORDPRESS_USERNAME
 			'optional' => 'OPTIONAL: Allow people to log in to the WordPress dashboard using either OIDC or their WordPress password.  Using OIDC will log them in to both the website and the WordPress dashboard, while using their WordPress password will log them into WordPress but not log them in to the website.  WARNING: you need to make sure the OIDC user and the WordPress user are always the same person! Don\'t create a WordPress user using a different person\'s OIDC username.',
 			'yes'      => 'YES: Require WordPress users to use OIDC to log in to the WordPress dashboard.  This will also log them in to the website.',
 		),
-		'std'     => 'no',
+		'std'     => $option_defaults['use_oidc_for_wp_users'],
 	),
 	array(
 		'id'      => 'login_action',
@@ -45,7 +45,7 @@ wp user reset-password YOUR_WORDPRESS_USERNAME
 			'here'    => 'Here: Same page they were on when they logged in',
 			'home'    => 'Home: Site home page',
 		),
-		'std'     => 'setting',
+		'std'     => $option_defaults['login_action'],
 	),
 	array(
 		'id'   => 'login_return_url',
@@ -64,7 +64,7 @@ wp user reset-password YOUR_WORDPRESS_USERNAME
 			'home'    => 'Home: Site home page',
 			'here'    => 'Here: Same page they were on when they logged out',
 		),
-		'std'     => 'smart',
+		'std'     => $option_defaults['logout_action'],
 	),
 	array(
 		'id'   => 'logout_return_url',
@@ -86,7 +86,7 @@ wp user reset-password YOUR_WORDPRESS_USERNAME
 		'multiple' => true,
 		'labels'   => array( 'placeholder' => 'Select one or more groups' ),
 		'options'  => $this->available_groups(),
-		'std'      => '_everyone_',
+		'std'      => $option_defaults['restrict_site'],
 	),
 	array(
 		'id'      => 'session_length',
@@ -98,6 +98,6 @@ wp user reset-password YOUR_WORDPRESS_USERNAME
 			'43200' => '12 hours',
 			'86400' => '24 hours',
 		),
-		'std'     => '86400',
+		'std'     => $option_defaults['session_length'],
 	),
 );

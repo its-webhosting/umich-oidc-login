@@ -48,11 +48,8 @@ class OIDC {
 	 */
 	public function allowed_redirect_hosts( $hosts ) {
 
-		$options = $this->ctx->options;
-
 		foreach ( array( 'login', 'logout' ) as $type ) {
-			$key = $type . '_return_url';
-			$url = ( \array_key_exists( $key, $options ) ) ? $options[ $key ] : '';
+			$url = $this->ctx->options[ $type . '_return_url' ];
 			if ( '' !== $url ) {
 				$new_host = \wp_parse_url( $url, PHP_URL_HOST );
 				if ( \is_string( $new_host ) && '' !== $new_host && ! \in_array( $new_host, $hosts, true ) ) {
@@ -280,8 +277,7 @@ class OIDC {
 
 		if ( '' === $return ) {
 			// Use the configured options/settings.
-			$key    = $type . '_action';
-			$return = ( \array_key_exists( $key, $options ) ) ? $options[ $key ] : '';
+			$return = $options[ $type . '_action' ];
 			if ( '' === $return ) {
 				// Nothing set, use defaults.
 				$return = ( 'login' === $type ) ? 'setting' : 'smart';
@@ -304,8 +300,7 @@ class OIDC {
 		}
 
 		if ( 'setting' === $return ) {
-			$key    = $type . '_return_url';
-			$return = ( \array_key_exists( $key, $options ) ) ? $options[ $key ] : '';
+			$return = $options[ $type . '_return_url' ];
 			if ( '' === $return ) {
 				$return = ( 'login' === $type ) ? 'here' : \home_url();
 			}
@@ -491,7 +486,7 @@ class OIDC {
 		$ctx = $this->ctx;
 
 		$options          = $ctx->options;
-		$required_options = array( 'provider_url', 'client_id', 'client_secret', 'client_auth_method', 'scopes', 'claim_for_username' );
+		$required_options = array( 'provider_url', 'client_id', 'client_secret' );
 		foreach ( $required_options as $opt ) {
 			if ( ! \array_key_exists( $opt, $options ) ||
 				'' === $options[ $opt ] ) {
@@ -614,10 +609,9 @@ class OIDC {
 			);
 		}
 
-		$session_length = \array_key_exists( 'session_length', $options ) ? $options['session_length'] : 86400;
-		$expiration     = time() + \apply_filters( 'auth_cookie_expiration', $session_length, $user->ID, false );
-		$manager        = \WP_Session_Tokens::get_instance( $user->ID );
-		$token          = $manager->create( $expiration );
+		$expiration = time() + \apply_filters( 'auth_cookie_expiration', (int) $options['session_length'], $user->ID, false );
+		$manager    = \WP_Session_Tokens::get_instance( $user->ID );
+		$token      = $manager->create( $expiration );
 
 		\wp_set_auth_cookie( $user->ID, false, '', $token );
 		\do_action( 'wp_login', $user->user_login, $user );

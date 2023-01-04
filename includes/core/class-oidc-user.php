@@ -119,7 +119,7 @@ class OIDC_User {
 		}
 
 		$options        = $ctx->options;
-		$session_length = \array_key_exists( 'session_length', $options ) ? $options['session_length'] : 86400;
+		$session_length = $options['session_length'];
 		if ( \time() > ( ( (int) $id_token->iat ) + (int) $session_length ) ) {
 			log_message( "user init: OIDC session time (${session_length} seconds) expired, logging user out" );
 			$ctx->oidc->logout();

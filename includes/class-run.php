@@ -26,12 +26,39 @@ class Run {
 	/**
 	 * Plugin options array.
 	 *
-	 * We get this once centrally in the Run class so we can check it
-	 * and set it to an empty array if \get_option returns a non-array.
+	 * We get this once centrally in the Run class to reduce the amount
+	 * of error checking needed elsewhere in the code.
 	 *
 	 * @var      array    $options    Options for the UMich OIDC Login plugin.
 	 */
 	public $options;
+
+	/**
+	 * Default values for plugin options.  Used on the plugin settings page.
+	 *
+	 * Don't set a default for any of the following options, we want the
+	 * want the autentication to fail if any of these are not preset:
+	 * present: 'provider_url', 'client_id', 'client_secret'.
+	 *
+	 * @var      array    $option_defaults    Option default values.
+	 */
+	public $option_defaults = array(
+		'claim_for_email'       => 'email',
+		'claim_for_family_name' => 'family_name',
+		'claim_for_full_name'   => 'name',
+		'claim_for_given_name'  => 'given_name',
+		'claim_for_groups'      => 'edumember_ismemberof',
+		'claim_for_username'    => 'preferred_username',
+		'client_auth_method'    => 'client_secret_post',
+		'login_action'          => 'setting',
+		'login_return_url'      => '',
+		'logout_action'         => 'smart',
+		'logout_return_url'     => '',
+		'restrict_site'         => array( '_everyone_' ),
+		'session_length'        => 86400,
+		'scopes'                => 'openid email profile edumember',
+		'use_oidc_for_wp_users' => 'no',
+	);
 
 	/**
 	 * Plugin internal options array.
@@ -144,11 +171,6 @@ class Run {
 	 * @return void
 	 */
 	public function __construct() {
-
-		$option_defaults = array(
-			'use_oidc_for_wp_users' => 'no',
-		);
-
 		/*
 		 * \get_option() can return false if the option does not exist,
 		 * or it can return any other type if the plugin options got
@@ -162,7 +184,7 @@ class Run {
 			log_message( 'WARNING: plugin options not an array' );
 			$options = array();
 		}
-		$this->options = \array_merge( $option_defaults, $options );
+		$this->options = \array_merge( $this->option_defaults, $options );
 
 		$internal_defaults = array(
 			'plugin_version' => 0,

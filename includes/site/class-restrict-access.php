@@ -108,14 +108,8 @@ class Restrict_Access {
 			return $this->site_access_result;
 		}
 
-		$options = $this->ctx->options;
-		if ( \array_key_exists( 'restrict_site', $options ) && \is_array( $options['restrict_site'] ) ) {
-			$restrict_site = $options['restrict_site'];
-		} else {
-			$restrict_site = array( '_everyone_' );
-		}
+		$result = $this->check_access( $this->ctx->options['restrict_site'] );
 
-		$result                   = $this->check_access( $restrict_site );
 		$this->site_access_result = $result;
 
 		return $result;
@@ -149,12 +143,8 @@ class Restrict_Access {
 			// TODO: return 403 or redirect to custom 403 page.
 			$back = '';
 			// TODO: add a setting for the URL to send people to if they don't have access to the site.
-			$main = 'https://umich.edu/';
-			if ( \array_key_exists( 'restrict_site', $options ) && \is_array( $options['restrict_site'] ) ) {
-				$restrict_site = $options['restrict_site'];
-			} else {
-				$restrict_site = array( '_everyone_' );
-			}
+			$main          = 'https://umich.edu/';
+			$restrict_site = $options['restrict_site'];
 			if ( '_everyone_' === $restrict_site[0] ) {
 				$main = \home_url();
 				$back = '<p><script>document.write(\'<a href="\' + document.referrer + \'">Go Back</a>\');</script></p>';
