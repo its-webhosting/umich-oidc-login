@@ -316,14 +316,16 @@ class OIDC {
 		if ( 'here' === $return ) {
 			if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 				$return_url = \home_url( \esc_url_raw( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
-				// If we're always using OIDC for logging into WordPress user accounts,
-				// we're on a dashboard page, and we're logging out, then don't
-				// redirect back to the same page as that will just log is in again.
-				// Instead, redirect to the site's main page.
-				if ( 'logout' === $type
-					&& 'yes' === $options['use_oidc_for_wp_users']
-					&& \str_starts_with( $return_url, \admin_url() ) ) {
-					$return_url = \home_url();
+				if ( 'yes' === $options['use_oidc_for_wp_users'] ) {
+					if ( 'logout' === $type
+						&& \str_starts_with( $return_url, \admin_url() ) ) {
+						// Going back to the admin page will just
+						// automatically log the user in again.
+						$return_url = \home_url();
+					} elseif ( \str_contains( $return_url, '/wp-login.php' ) ) {
+						// Avoid an authentication loop.
+						$return_url = \home_url();
+					}
 				}
 			} else {
 				$return_url = \home_url();
@@ -392,6 +394,12 @@ class OIDC {
 
 			case 'no':
 			default:
+				// If we're not on an admin interface page and a OIDC session
+				// exists, use the OIDC login URL. Otherwise use the
+				// WordPress login URL.
+				if ( ! \is_admin() && 'none' !== $ctx->oidc_user->session_state() ) {
+					$url = $this->get_oidc_url( 'login', '' );
+				}
 				break;
 
 		}
