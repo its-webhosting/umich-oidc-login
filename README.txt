@@ -84,7 +84,7 @@ wp plugin deactivate umich-oidc-login
 If you don't remember your WordPress user account password, you can set a new one:
 
 ```
-wp user reset-password YOUR_WORDPRESS_USERNAME
+wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 ```
 
 == Screenshots ==

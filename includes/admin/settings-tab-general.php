@@ -23,8 +23,10 @@ $settings_tab_general = array(
 </ul>
 <p>If you lock yourself out of your WordPress dashboard, you can run the following <a href="https://wp-cli.org">WP-CLI</a> commands to re-enable WordPress user passwords.  Copy and paste these commands into a note so you will have them if you need them (they are also available in the <a href="https://wordpress.org/plugins/umich-oidc-login/#faq">plugin FAQ</a>).</p>
 <pre>
+# Re-enable WordPress passwords:
 wp option patch delete umich_oidc_settings use_oidc_for_wp_users
-wp user reset-password YOUR_WORDPRESS_USERNAME
+# Set a new WordPress password if you forgot it:
+wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 </pre>
 		',
 		'type'    => 'radio',
