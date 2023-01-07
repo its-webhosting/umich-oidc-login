@@ -130,13 +130,23 @@ class Restrict_Access {
 		$options = $ctx->options;
 
 		if ( self::DENIED_NOT_LOGGED_IN === $type ) {
-			if ( 'yes' === $options['use_oidc_for_wp_users'] ) {
-				$url = $oidc->get_oidc_url( 'login', '' );
-				$oidc->redirect( $url ); // Does not return.
+			switch ( $options['use_oidc_for_wp_users'] ) {
+				case 'yes':
+					$oidc->redirect( $oidc->get_oidc_url( 'login', '' ) ); // Does not return.
+					break;
+				case 'optional':
+					// Send user to WP login page so they can choose how to log in.
+					\auth_redirect(); // Does not return.
+					break;
+				case 'no':
+				default:
+					if ( \is_admin() ) { // Admin interface.
+						// Use WP login.
+						\auth_redirect(); // Does not return.
+					}
+					$oidc->redirect( $oidc->get_oidc_url( 'login', '' ) ); // Does not return.
+					break;
 			}
-			// For both 'no' and 'optional', send user to WordPress
-			// login page.  Does not return.
-			\auth_redirect();
 		}
 
 		if ( self::DENIED_NOT_IN_GROUPS === $type ) {
