@@ -3,7 +3,7 @@ Contributors: markmont
 Tags: access-control,OIDC,content restriction,groups,login
 Requires at least: 6.0.0
 Tested up to: 6.1.0
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 Requires PHP: 7.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -21,7 +21,7 @@ This plugin has been tested with:
 Features:
 
 * Allow site visitors to log in via OIDC without needing a WordPress user account.
-* Optionally allow WordPress users to log in via OIDC instead of user their WordPress password.
+* Optionally allow WordPress users to log in via OIDC instead of using their WordPress password.
 * Optionally restrict access to the entire site to logged-in users or only members of specific groups.
 * Optionally restrict access to specific pages and posts to logged-in users or only members of specifc groups.
 * Show parts of pages/posts/widgets only to logged in users or members of specific groups.
@@ -100,13 +100,25 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 
 == Changelog ==
 
-= 1.0 =
+= 1.1.0 =
+* Completely reimplemented the feature for using OIDC to log into the WordPress dashboard.
+    * Changed the setting values from no/yes to no/optional/yes. The new setting ("optional") allows users a choice of whether to log in using OIDC or their WordPress password. Choosing which way to log in looked like it was supported before when it was not, which was confusing.
+    * The "no" setting previously displayed a "Login in with Single Sign On" button that would only log users into the website but not the WordPress dashboard.  This was confusing, and so the button has been removed when OIDC login for WordPress is set to "no".
+    * If a user attempts to log in to the WordPress dashboard via OIDC but does not have a WordPress user account, they will now get an "Access Deined" error instead of silently being logged into the website but not logged in to WordPress.
+* Fixed a bug where unauthenticated users who tried to access a restricted page/post would sometimes get a "Page Not Found" error instead of being prompted to log in.
+* Fixed a bug where users were sometimes not sent to the correct page after authenticating.
+* Miscellaneous cleanup and improvements.
+
+= 1.0.0 =
 * Initial release.
 
 == Upgrade Notice ==
 
-= 1.0 =
-* Initial release.
+= 1.1.0 =
+Fixes several bugs. Completely reimplements the feature for using OIDC to log into the WordPress dashboard so it makes better sense and is more flexible.
+
+= 1.0.0 =
+Initial release.
 
 
 == Copyright and license information ==
