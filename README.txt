@@ -69,23 +69,17 @@ Currently, UMich OIDC Login is designed to work with OIDC Identity Providers tha
 
 Use [WP CLI](https://wp-cli.org) to turn off OIDC for WordPress users:
 
-```
-wp option patch delete umich_oidc_settings use_oidc_for_wp_users
-```
+`wp option patch delete umich_oidc_settings use_oidc_for_wp_users`
 
 You should then be able to log in to WordPress using your WordPress username and password for your website.
 
 Or, completely turn off the UMich OIDC Login plugin.  WARNING: deactivating the plugin will make any restricted content you have publicly viewable.
 
-```
-wp plugin deactivate umich-oidc-login
-```
+`wp plugin deactivate umich-oidc-login`
 
 If you don't remember your WordPress user account password, you can set a new one:
 
-```
-wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
-```
+`wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"`
 
 == Screenshots ==
 
