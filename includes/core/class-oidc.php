@@ -254,6 +254,33 @@ class OIDC {
 	}
 
 	/**
+	 * Get the URL for the curent request.
+	 *
+	 * @return string URL for the current request, or the home URL if the current URL cannot be determined.
+	 */
+	public function get_current_url() {
+
+		$home_url = \home_url();
+
+		if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+			return $home_url;
+		}
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- based on $wp->parse_request(), plus we add esc_url_raw() below.
+		$request_uri = $_SERVER['REQUEST_URI'];
+
+		$home_path = \wp_parse_url( $home_url, PHP_URL_PATH );
+		if ( \is_string( $home_path ) && '' !== $home_path ) {
+			$home_path       = \trim( $home_path, '/' );
+			$home_path_regex = \sprintf( '|^/%s|i', \preg_quote( $home_path, '|' ) );
+			$request_uri     = \preg_replace( $home_path_regex, '', $request_uri );
+		}
+
+		return \home_url( \esc_url_raw( $request_uri ) );
+
+	}
+
+	/**
 	 * Return a login or logout URL.
 	 *
 	 * @param string $type URL type: "login" or "logout".
@@ -286,9 +313,8 @@ class OIDC {
 
 		if ( 'smart' === $return ) {
 			if ( 'logout' === $type ) {
-				$r = isset( $_SERVER['REQUEST_URI'] ) ? \home_url( \esc_url_raw( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) : '';
 				if ( $ctx->public_resource
-					&& ! \str_starts_with( $r, \admin_url() ) ) {
+					&& ! \str_starts_with( $this->get_current_url(), \admin_url() ) ) {
 					$return = 'here';
 				} else {
 					$return = 'setting';
@@ -314,21 +340,17 @@ class OIDC {
 
 		// Figure out the $return_url.
 		if ( 'here' === $return ) {
-			if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-				$return_url = \home_url( \esc_url_raw( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
-				if ( 'yes' === $options['use_oidc_for_wp_users'] ) {
-					if ( 'logout' === $type
-						&& \str_starts_with( $return_url, \admin_url() ) ) {
-						// Going back to the admin page will just
-						// automatically log the user in again.
-						$return_url = \home_url();
-					} elseif ( \str_contains( $return_url, '/wp-login.php' ) ) {
-						// Avoid an authentication loop.
-						$return_url = \home_url();
-					}
+			$return_url = $this->get_current_url();
+			if ( 'yes' === $options['use_oidc_for_wp_users'] ) {
+				if ( 'logout' === $type
+					&& \str_starts_with( $return_url, \admin_url() ) ) {
+					// Going back to the admin page will just
+					// automatically log the user in again.
+					$return_url = \home_url();
+				} elseif ( \str_contains( $return_url, '/wp-login.php' ) ) {
+					// Avoid an authentication loop.
+					$return_url = \home_url();
 				}
-			} else {
-				$return_url = \home_url();
 			}
 		} elseif ( 'home' === $return ) {
 			$return_url = \home_url();
@@ -386,8 +408,8 @@ class OIDC {
 				// Skip this if $redirect is set, since in
 				// that case wp_login_url() already added a
 				// redirect_to query string parameter.
-				if ( empty( $redirect ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-					$r   = \home_url( \esc_url_raw( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+				if ( empty( $redirect ) ) {
+					$r   = $this->get_current_url();
 					$url = \add_query_arg( 'redirect_to', \rawurlencode( $r ), $login_url );
 				}
 				break;
