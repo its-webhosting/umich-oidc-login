@@ -3,7 +3,7 @@ Contributors: markmont
 Tags: access-control,OIDC,content restriction,groups,login
 Requires at least: 6.0.0
 Tested up to: 6.1.0
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 Requires PHP: 7.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -94,6 +94,9 @@ If you don't remember your WordPress user account password, you can set a new on
 
 == Changelog ==
 
+= 1.1.1 =
+* Fixed a bug with login/logout URLs being incorrect when WordPress is installed in a subdirectory.
+
 = 1.1.0 =
 * Completely reimplemented the feature for using OIDC to log into the WordPress dashboard.
     * Changed the setting values from no/yes to no/optional/yes. The new setting ("optional") allows users a choice of whether to log in using OIDC or their WordPress password. Choosing which way to log in looked like it was supported before when it was not, which was confusing.
@@ -107,6 +110,9 @@ If you don't remember your WordPress user account password, you can set a new on
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+* Fixes a bug with login/logout URLs being incorrect when WordPress is installed in a subdirectory.
 
 = 1.1.0 =
 Fixes several bugs. Completely reimplements the feature for using OIDC to log into the WordPress dashboard so it makes better sense and is more flexible.
