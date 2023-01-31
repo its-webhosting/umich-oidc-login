@@ -254,7 +254,7 @@ class OIDC {
 	}
 
 	/**
-	 * Get the URL for the curent request.
+	 * Get the URL for the current request.
 	 *
 	 * @return string URL for the current request, or the home URL if the current URL cannot be determined.
 	 */
