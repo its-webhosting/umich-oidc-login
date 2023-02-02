@@ -234,8 +234,8 @@ class Run {
 		$this->auth_check = new \UMich_OIDC_Login\Core\Auth_Check( $this );
 		\add_filter( 'wp_auth_check_same_domain', array( $this->auth_check, 'auth_check_same_domain' ) );
 		\add_action( 'wp_enqueue_scripts', array( $this->auth_check, 'auth_check_load' ) );
-		\add_filter( 'heartbeat_send', array( $this->auth_check, 'auth_check' ), 20, 1 );
-		\add_filter( 'heartbeat_nopriv_send', array( $this->auth_check, 'auth_check' ), 20, 1 );
+		\add_filter( 'heartbeat_send', array( $this->auth_check, 'oidc_auth_check' ), 20, 1 );
+		\add_filter( 'heartbeat_nopriv_send', array( $this->auth_check, 'oidc_auth_check' ), 20, 1 );
 		\add_filter( 'auth_cookie_expiration', array( $this->auth_check, 'session_length' ) );
 
 		$this->shortcodes = new \UMich_OIDC_Login\Site\Shortcodes( $this );
