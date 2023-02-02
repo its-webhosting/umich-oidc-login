@@ -59,7 +59,6 @@ class OIDC {
 		}
 
 		return $hosts;
-
 	}
 
 	/**
@@ -140,7 +139,6 @@ class OIDC {
 				'response' => 500,
 			)
 		);
-
 	}
 
 	/**
@@ -250,7 +248,6 @@ class OIDC {
 
 		// phpcs:enable
 		return $return_url;
-
 	}
 
 	/**
@@ -277,7 +274,6 @@ class OIDC {
 		}
 
 		return \home_url( \esc_url_raw( $request_uri ) );
-
 	}
 
 	/**
@@ -371,7 +367,6 @@ class OIDC {
 		}
 
 		return \esc_url_raw( \admin_url( 'admin-ajax.php?action=' . $action . $return_query_string ) );
-
 	}
 
 	/**
@@ -428,7 +423,6 @@ class OIDC {
 
 		log_message( "login_url called:\n    login_url={$login_url}\n    redirect={$redirect}\n    returning: {$url}" );
 		return $url;
-
 	}
 
 	/**
@@ -460,7 +454,6 @@ class OIDC {
 
 		// Otherwise, use the OIDC logout URL.
 		return $this->get_oidc_url( 'logout', '' );
-
 	}
 
 	/**
@@ -487,7 +480,6 @@ class OIDC {
 
 		$login_url = $this->get_oidc_url( 'login', '' );
 		$this->redirect( $login_url ); // Does not return.
-
 	}
 
 	/**
@@ -648,7 +640,6 @@ class OIDC {
 		\wp_set_current_user( $user->ID, $user->user_login );
 
 		$this->redirect( $return_url ); // Does not return.
-
 	}
 
 	/**
@@ -682,7 +673,6 @@ class OIDC {
 		\wp_logout();
 		// finally, add the logout action back in (probably not needed, but let's be safe).
 		\UMich_OIDC_Login\Core\patch_wp_logout_action( 'add' );
-
 	}
 
 	/**
@@ -703,7 +693,6 @@ class OIDC {
 
 		log_message( "logout complete, returning to {$return_url}" );
 		$this->redirect( $return_url ); // Does not return.
-
 	}
 
 }

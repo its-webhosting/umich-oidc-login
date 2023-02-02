@@ -150,7 +150,6 @@ class OIDC_User {
 
 		$this->id_token = $id_token;
 		$this->userinfo = $userinfo;
-
 	}
 
 	/**
@@ -188,7 +187,6 @@ class OIDC_User {
 			return $default;
 		}
 		return $this->userinfo->$key;
-
 	}
 
 	/**
@@ -206,7 +204,6 @@ class OIDC_User {
 			return true;
 		}
 		return false;
-
 	}
 
 	/**
@@ -243,7 +240,6 @@ class OIDC_User {
 		}
 
 		return $groups;
-
 	}
 
 	/**
@@ -265,7 +261,6 @@ class OIDC_User {
 		}
 
 		return $headers;
-
 	}
 
 	/**
@@ -292,6 +287,6 @@ class OIDC_User {
 				\header( "{$name}: {$field_value}" );
 			}
 		}
-
 	}
+
 }

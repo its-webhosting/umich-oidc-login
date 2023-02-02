@@ -57,5 +57,4 @@ function patch_wp_logout_action( $operation, $instance = null ) {
 		return;
 	}
 	\add_action( 'wp_logout', array( $saved_instance, 'logout' ) );
-
 }

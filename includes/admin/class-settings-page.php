@@ -66,7 +66,6 @@ class Settings_Page {
 		\add_filter( 'umich_oidc_settings_sanitize_restrict_site', array( $this, 'sanitize_group_choices' ), 3, 10 );
 
 		\add_action( 'admin_notices', array( $this, 'admin_notices' ) );
-
 	}
 
 	/**
@@ -132,7 +131,6 @@ class Settings_Page {
 		$access = \array_map( '\trim', \explode( ',', $access ) );
 
 		return $access;
-
 	}
 
 	/**
@@ -169,7 +167,6 @@ class Settings_Page {
 		}
 
 		return $groups;
-
 	}
 
 	/**
@@ -352,7 +349,6 @@ class Settings_Page {
 			return '';
 		}
 		return $input;
-
 	}
 
 	/**
@@ -379,7 +375,6 @@ class Settings_Page {
 			<?php
 
 		}
-
 	}
 
 }

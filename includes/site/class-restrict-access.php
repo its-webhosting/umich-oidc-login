@@ -94,7 +94,6 @@ class Restrict_Access {
 		}
 
 		return self::ALLOWED;
-
 	}
 
 	/**
@@ -113,7 +112,6 @@ class Restrict_Access {
 		$this->site_access_result = $result;
 
 		return $result;
-
 	}
 
 	/**
@@ -170,7 +168,6 @@ class Restrict_Access {
 				)
 			);
 		}
-
 	}
 
 	/**
@@ -228,7 +225,6 @@ class Restrict_Access {
 
 		// Return and allow access.
 		return $content;
-
 	}
 
 	/**
@@ -326,7 +322,6 @@ class Restrict_Access {
 
 		// Return and allow access.
 		return $content;
-
 	}
 
 	/**
@@ -414,7 +409,6 @@ class Restrict_Access {
 		}
 
 		return $response;
-
 	}
 
 	/**
@@ -512,7 +506,6 @@ class Restrict_Access {
 		}
 
 		return $found_posts;
-
 	}
 
 	/**
@@ -552,7 +545,6 @@ class Restrict_Access {
 		}
 
 		return $_post;
-
 	}
 
 	/**
@@ -603,7 +595,6 @@ class Restrict_Access {
 		}
 
 		return $_post;
-
 	}
 
 	/**
@@ -711,7 +702,6 @@ class Restrict_Access {
 				}
 				break;
 		}
-
 	}
 
 }

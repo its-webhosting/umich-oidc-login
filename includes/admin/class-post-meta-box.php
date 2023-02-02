@@ -167,7 +167,6 @@ class Post_Meta_Box {
 			})
 			</script>
 		<?php
-
 	}
 
 	/**
@@ -180,7 +179,6 @@ class Post_Meta_Box {
 		$ctx = $this->ctx;
 
 		\add_meta_box( 'umich_oidc_access_meta', 'Access', array( $this, 'access_meta_callback' ), array( 'post', 'page' ), 'side', 'high' );
-
 	}
 
 	/**
@@ -231,7 +229,6 @@ class Post_Meta_Box {
 		}
 
 		\update_post_meta( $post_id, '_umich_oidc_access', \implode( ',', $access ) );
-
 	}
 
 }

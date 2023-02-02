@@ -77,7 +77,6 @@ class PHP_Session {
 		foreach ( \array_unique( $cookies ) as $cookie ) {
 			\header( $cookie, false );
 		}
-
 	}
 
 	/**
@@ -227,7 +226,6 @@ class PHP_Session {
 		);
 		\session_destroy();
 		log_message( 'session cookie has been unset' );
-
 	}
 
 	/**
@@ -254,7 +252,6 @@ class PHP_Session {
 		if ( 0 === \count( $_SESSION ) ) {
 			$this->destroy();
 		}
-
 	}
 
 	/**

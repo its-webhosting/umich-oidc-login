@@ -94,7 +94,6 @@ class Auth_Check {
 			\add_action( 'admin_print_footer_scripts', 'wp_auth_check_html', 5 );
 			\add_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
 		}
-
 	}
 
 	/**
@@ -125,7 +124,6 @@ class Auth_Check {
 		$response['wp-auth-check'] = ( 'valid' === $session_state );
 
 		return $response;
-
 	}
 
 	/**

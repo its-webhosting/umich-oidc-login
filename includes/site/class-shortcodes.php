@@ -106,7 +106,6 @@ class Shortcodes {
 		}
 
 		return $unprintable;
-
 	}
 
 	/**
@@ -144,7 +143,6 @@ class Shortcodes {
 
 		$oidc = $ctx->oidc;
 		return $oidc->get_oidc_url( $type, $return );
-
 	}
 
 	/**
@@ -219,7 +217,6 @@ class Shortcodes {
 
 		log_message( 'unrecognzed element, supressing button/link shortcode output' );
 		return '';
-
 	}
 
 	/**
@@ -344,7 +341,6 @@ class Shortcodes {
 		}
 
 		return $content;
-
 	}
 
 	/**
@@ -420,7 +416,6 @@ class Shortcodes {
 		}
 
 		return $content;
-
 	}
 
 	/**
@@ -460,7 +455,6 @@ class Shortcodes {
 		$content .= '<div style="width: 100%; text-align: center; padding-top: 1em;">&mdash; <i>or, log in with a local WordPress account</i> &mdash;';
 
 		return $content;
-
 	}
 
 }

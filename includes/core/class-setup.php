@@ -73,7 +73,6 @@ class Setup {
 		 * Perform your activation actions here.
 		 */
 		log_message( '***** UMich OIDC Login plugin version ' . UMICH_OIDC_LOGIN_VERSION . ' activated *****' );
-
 	}
 
 	/**
@@ -106,7 +105,6 @@ class Setup {
 		 * Perform your deactivation actions here.
 		 */
 		log_message( '***** UMich OIDC Login plugin version ' . UMICH_OIDC_LOGIN_VERSION . ' deactivated *****' );
-
 	}
 
 	/**
@@ -147,7 +145,6 @@ class Setup {
 
 			return false;
 		}
-
 	}
 
 	/**
@@ -177,7 +174,6 @@ class Setup {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -194,7 +190,6 @@ class Setup {
 		}
 
 		return false;
-
 	}
 
 }

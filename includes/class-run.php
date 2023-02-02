@@ -161,7 +161,6 @@ class Run {
 		}
 		$this->internals['plugin_version'] = UMICH_OIDC_LOGIN_VERSION_INT;
 		\update_option( 'umich_oidc_internals', $this->internals );
-
 	}
 
 
@@ -278,7 +277,6 @@ class Run {
 		\add_action( 'xmlrpc_call', array( $this->restrict_access, 'xmlrpc_call' ), 0, 3 );
 
 		$this->settings_page = new \UMich_OIDC_Login\Admin\Settings_Page( $this );
-
 	}
 
 }
