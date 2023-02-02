@@ -395,7 +395,7 @@ class Shortcodes {
 		$matches = \count( \array_intersect( $groups, $user_groups ) );
 		if ( $is_wp_admin ) {
 			// A WordPress administrator is considered a member of all groups.
-			$matches++;
+			++$matches;
 		}
 
 		if ( 'umich_oidc_member' === $tag && 0 === $matches ) {
