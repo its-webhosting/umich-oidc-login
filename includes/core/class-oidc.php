@@ -280,11 +280,11 @@ class OIDC {
 	 * Return a login or logout URL.
 	 *
 	 * @param string $type URL type: "login" or "logout".
-	 * @param string $return Where to send the user afterwards: "here" (page they were on), "home" (site home), "setting" (the Login or Logout Destination URL from the plugin options) or a site URI/URL.
+	 * @param string $return_to Where to send the user afterwards: "here" (page they were on), "home" (site home), "setting" (the Login or Logout Destination URL from the plugin options) or a site URI/URL.
 	 *
 	 * @return string Requested URL, or an empty string if $type is not "login" or "logout".
 	 */
-	public function get_oidc_url( $type, $return = '' ) {
+	public function get_oidc_url( $type, $return_to = '' ) {
 
 		$ctx     = $this->ctx;
 		$options = $ctx->options;
@@ -298,33 +298,33 @@ class OIDC {
 			return '';
 		}
 
-		if ( '' === $return ) {
+		if ( '' === $return_to ) {
 			// Use the configured options/settings.
-			$return = $options[ $type . '_action' ];
-			if ( '' === $return ) {
+			$return_to = $options[ $type . '_action' ];
+			if ( '' === $return_to ) {
 				// Nothing set, use defaults.
-				$return = ( 'login' === $type ) ? 'setting' : 'smart';
+				$return_to = ( 'login' === $type ) ? 'setting' : 'smart';
 			}
 		}
 
-		if ( 'smart' === $return ) {
+		if ( 'smart' === $return_to ) {
 			if ( 'logout' === $type ) {
 				if ( $ctx->public_resource
 					&& ! \str_starts_with( $this->get_current_url(), \admin_url() ) ) {
-					$return = 'here';
+					$return_to = 'here';
 				} else {
-					$return = 'setting';
+					$return_to = 'setting';
 				}
 			} else {
 				// "smart" can't be used with login URLs.
-				$return = 'setting';
+				$return_to = 'setting';
 			}
 		}
 
 		if ( 'setting' === $return ) {
-			$return = $options[ $type . '_return_url' ];
-			if ( '' === $return ) {
-				$return = ( 'login' === $type ) ? 'here' : \home_url();
+			$return_to = $options[ $type . '_return_url' ];
+			if ( '' === $return_to ) {
+				$return_to = ( 'login' === $type ) ? 'here' : \home_url();
 			}
 		}
 
@@ -335,7 +335,7 @@ class OIDC {
 		 */
 
 		// Figure out the $return_url.
-		if ( 'here' === $return ) {
+		if ( 'here' === $return_to ) {
 			$return_url = $this->get_current_url();
 			if ( 'yes' === $options['use_oidc_for_wp_users'] ) {
 				if ( 'logout' === $type
@@ -348,17 +348,17 @@ class OIDC {
 					$return_url = \home_url();
 				}
 			}
-		} elseif ( 'home' === $return ) {
+		} elseif ( 'home' === $return_to ) {
 			$return_url = \home_url();
 		} else {
-			// $return is a full URL or URL path.
-			$return_url = \esc_url_raw( $return );
+			// $return_to is a full URL or URL path.
+			$return_url = \esc_url_raw( $return_to );
 			if ( '' === $return_url ) {
 				$return_url = \home_url();
 			}
 		}
 
-		if ( 'home' === $return ) {
+		if ( 'home' === $return_to ) {
 			$return_query_string = '';
 		} else {
 			$verifier            = $this->create_verifier( $return_url );

@@ -135,11 +135,11 @@ class PHP_Session {
 	 * conflicts with other plugins.
 	 *
 	 * @param string $key Session key to get.
-	 * @param string $default Optional. Session key to get. Defaults to ''.
+	 * @param string $default_value Optional. Session key to get. Defaults to ''.
 	 *
 	 * @return mixed Value for session key or $default if the key is not present in the session.
 	 */
-	public function get( $key, $default = '' ) {
+	public function get( $key, $default_value = '' ) {
 		/*
 		 * Don't start a session unless one exists, otherwise
 		 * we'll always be bypassing caching and performance will
@@ -147,7 +147,7 @@ class PHP_Session {
 		 */
 		if ( ! \array_key_exists( \session_name(), $_COOKIE ) ) {
 			log_message( "session get {$key} - no session cookie" );
-			return $default;
+			return $default_value;
 		}
 
 		$this->start();
@@ -156,7 +156,7 @@ class PHP_Session {
 		if ( isset( $_SESSION ) && \array_key_exists( $key, $_SESSION ) ) {
 			return $_SESSION[ $key ];
 		}
-		return $default;
+		return $default_value;
 	}
 
 	/**

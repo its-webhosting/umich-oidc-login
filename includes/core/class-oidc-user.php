@@ -156,11 +156,11 @@ class OIDC_User {
 	 * Get a piece of userinfo for an authenticated user.
 	 *
 	 * @param string $key What userinfo to get.  This key will be mapped trough the plugin claim_for_ options unless it starts with "userinfo:".
-	 * @param mixed  $default What to return if the requested userinfo is not found.
+	 * @param mixed  $default_value What to return if the requested userinfo is not found.
 	 *
 	 * @return mixed
 	 */
-	public function get_userinfo( $key, $default = '' ) {
+	public function get_userinfo( $key, $default_value = '' ) {
 
 		if ( ! $this->initialized ) {
 			$this->init();
@@ -184,7 +184,7 @@ class OIDC_User {
 
 		log_message( "looking up userinfo {$key}" );
 		if ( '' === $key || ! \is_object( $this->userinfo ) || ! \property_exists( $this->userinfo, $key ) ) {
-			return $default;
+			return $default_value;
 		}
 		return $this->userinfo->$key;
 	}
