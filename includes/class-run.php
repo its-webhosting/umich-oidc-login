@@ -116,6 +116,13 @@ class Run {
 	public $restrict_access;
 
 	/**
+	 * Restrict_Access object.
+	 *
+	 * @var      object    $post_meta_box    Post_Meta_Box object.
+	 */
+	public $post_meta_box;
+
+	/**
 	 * Settings_Page object.
 	 *
 	 * @var      object    $settings_page    Settings_Page object.
