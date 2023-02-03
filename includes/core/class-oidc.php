@@ -122,14 +122,14 @@ class OIDC {
 
 		$message = "
 			<h1>{$header}</h1>
-			<p>We're sorry for the problem.  Please try the options below. ${help}</p>
+			<p>We're sorry for the problem.  Please try the options below. {$help}</p>
 			<ul>
 			<li><a href='{$home}'>Go to the main page</a></li>
 			<li><a href='{$login}'>Try logging in again</a></li>
 			<li><a href='javascript:history.back()'>Go back to the page you were just on</a></li>
 			</ul>
 			<p>Technical details:</p>
-			<code>${details}</code>
+			<code>{$details}</code>
 			";
 		\wp_die(
 			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- we escaped everything above.

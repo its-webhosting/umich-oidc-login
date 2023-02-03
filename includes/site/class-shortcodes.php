@@ -399,12 +399,12 @@ class Shortcodes {
 		}
 
 		if ( 'umich_oidc_member' === $tag && 0 === $matches ) {
-			log_message( "${tag}: no groups match, denying" );
+			log_message( "{$tag}: no groups match, denying" );
 			return '';
 		}
 		if ( 'umich_oidc_not_member' === $tag && 0 !== $matches ) {
 			// all groups must not match.
-			log_message( "${tag}: at least one group matches, denying" );
+			log_message( "{$tag}: at least one group matches, denying" );
 			return '';
 		}
 
