@@ -1,0 +1,45 @@
+/**
+ * Styles for the WP React OptionsKit frontend "TabFields" component.
+ *
+ * @copyright  2023 Regents of the University of Michigan
+ * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
+ */
+
+.optionskit-form .form-table {
+
+	padding: 2em 0 1em 0;
+	line-height: 1.5;
+
+	.optionskit-field-row {
+		margin-bottom: 2em;
+	}
+
+	.optionskit-field-label {
+		font-weight: 700; // bold
+		padding-bottom: 0.5em;
+	}
+
+	.is-error {
+		font-weight: 700; // bold
+		color: #000;
+		margin: 5px 0;
+	}
+
+	.components-radio-control__option {
+		margin-bottom: 0.5em;
+	}
+
+	// Prevent multiselect from being too big
+	.optionskit-multiselect-field input[type="text"] {
+		min-height: 1px;
+	}
+
+}
+
+.optionskit-form-wrapper {
+
+	.description {
+		font-style: normal;
+	}
+
+}

@@ -16,7 +16,7 @@ $settings_tab_general = array(
 		'id'      => 'use_oidc_for_wp_users',
 		'name'    => 'Use OIDC for WordPress Users',
 		'desc'    => '
-<br /><p><b>IMPORTANT:</b> Before setting this to YES,</p>
+<p><b>IMPORTANT:</b> Before setting this to YES,</p>
 <ul style="list-style-type: disc;">
 <li>Make sure you can log in to the website using OIDC. Otherwise, you will lock yourself out of your WordPress dashboard.</li>
 <li>Make sure the username for each WordPress user is the same as their OIDC username. WordPress users with usernames that are different from the person\'s OIDC username will either not be accessible at all, or will be accessible by a different person than you intend.</li>

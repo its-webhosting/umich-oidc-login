@@ -23,8 +23,8 @@ $loginlogout_type_attribute_description = '
 $return_attribute_description = '
 <b>return</b> - <i>Optional. Defaults to "setting" for login URLs, "smart" for logout URLs.</i> Where to send the user after they successfully login or logout.  Can be any of the following:
 <table style="margin-left: 1em;">
-<tr><th style="padding: 4px;">smart</th><td style="padding: 4px;"><i>Can only be used for logout.</i> Send the user back to the page the shortcode is on, if that page is public (accessible by everyone without logging in). Otherwise, send the user to the <a href="#/general">Logout Destination URL</a>, if one has been set.  Otherwise, send the user to the site\'s main page.</td></tr>
-<tr><th style="padding: 4px;">setting</th><td style="padding: 4px;">Send the user to the <a href="#/general">Login Destination URL</a> (when logging in) or <a href="#/general">Logout Destination URL</a> (when logging out), if the appropriate one has been set.  Otherwise, send the user to the site\'s main page.</td></tr>
+<tr><th style="padding: 4px;">smart</th><td style="padding: 4px;"><i>Can only be used for logout.</i> Send the user back to the page the shortcode is on, if that page is public (accessible by everyone without logging in). Otherwise, send the user to the <a href="#general/logout_return_url">Logout Destination URL</a>, if one has been set.  Otherwise, send the user to the site\'s main page.</td></tr>
+<tr><th style="padding: 4px;">setting</th><td style="padding: 4px;">Send the user to the <a href="#general/login_return_url">Login Destination URL</a> (when logging in) or <a href="#general/logout_return_url">Logout Destination URL</a> (when logging out), if the appropriate one has been set.  Otherwise, send the user to the site\'s main page.</td></tr>
 <tr><th style="padding: 4px;">here</th><td style="padding: 4px;">Send the user back to the page the shortcode was on.</td></tr>
 <tr><th style="padding: 4px;">home</th><td style="padding: 4px;">Send the user to the site\'s main page.</td></tr>
 <tr><th style="padding: 4px;"><i>URL</i></th><td style="padding: 4px;">Send the user to the specified URL within the site.  Can be either a full URL within the site (starting with "https://"), or a URL path on the site (starting with "/"). If <code>return</code> starts with anything else, the user will be sent to the site\'s main page. <b>NOTE:</b> <i>Due to security constraints, only URLs for the site will work.  URLs for things outside the site will generate an error.</i></td></tr>
@@ -37,16 +37,16 @@ $settings_tab_shortcodes = array(
 		'name' => 'SHORTCODES',
 		'type' => 'html',
 		'html' => '
-<p>The shortcodes below can be used in your content, widgets, and themes to control what shows up for different users.</p>
+The shortcodes below can be used in your content, widgets, and themes to control what shows up for different users.<br /><br />
 <table style="margin-left: 1em;">
-<tr><th style="padding: 4px;"><a onclick="document.getElementById(\'umich_oidc_button\').scrollIntoView(); return false;"><code>umich_oidc_button</code></a></th><td style="padding: 4px;">Generate a login or logout button.</td></tr>
-<tr><th style="padding: 4px;"><a onclick="document.getElementById(\'umich_oidc_link\').scrollIntoView(); return false;"><code>umich_oidc_link</code></a></th><td style="padding: 4px;">Generate a login or logout link.</td></tr>
-<tr><th style="padding: 4px;"><a onclick="document.getElementById(\'umich_oidc_logged_in\').scrollIntoView(); return false;"><code>umich_oidc_logged_in</code></a></th><td style="padding: 4px;">Show content only if the visitor is logged in.</td></tr>
-<tr><th style="padding: 4px;"><a onclick="document.getElementById(\'umich_oidc_member\').scrollIntoView(); return false;"><code>umich_oidc_member</code></a></th><td style="padding: 4px;">Show content only if the visitor is a member of one or more groups.</td></tr>
-<tr><th style="padding: 4px;"><a onclick="document.getElementById(\'umich_oidc_not_logged_in\').scrollIntoView(); return false;"><code>umich_oidc_not_logged_in</code></a></th><td style="padding: 4px;">Show content only if the visitor is NOT logged in.</td></tr>
-<tr><th style="padding: 4px;"><a onclick="document.getElementById(\'umich_oidc_not_member\').scrollIntoView(); return false;"><code>umich_oidc_not_member</code></a></th><td style="padding: 4px;">Show content only if the visitor NOT a member of any of the specified groups.</td></tr>
-<tr><th style="padding: 4px;"><a onclick="document.getElementById(\'umich_oidc_url\').scrollIntoView(); return false;"><code>umich_oidc_url</code></a></th><td style="padding: 4px;">Generate a login or logout URL.</td></tr>
-<tr><th style="padding: 4px;"><a onclick="document.getElementById(\'umich_oidc_userinfo\').scrollIntoView(); return false;"><code>umich_oidc_userinfo</code></a></th><td style="padding: 4px;">Display information about the currently-logged-in OIDC user.</td></tr>
+<tr><th style="padding: 4px;"><a href="#shortcodes/shortcodes_button"><code>umich_oidc_button</code></a></th><td style="padding: 4px;">Generate a login or logout button.</td></tr>
+<tr><th style="padding: 4px;"><a href="#shortcodes/shortcodes_link"><code>umich_oidc_link</code></a></th><td style="padding: 4px;">Generate a login or logout link.</td></tr>
+<tr><th style="padding: 4px;"><a href="#shortcodes/shortcodes_logged_in"><code>umich_oidc_logged_in</code></a></th><td style="padding: 4px;">Show content only if the visitor is logged in.</td></tr>
+<tr><th style="padding: 4px;"><a href="#shortcodes/shortcodes_member"><code>umich_oidc_member</code></a></th><td style="padding: 4px;">Show content only if the visitor is a member of one or more groups.</td></tr>
+<tr><th style="padding: 4px;"><a href="#shortcodes/shortcodes_not_logged_in"><code>umich_oidc_not_logged_in</code></a></th><td style="padding: 4px;">Show content only if the visitor is NOT logged in.</td></tr>
+<tr><th style="padding: 4px;"><a href="#shortcodes/shortcodes_not_member"><code>umich_oidc_not_member</code></a></th><td style="padding: 4px;">Show content only if the visitor NOT a member of any of the specified groups.</td></tr>
+<tr><th style="padding: 4px;"><a href="#shortcodes/shortcodes_url"><code>umich_oidc_url</code></a></th><td style="padding: 4px;">Generate a login or logout URL.</td></tr>
+<tr><th style="padding: 4px;"><a href="#shortcodes/shortcodes_userinfo"><code>umich_oidc_userinfo</code></a></th><td style="padding: 4px;">Display information about the currently-logged-in OIDC user.</td></tr>
 </table>
 		',
 	),

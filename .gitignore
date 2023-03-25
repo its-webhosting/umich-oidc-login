@@ -1,4 +1,6 @@
-/build
 /vendor
+build
+node_modules
 .*.swp
 *~
+.DS_Store

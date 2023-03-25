@@ -46,7 +46,7 @@ class Settings_Page {
 
 		$this->ctx = $ctx;
 
-		$this->panel = new \UMich_OIDC\Vendor\TDP\OptionsKit( 'umich_oidc' );
+		$this->panel = new \UMich_OIDC_Login\Admin\WP_React_OptionsKit\React_OptionsKit( 'umich_oidc' );
 		$this->panel->set_page_title( 'UMich OIDC Login Settings' );
 
 		// Setup the options panel menu.
@@ -65,7 +65,29 @@ class Settings_Page {
 		\add_filter( 'umich_oidc_settings_sanitize_logout_return_url', array( $this, 'sanitize_url' ), 3, 10 );
 		\add_filter( 'umich_oidc_settings_sanitize_restrict_site', array( $this, 'sanitize_group_choices' ), 3, 10 );
 
-		\add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+		$options          = $this->ctx->options;
+		$missing_options  = '';
+		$separator        = ' ';
+		$required_options = array(
+			'provider_url'  => 'Identity Provider URL',
+			'client_id'     => 'Client ID',
+			'client_secret' => 'Client Secret',
+		);
+		foreach ( \array_keys( $required_options ) as $opt ) {
+			if ( ! \array_key_exists( $opt, $options ) ||
+				'' === $options[ $opt ] ) {
+				$opt_name         = $required_options[ $opt ];
+				$missing_options .= "{$separator}<a href='#oidc/{$opt}'>{$opt_name}</a>";
+				$separator        = ', ';
+			}
+		}
+		if ( '' !== $missing_options ) {
+			$this->panel->add_notice( 'missing-options', 'warning', "UMich OIDC Login requires the following options to be set before users will be able to log in via OIDC: {$missing_options}" );
+		}
+
+		if ( ! \class_exists( 'Pantheon_Sessions' ) ) {
+			$this->panel->add_notice( 'pantheon-plugin', 'warning', 'UMich OIDC Login strongly recommends using the <a href="https://wordpress.org/plugins/wp-native-php-sessions/" target="_blank">WordPress Native PHP Sessions</a> plugin to prevent conflicts with other WordPress plugins that also use PHP sessions, and to ensure correct operation when the site has multiple web servers.' );
+		}
 	}
 
 	/**
@@ -198,7 +220,7 @@ class Settings_Page {
 	 * Sanitize the IdP URL
 	 *
 	 * @param string $input URL to sanitize.
-	 * @param object $errors WP_Errror object for errors that are found.
+	 * @param object $errors WP_Error object for errors that are found.
 	 * @param array  $setting The wp-optionskit setting array for the URL field.
 	 * @return string
 	 */
@@ -210,7 +232,12 @@ class Settings_Page {
 		}
 
 		$input = \trim( $input );
-		$url   = \esc_url_raw( $input, array( 'https' ) );
+		if ( '' === $input ) {
+			// Allow people to save other settings before saving
+			// the provider URL.
+			return;
+		}
+		$url = \esc_url_raw( $input, array( 'https' ) );
 		if ( '' === $url ) {
 			$errors->add( 'provider_url', 'Must be a URL starting with https://' );
 			return '';
@@ -218,7 +245,10 @@ class Settings_Page {
 		$url     = \rtrim( $url, '/' );
 		$request = \wp_safe_remote_get( $url . '/.well-known/openid-configuration' );
 		if ( \is_wp_error( $request ) ) {
-			$errors->add( 'provider_url', 'Does not appear to be an OpenID Identity Provider: unable to retrieve ' . \esc_url( $url ) . '/.well-known/openid-configuration' );
+			$msg = 'Does not appear to be an OpenID Identity Provider: unable to retrieve ' . \esc_url( $url ) . '/.well-known/openid-configuration';
+			$errors->add( 'provider_url', $msg );
+			log_message( $msg );
+			log_message( $request );
 			return '';
 		}
 		$body = \wp_remote_retrieve_body( $request );
@@ -234,7 +264,7 @@ class Settings_Page {
 	 * Sanitize the list of scopes
 	 *
 	 * @param string $input Space separated list of scopes to sanitize.
-	 * @param object $errors WP_Errror object for errors that are found.
+	 * @param object $errors WP_Error object for errors that are found.
 	 * @param array  $setting The wp-optionskit setting array for the scopes field.
 	 * @return string
 	 */
@@ -275,7 +305,7 @@ class Settings_Page {
 	 * Sanitize the list of available groups
 	 *
 	 * @param string $input Array of group names to sanitize.
-	 * @param object $errors WP_Errror object for errors that are found.
+	 * @param object $errors WP_Error object for errors that are found.
 	 * @param array  $setting The wp-optionskit setting array for the groups field.
 	 * @return array
 	 */
@@ -325,7 +355,7 @@ class Settings_Page {
 	 * Sanitize a URL
 	 *
 	 * @param string $input URL to sanitize.
-	 * @param object $errors WP_Errror object for errors that are found.
+	 * @param object $errors WP_Error object for errors that are found.
 	 * @param array  $setting The wp-optionskit setting array for the URL field.
 	 * @return string
 	 */
@@ -349,32 +379,6 @@ class Settings_Page {
 			return '';
 		}
 		return $input;
-	}
-
-	/**
-	 * Display admin notices about configuration problems.
-	 *
-	 * Called by the admin_notices action.
-	 *
-	 * @return void
-	 */
-	public function admin_notices() {
-
-		// Only display notices on our own plugin settings pages.
-		global $plugin_page;
-		if ( 'umich_oidc-settings' !== $plugin_page ) {
-			return;
-		}
-
-		if ( ! \class_exists( 'Pantheon_Sessions' ) ) {
-
-			?>
-			<div class="notice notice-warning is-dismissible">
-				<p><?php echo "UMich OIDC Login strongly recommends using the <a href='https://wordpress.org/plugins/wp-native-php-sessions/' target='_blank'>WordPress Native PHP Sessions</a> plugin to prevent conflicts with other WordPress plugins that also use PHP sessions and to ensure correct operation when the site has multiple web servers."; ?></p>
-			</div>
-			<?php
-
-		}
 	}
 
 }

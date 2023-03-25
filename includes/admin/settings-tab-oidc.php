@@ -19,9 +19,10 @@ $settings_tab_oidc = array(
 		'name' => 'Redirect URI',
 		'type' => 'html',
 		'html' => "
-<input type='text' name='redirect-uri-placeholder' id='redirect-url-placeholder' class='opk-field regular-text' value='$redirect_url' style='width: 100%;' readonly>
-<br />
-<p>You may need to provide this information to your OIDC Identity Provider (IdP) in order to register the website as an OIDC client / Relying Party (RP) and obtain a Client ID and Client Secret to use below. It is not currently posssible to customize this value.</p>
+<input type='text' name='redirect-uri-placeholder' id='redirect-uri-placeholder' class='optionskit-field-input' aria-details='redirect-uri-placeholder-help' value='$redirect_url' style='width: 100%;' readonly>
+<div class='optionskit-field-help' id='redirect-uri-placeholder-help'>
+You may need to provide this information to your OIDC Identity Provider (IdP) in order to register the website as an OIDC client / Relying Party (RP) and obtain a Client ID and Client Secret to use below. It is not currently posssible to customize this value.
+</div>
 		",
 	),
 	array(
