@@ -2,7 +2,7 @@
 Contributors: markmont
 Tags: access-control,OIDC,content restriction,groups,login
 Requires at least: 6.0.0
-Tested up to: 6.2.0
+Tested up to: 6.2.1
 Stable tag: 1.1.2
 Requires PHP: 7.3
 License: GPLv3 or later
