@@ -2,8 +2,8 @@
 Contributors: markmont
 Tags: access-control,OIDC,content restriction,groups,login
 Requires at least: 6.0.0
-Tested up to: 6.1.0
-Stable tag: 1.1.1
+Tested up to: 6.2.0
+Stable tag: 1.1.2
 Requires PHP: 7.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -94,6 +94,9 @@ If you don't remember your WordPress user account password, you can set a new on
 
 == Changelog ==
 
+= 1.1.2 =
+* Fixed a bug that prevented groups that have apostrophes / single quotes in their names from working.
+
 = 1.1.1 =
 * Fixed a bug with login/logout URLs being incorrect when WordPress is installed in a subdirectory.
 
@@ -110,6 +113,9 @@ If you don't remember your WordPress user account password, you can set a new on
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.2 =
+* Fixes a bug that prevents groups that have apostrophes / single quotes in their names from working.
 
 = 1.1.1 =
 * Fixes a bug with login/logout URLs being incorrect when WordPress is installed in a subdirectory.
