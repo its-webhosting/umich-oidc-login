@@ -63,6 +63,7 @@ class Settings_Page {
 		\add_filter( 'umich_oidc_settings_sanitize_scopes', array( $this, 'sanitize_scopes' ), 3, 10 );
 		\add_filter( 'umich_oidc_settings_sanitize_login_return_url', array( $this, 'sanitize_url' ), 3, 10 );
 		\add_filter( 'umich_oidc_settings_sanitize_logout_return_url', array( $this, 'sanitize_url' ), 3, 10 );
+		\add_filter( 'umich_oidc_settings_sanitize_available_groups', array( $this, 'sanitize_available_groups' ), 3, 10 );
 		\add_filter( 'umich_oidc_settings_sanitize_restrict_site', array( $this, 'sanitize_group_choices' ), 3, 10 );
 
 		$options          = $this->ctx->options;
@@ -180,10 +181,9 @@ class Settings_Page {
 		$available = \array_map( '\trim', \explode( ',', $options['available_groups'] ) );
 		foreach ( $available as $a ) {
 			if ( '' !== $a ) {
-				$v        = \esc_attr( $a );
 				$groups[] = array(
-					'value' => $v,
-					'label' => $v,
+					'value' => $a,
+					'label' => $a, // TODO: the current Vue Multiselect element does not need and can't handle escaping, but future Multiselect elements may need escaping.
 				);
 			}
 		}
@@ -302,7 +302,37 @@ class Settings_Page {
 	}
 
 	/**
-	 * Sanitize the list of available groups
+	 * Sanitize the list of available groups.
+	 *
+	 * @param string $input comma-separated list of groups to sanitize.
+	 * @param object $errors WP_Errror object for errors that are found.
+	 * @param array  $setting The wp-optionskit setting array for the available_groups field.
+	 * @return string
+	 */
+	public function sanitize_available_groups( $input, $errors, $setting ) {
+
+		$field_id = $setting['id'];
+
+		if ( ! \is_string( $input ) ) {
+			$errors->add( $field_id, 'Internal error (not a string)' );
+			return '';
+		}
+
+		$input = \trim( $input );
+		if ( '' === $input ) {
+			return '';
+		}
+
+		// Single quotes are legal in group names, unescape them.
+		$input = str_replace( "\\'", "'", $input );
+
+		log_message( "available groups: |$input|" );
+		return $input;
+
+	}
+
+	/**
+	 * Sanitize the list of selected groups.
 	 *
 	 * @param string $input Array of group names to sanitize.
 	 * @param object $errors WP_Error object for errors that are found.

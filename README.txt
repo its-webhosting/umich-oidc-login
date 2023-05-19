@@ -2,8 +2,8 @@
 Contributors: markmont
 Tags: access-control,OIDC,content restriction,groups,login
 Requires at least: 6.0.0
-Tested up to: 6.1.0
-Stable tag: 1.1.1
+Tested up to: 6.2.1
+Stable tag: 1.1.2
 Requires PHP: 7.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -94,10 +94,13 @@ If you don't remember your WordPress user account password, you can set a new on
 
 == Changelog ==
 
-= 1.1.1 =
+= 1.1.2 - May 18, 2023 =
+* Fixed a bug that prevented groups that have apostrophes / single quotes in their names from working.
+
+= 1.1.1 - January 31, 2023 =
 * Fixed a bug with login/logout URLs being incorrect when WordPress is installed in a subdirectory.
 
-= 1.1.0 =
+= 1.1.0 - January 8, 2023 =
 * Completely reimplemented the feature for using OIDC to log into the WordPress dashboard.
     * Changed the setting values from no/yes to no/optional/yes. The new setting ("optional") allows users a choice of whether to log in using OIDC or their WordPress password. Choosing which way to log in looked like it was supported before when it was not, which was confusing.
     * The "no" setting previously displayed a "Login in with Single Sign On" button that would only log users into the website but not the WordPress dashboard.  This was confusing, and so the button has been removed when OIDC login for WordPress is set to "no".
@@ -106,10 +109,13 @@ If you don't remember your WordPress user account password, you can set a new on
 * Fixed a bug where users were sometimes not sent to the correct page after authenticating.
 * Miscellaneous cleanup and improvements.
 
-= 1.0.0 =
+= 1.0.0 - November 2, 2022 =
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.2 =
+* Fixes a bug that prevents groups that have apostrophes / single quotes in their names from working.
 
 = 1.1.1 =
 * Fixes a bug with login/logout URLs being incorrect when WordPress is installed in a subdirectory.
