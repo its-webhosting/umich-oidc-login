@@ -8,7 +8,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:       UMich OIDC Login
- * Plugin URI:        https://github.umich.edu/its-webhosting/umich-oidc-login/
+ * Plugin URI:        https://github.com/its-webhosting/umich-oidc-login/
  * Description:       Restrict access to the whole site or only certain parts based on OpenID Connect (OIDC) login and group membership information.
  * Version:           1.1.2
  * Author:            Regents of the University of Michigan
