@@ -321,7 +321,7 @@ class OIDC {
 			}
 		}
 
-		if ( 'setting' === $return ) {
+		if ( 'setting' === $return_to ) {
 			$return_to = $options[ $type . '_return_url' ];
 			if ( '' === $return_to ) {
 				$return_to = ( 'login' === $type ) ? 'here' : \home_url();
