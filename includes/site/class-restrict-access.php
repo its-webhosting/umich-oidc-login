@@ -475,17 +475,24 @@ class Restrict_Access {
 		if ( 'ids' !== $query->query_vars['fields'] || empty( $query->query_vars['post_type'] ) ) {
 			return $found_posts;
 		}
-		if ( null === $query->posts ) {
-			return $found_posts;
-		}
-		if ( \is_integer( $query->posts ) ) {
-			$query->posts = array( $query->posts );
-		}
 
 		$result = $this->check_site_access();
 		if ( self::ALLOWED !== $result ) {
 			$query->posts      = array();
 			$query->post_count = 0;
+			return 0;
+		}
+
+		if ( null === $query->posts ) {
+			return $found_posts;
+		}
+		if ( \is_integer( $query->posts ) ) {
+			$access = $this->ctx->settings_page->post_access_groups( $query->posts );
+			$result = $this->check_access( $access );
+			if ( self::ALLOWED === $result ) {
+				return $found_posts;
+			}
+			$query->posts = null;
 			return 0;
 		}
 
@@ -495,16 +502,15 @@ class Restrict_Access {
 			$result = $this->check_access( $access );
 			if ( self::ALLOWED === $result ) {
 				$posts[] = $post;
+			} else {
+				$found_posts =- 1;
 			}
 		}
-
-		$new_found_posts   = count( $posts );
-		$query->posts      = $posts;
-		$query->post_count = $new_found_posts;
-		if ( $found_posts > $new_found_posts ) {
-			$found_posts = $new_found_posts;
+		if ( $found_posts < 0 ) {
+			$found_posts = 0;
 		}
-
+		$query->posts      = $posts;
+		$query->post_count = count( $posts );
 		return $found_posts;
 	}
 
