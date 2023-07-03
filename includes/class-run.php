@@ -37,8 +37,8 @@ class Run {
 	 * Default values for plugin options.  Used on the plugin settings page.
 	 *
 	 * Don't set a default for any of the following options, we want the
-	 * want the autentication to fail if any of these are not preset:
-	 * present: 'provider_url', 'client_id', 'client_secret'.
+	 * authentication to fail if any of these are not present:
+	 *   'provider_url', 'client_id', 'client_secret'.
 	 *
 	 * @var      array    $option_defaults    Option default values.
 	 */
@@ -276,14 +276,24 @@ class Run {
 		\add_filter( 'xmlrpc_prepare_post', array( $this->restrict_access, 'xmlrpc_prepare_post' ), 0, 3 );
 		\add_filter( 'xmlrpc_prepare_page', array( $this->restrict_access, 'xmlrpc_prepare_post' ), 0, 3 );
 		\add_filter( 'xmlrpc_prepare_comment', array( $this->restrict_access, 'xmlrpc_prepare_comment' ), 0, 2 );
-
-		$this->post_meta_box = new \UMich_OIDC_Login\Admin\Post_Meta_Box( $this );
-		\add_filter( 'add_meta_boxes', array( $this->post_meta_box, 'access_meta_box' ) );
-		\add_action( 'admin_enqueue_scripts', array( $this->post_meta_box, 'admin_scripts' ) );
-		\add_filter( 'save_post', array( $this->post_meta_box, 'access_meta_box_save' ) );
 		\add_action( 'xmlrpc_call', array( $this->restrict_access, 'xmlrpc_call' ), 0, 3 );
 
+		// TODO: remove/update
+		//$this->post_meta_box = new \UMich_OIDC_Login\Admin\Post_Meta_Box( $this );
+		//\add_filter( 'add_meta_boxes', array( $this->post_meta_box, 'access_meta_box' ) );
+		//\add_action( 'admin_enqueue_scripts', array( $this->post_meta_box, 'admin_scripts' ) );
+		//\add_filter( 'save_post', array( $this->post_meta_box, 'access_meta_box_save' ) );
+
+		\register_block_type( UMICH_OIDC_LOGIN_DIR . '/build/blocks/post-access' );
+		\register_block_type( UMICH_OIDC_LOGIN_DIR . '/build/blocks/logged-in' );
+		\register_post_meta( '', '_umich_oidc_access', array(
+			'show_in_rest' => true,
+			'single' => true,
+			'type' => 'string',
+		) );
+
 		$this->settings_page = new \UMich_OIDC_Login\Admin\Settings_Page( $this );
+
 	}
 
 }
