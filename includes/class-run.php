@@ -278,11 +278,12 @@ class Run {
 		\add_filter( 'xmlrpc_prepare_comment', array( $this->restrict_access, 'xmlrpc_prepare_comment' ), 0, 2 );
 		\add_action( 'xmlrpc_call', array( $this->restrict_access, 'xmlrpc_call' ), 0, 3 );
 
-		// TODO: remove/update
-		//$this->post_meta_box = new \UMich_OIDC_Login\Admin\Post_Meta_Box( $this );
-		//\add_filter( 'add_meta_boxes', array( $this->post_meta_box, 'access_meta_box' ) );
-		//\add_action( 'admin_enqueue_scripts', array( $this->post_meta_box, 'admin_scripts' ) );
-		//\add_filter( 'save_post', array( $this->post_meta_box, 'access_meta_box_save' ) );
+		// Metabox to restrict access to pages and posts.
+		// Works in both Gutenberg and the Classic Editor.
+		$this->post_meta_box = new \UMich_OIDC_Login\Admin\Post_Meta_Box( $this );
+		\add_filter( 'add_meta_boxes', array( $this->post_meta_box, 'access_meta_box' ) );
+		\add_action( 'admin_enqueue_scripts', array( $this->post_meta_box, 'admin_scripts' ) );
+		\add_filter( 'save_post', array( $this->post_meta_box, 'access_meta_box_save' ) );
 
 		\register_block_type( UMICH_OIDC_LOGIN_DIR . '/build/blocks/post-access' );
 		\register_block_type( UMICH_OIDC_LOGIN_DIR . '/build/blocks/logged-in' );

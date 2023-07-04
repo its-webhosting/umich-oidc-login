@@ -1,0 +1,24 @@
+{
+	"name": "umich-oidc-login-gutenberg",
+	"version": "0.1.0",
+	"description": "UMich OIDC Login Gutenberg blocks and Gutenberg components based access restriction metabox.",
+	"author": "Regents of the University of Michigan",
+	"license": "GPL-3.0-or-later",
+	"main": "src/metabox/index.js",
+	"scripts": {
+		"build": "wp-scripts build",
+		"build:metabox": "wp-scripts build --webpack-src-dir=src/metabox --output-path=build/metabox",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start"
+	},
+	"dependencies": {
+		"react-select": "^5.7.0"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^26.4.0"
+	}
+}

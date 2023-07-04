@@ -183,7 +183,7 @@ class Settings_Page {
 			if ( '' !== $a ) {
 				$groups[] = array(
 					'value' => $a,
-					'label' => $a, // TODO: the current Vue Multiselect element does not need and can't handle escaping, but future Multiselect elements may need escaping.
+					'label' => $a,
 				);
 			}
 		}

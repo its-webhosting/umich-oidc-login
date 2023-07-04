@@ -1,6 +1,9 @@
 <?php
 /**
- * Post Meta Box for specifying restricted access to pages and posts.
+ * Post Meta Box for restricting access to pages and posts.
+ *
+ * This is not a Gutenberg sidebar plugin because we also need the functionality
+ * in the Classic Editor.
  *
  * @package    UMich_OIDC_Login\Admin
  * @copyright  2022 Regents of the University of Michigan
@@ -17,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use function UMich_OIDC_Login\Core\log_message as log_message;
 
 /**
- * Post Meta Box for specifying restricted access to pages and posts.
+ * Post Meta Box for restricting access to pages and posts.
  *
  * @package    UMich_OIDC_Login\Admin
  */
@@ -48,10 +51,13 @@ class Post_Meta_Box {
 	 */
 	public function admin_scripts( $hook ) {
 		if ( 'post.php' === $hook || 'post-new.php' === $hook ) {
-			\wp_enqueue_script( 'umich_oidc_vue', UMICH_OIDC_LOGIN_DIR_URL . 'assets/js/vue-2.7.10.min.js', array(), UMICH_OIDC_LOGIN_VERSION, false );
-			\wp_enqueue_script( 'umich_oidc_vue_multiselect', UMICH_OIDC_LOGIN_DIR_URL . 'assets/js/vue-multiselect-2.1.0.min.js', array(), UMICH_OIDC_LOGIN_VERSION, false );
-			\wp_enqueue_style( 'umich_oidc_vue_multiselect_css', UMICH_OIDC_LOGIN_DIR_URL . 'assets/css/vue-multiselect-2.1.0.min.css', array(), UMICH_OIDC_LOGIN_VERSION );
-			\wp_enqueue_style( 'umich_oidc_multiselect_local_css', UMICH_OIDC_LOGIN_DIR_URL . 'assets/css/metabox.css', array(), UMICH_OIDC_LOGIN_VERSION );
+			wp_enqueue_script(
+				'my-theme-frontend',
+				UMICH_OIDC_LOGIN_DIR_URL . '/build/metabox/index.js',
+				array( 'wp-element', 'wp-components' ),
+				time(), // TODO Change this to module version number for production
+				true
+			);
 		}
 	}
 
@@ -88,84 +94,23 @@ class Post_Meta_Box {
 				);
 			}
 		}
-		$selected_json = \wp_json_encode( $selected );
-		if ( false === $selected_json ) {
-			$selected_json = '[]';
-		}
-		log_message( "selected groups json: {$selected_json}" );
 
-		$available_groups      = $ctx->settings_page->available_groups();
-		$available_groups_json = \wp_json_encode( $available_groups );
-		if ( false === $available_groups_json ) {
-			$available_groups_json = '[]';
-		}
+		$settings = array(
+			'postType'        => \esc_html( $post_type ),
+			'availableGroups' => $ctx->settings_page->available_groups(),
+			'selectedGroups'  => $selected
+		);
+		$settings_json = \wp_json_encode( $settings );
+		log_message( "UMich OIDC access meta box settings: {$settings_json}" );
 
 		?>
-		<div id="umich-oidc-app">
-			<div class="umich-oidc-wrapper">
-				<label class="typo__label">Who can access this <?php echo \esc_html( $post_type ); ?>?</label>
-				<multiselect v-model="value" name="_umich_oidc_access" :options="options" :multiple="true" :allow-empty=false :close-on-select="true" :clear-on-select="false" :preserve-search="true" placeholder="Select one or more groups" label="label" track-by="value" :preselect-first="false" @close="onTouch">
-				</multiselect>
-				<label class="typo__label form__label" id="umich-oidc-access-msg" v-show="isInvalid">{{ error_msg }}</label>
-				<input type="hidden" name="_umich_oidc_access" id="_umich_oidc_access" v-bind:value="valueString" />
-			</div>
-		</div>
-
 		<script>
-			var umich_app = new Vue({
-				el: '#umich-oidc-app',
-				components: { Multiselect: window.VueMultiselect.default },
-				data: function () {
-					return {
-						value: 
-							<?php
-							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's JSON we just generated that should have proper escaping
-							echo $selected_json;
-							?>
-							,
-						isTouched: false,
-						error_msg: '',
-						options:
-							<?php
-							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's JSON we just generated that should have proper escaping.
-							echo $available_groups_json;
-							?>
-					}
-				},
-				computed: {
-					valueString: function () {
-						let valueArray = []
-						this.value.forEach(function(item) {
-							valueArray.push(item.value)
-						})
-						return valueArray.join(',');
-					},
-					isInvalid: function () {
-						this.error_msg = ''
-						if ( this.isTouched && this.value.length === 0 ) {
-							this.error_msg = "Must have at least one group"
-							return true
-						}
-						if ( this.value.length > 1 ) {
-							if ( this.value.find(({ value }) => value === '_everyone_') ) {
-								this.error_msg = '"( Everyone )" cannot be used together with other groups.';
-								return true;
-							}
-							if ( this.value.find(({ value }) => value === '_logged_in') ) {
-								this.error_msg = '"( Logged-in Users )" cannot be used together with other groups.';
-								return true;
-							}
-						}
-						return false
-					}
-				},
-				methods: {
-					onTouch: function () {
-						this.isTouched = true
-					}
-				}
-			})
-			</script>
+			window.umichOidcMetabox = <?php
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's JSON we just generated that should already have proper escaping.
+			echo $settings_json;
+			?>
+		</script>
+		<div id="umich-oidc-metabox"></div>
 		<?php
 	}
 
@@ -178,7 +123,7 @@ class Post_Meta_Box {
 
 		$ctx = $this->ctx;
 
-		\add_meta_box( 'umich_oidc_access_meta', 'Access', array( $this, 'access_meta_callback' ), array( 'post', 'page' ), 'side', 'high' );
+		\add_meta_box( 'umich_oidc_access_meta', 'UMich OIDC access', array( $this, 'access_meta_callback' ), array( 'post', 'page' ), 'side', 'high' );
 	}
 
 	/**
