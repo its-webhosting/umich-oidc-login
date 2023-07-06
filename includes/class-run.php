@@ -285,8 +285,6 @@ class Run {
 		\add_action( 'admin_enqueue_scripts', array( $this->post_meta_box, 'admin_scripts' ) );
 		\add_filter( 'save_post', array( $this->post_meta_box, 'access_meta_box_save' ) );
 
-		\register_block_type( UMICH_OIDC_LOGIN_DIR . '/build/blocks/post-access' );
-		\register_block_type( UMICH_OIDC_LOGIN_DIR . '/build/blocks/logged-in' );
 		\register_post_meta( '', '_umich_oidc_access', array(
 			'show_in_rest' => true,
 			'single' => true,

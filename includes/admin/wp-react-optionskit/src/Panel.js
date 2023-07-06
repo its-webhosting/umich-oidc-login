@@ -206,7 +206,7 @@ function FormSubmitButton( { label } ) {
  * Adapted from https://github.com/WordPress/gutenberg/blob/trunk/packages/components/src/notice/list.tsx
  *
  * Adds:
- * - each notice can specity its own status
+ * - each notice can specify its own status
  * - notice content is __unstableHTML
  * - don't reverse the order of notices in the array
  */

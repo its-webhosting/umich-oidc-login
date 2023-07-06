@@ -51,7 +51,7 @@ class Post_Meta_Box {
 	 */
 	public function admin_scripts( $hook ) {
 		if ( 'post.php' === $hook || 'post-new.php' === $hook ) {
-			wp_enqueue_script(
+			\wp_enqueue_script(
 				'umich-oidc-metabox',
 				UMICH_OIDC_LOGIN_DIR_URL . '/build/metabox/index.js',
 				array( 'wp-element', 'wp-components' ),
