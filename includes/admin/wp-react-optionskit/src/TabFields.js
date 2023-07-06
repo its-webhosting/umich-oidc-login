@@ -19,6 +19,17 @@ import Select from 'react-select';
 import parse from 'html-react-parser';
 import './TabFields.scss';
 
+// from Jason Bunting, https://stackoverflow.com/a/359910
+function executeFunctionByName(functionName, context /*, args */) {
+	var args = Array.prototype.slice.call(arguments, 2);
+	var namespaces = functionName.split(".");
+	var func = namespaces.pop();
+	for(var i = 0; i < namespaces.length; i++) {
+		context = context[namespaces[i]];
+	}
+	return context[func].apply(context, args);
+}
+
 function OptionsKitTextInput( { description, ...props } ) {
 	/*
 	 * As of 2023-02-19 with @wordpress/components 23.4.0
@@ -90,8 +101,8 @@ function OptionsKitSelectInput( { description, options, ...props } ) {
 	);
 }
 
-function OptionsKitMultiSelectInput( { description, options, ...props } ) {
-	const [ field ] = useField( props );
+function OptionsKitMultiSelectInput( { description, options, labels, customValidate, ...props } ) {
+	const [ field] = useField( props );
 	const value = options.filter( ( v ) => {
 		return field.value.indexOf( v.value ) >= 0;
 	} );
@@ -127,6 +138,7 @@ function OptionsKitMultiSelectInput( { description, options, ...props } ) {
 			backgroundColor: '#007cba',
 		} ),
 	};
+
 	return (
 		<>
 			<BaseControl
@@ -138,18 +150,22 @@ function OptionsKitMultiSelectInput( { description, options, ...props } ) {
 					isMulti
 					options={ options }
 					defaultValue={ value }
+					placeholder={ labels && labels['placeholder'] ? labels['placeholder'] : 'Select...'}
 					styles={ styles }
 					{ ...props }
 					onChange={ ( v ) => {
 						const result = v.map( ( item ) => {
 							return item.value;
 						} );
-						formik.setFieldValue( props.id, result );
+						// setFieldError workaround, see https://github.com/jaredpalmer/formik/issues/1278
+						formik.setFieldValue( props.id, result, false );
+						formik.setFieldTouched( props.id, true, false );
+						formik.setFieldError(props.id, executeFunctionByName( customValidate, window, v ) );
 					} }
 					onBlur={ formik.onBlur }
 				/>
 			</BaseControl>
-			<ErrorMessage name={ props.name }>
+			<ErrorMessage name={ props.name } id={ props.id } >
 				{ ( msg ) => (
 					<Notice status="error" isDismissible={ false }>
 						{ msg }
@@ -223,6 +239,8 @@ function SettingsField( { setting } ) {
 						name={ setting.id }
 						description={ setting.desc }
 						options={ setting.options }
+						labels={ setting.labels }
+						customValidate={ setting.validate }
 					/>
 				</>
 			);

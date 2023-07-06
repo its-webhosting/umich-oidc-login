@@ -93,9 +93,9 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 		'name'     => 'Who can access this site?',
 		'desc'     => 'Allow only members of these groups (plus administrators) to access this site.',
 		'type'     => 'multiselect',
-		'multiple' => true,
-		'labels'   => array( 'placeholder' => 'Select one or more groups' ),
+		'labels'   => array( 'placeholder' => 'Select one or more groups...' ),
 		'options'  => $this->available_groups(),
+		'validate' => 'umichOidcSettings.validateRestrictSite',
 		'std'      => $option_defaults['restrict_site'],
 	),
 	array(

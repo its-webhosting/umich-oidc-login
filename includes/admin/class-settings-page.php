@@ -66,6 +66,14 @@ class Settings_Page {
 		\add_filter( 'umich_oidc_settings_sanitize_available_groups', array( $this, 'sanitize_available_groups' ), 3, 10 );
 		\add_filter( 'umich_oidc_settings_sanitize_restrict_site', array( $this, 'sanitize_group_choices' ), 3, 10 );
 
+		\wp_enqueue_script(
+			'umich-oidc-settings',
+			UMICH_OIDC_LOGIN_DIR_URL . '/assets/js/settings.js',
+			array(),
+			UMICH_OIDC_LOGIN_VERSION_INT + time(),  // TODO: remove time()
+			true
+		);
+
 		$options          = $this->ctx->options;
 		$missing_options  = '';
 		$separator        = ' ';
