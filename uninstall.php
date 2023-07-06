@@ -60,7 +60,6 @@ function umich_oidc_login_uninstall() {
 	 *
 	 * @see https://developer.wordpress.org/plugins/plugin-basics/uninstall-methods/#method-2-uninstall-php
 	 */
-
 }
 
 umich_oidc_login_uninstall();

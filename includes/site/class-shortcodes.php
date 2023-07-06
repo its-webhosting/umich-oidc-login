@@ -106,7 +106,6 @@ class Shortcodes {
 		}
 
 		return $unprintable;
-
 	}
 
 	/**
@@ -144,7 +143,6 @@ class Shortcodes {
 
 		$oidc = $ctx->oidc;
 		return $oidc->get_oidc_url( $type, $return );
-
 	}
 
 	/**
@@ -219,7 +217,6 @@ class Shortcodes {
 
 		log_message( 'unrecognzed element, supressing button/link shortcode output' );
 		return '';
-
 	}
 
 	/**
@@ -344,7 +341,6 @@ class Shortcodes {
 		}
 
 		return $content;
-
 	}
 
 	/**
@@ -399,16 +395,16 @@ class Shortcodes {
 		$matches = \count( \array_intersect( $groups, $user_groups ) );
 		if ( $is_wp_admin ) {
 			// A WordPress administrator is considered a member of all groups.
-			$matches++;
+			++$matches;
 		}
 
 		if ( 'umich_oidc_member' === $tag && 0 === $matches ) {
-			log_message( "${tag}: no groups match, denying" );
+			log_message( "{$tag}: no groups match, denying" );
 			return '';
 		}
 		if ( 'umich_oidc_not_member' === $tag && 0 !== $matches ) {
 			// all groups must not match.
-			log_message( "${tag}: at least one group matches, denying" );
+			log_message( "{$tag}: at least one group matches, denying" );
 			return '';
 		}
 
@@ -420,7 +416,6 @@ class Shortcodes {
 		}
 
 		return $content;
-
 	}
 
 	/**
@@ -460,7 +455,6 @@ class Shortcodes {
 		$content .= '<div style="width: 100%; text-align: center; padding-top: 1em;">&mdash; <i>or, log in with a local WordPress account</i> &mdash;';
 
 		return $content;
-
 	}
 
 }

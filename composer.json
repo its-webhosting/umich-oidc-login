@@ -16,8 +16,7 @@
     },
     "require": {
         "php": ">=7.3",
-        "jumbojett/openid-connect-php": "^0.9.10",
-        "wp-user-manager/wp-optionskit": "^1.1"
+        "jumbojett/openid-connect-php": "^0.9.10"
     },
     "config": {
         "allow-plugins": {

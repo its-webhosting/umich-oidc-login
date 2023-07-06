@@ -15,9 +15,23 @@ $settings_tab_general = array(
 	array(
 		'id'      => 'use_oidc_for_wp_users',
 		'name'    => 'Use OIDC for WordPress Users',
-		'desc'    => '
-<br /><p><b>IMPORTANT:</b> Before setting this to YES,</p>
-<ul style="list-style-type: disc;">
+		'desc'    => '',
+		'type'    => 'radio',
+		'options' => array(
+			'no'       => 'NO: Require WordPress users to use their WordPress password, even if they are already logged in to the website using OIDC.',
+			'optional' => 'OPTIONAL: Allow people to log in to the WordPress dashboard using either OIDC or their WordPress password.  Using OIDC will log them in to both the website and the WordPress dashboard, while using their WordPress password will log them into WordPress but not log them in to the website.  WARNING: you need to make sure the OIDC user and the WordPress user are always the same person! Don\'t create a WordPress user using a different person\'s OIDC username.',
+			'yes'      => 'YES: Require WordPress users to use OIDC to log in to the WordPress dashboard.  This will also log them in to the website.',
+		),
+		'std'     => $option_defaults['use_oidc_for_wp_users'],
+	),
+	array(
+		'id'   => 'use_oidc_for_wp_users_description',
+		'name' => '',
+		'type' => 'html',
+		'html' => '
+<div style="font-size: smaller">
+<b>IMPORTANT:</b> Before setting this to YES,<br />
+<ul style="list-style-type: disc; margin: 2px 1em;">
 <li>Make sure you can log in to the website using OIDC. Otherwise, you will lock yourself out of your WordPress dashboard.</li>
 <li>Make sure the username for each WordPress user is the same as their OIDC username. WordPress users with usernames that are different from the person\'s OIDC username will either not be accessible at all, or will be accessible by a different person than you intend.</li>
 </ul>
@@ -28,14 +42,8 @@ wp option patch delete umich_oidc_settings use_oidc_for_wp_users
 # Set a new WordPress password if you forgot it:
 wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 </pre>
+</div>
 		',
-		'type'    => 'radio',
-		'options' => array(
-			'no'       => 'NO: Require WordPress users to use their WordPress password, even if they are already logged in to the website using OIDC.',
-			'optional' => 'OPTIONAL: Allow people to log in to the WordPress dashboard using either OIDC or their WordPress password.  Using OIDC will log them in to both the website and the WordPress dashboard, while using their WordPress password will log them into WordPress but not log them in to the website.  WARNING: you need to make sure the OIDC user and the WordPress user are always the same person! Don\'t create a WordPress user using a different person\'s OIDC username.',
-			'yes'      => 'YES: Require WordPress users to use OIDC to log in to the WordPress dashboard.  This will also log them in to the website.',
-		),
-		'std'     => $option_defaults['use_oidc_for_wp_users'],
 	),
 	array(
 		'id'      => 'login_action',
@@ -77,7 +85,7 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 	array(
 		'id'   => 'available_groups',
 		'name' => 'Groups for Authorization',
-		'desc' => 'One or more group names to use for authorization, separated by commas. The name of a group can contain spaces.<p><b style="background-color: #FFFFCC;">IMPORTANT NOTE: only the <i>official</i> name of the group will work.  The "also known as" names for the group will not work.  University of Michigan users can find the official name for a group on the group\'s MCommunity page, in large type at the top of the main section.</b></p><p>After entering or changing these group(s), you must click the "Save Changes" button in order to make these groups available in the fields below.</p>',
+		'desc' => 'One or more group names to use for authorization, separated by commas. The name of a group can contain spaces.  These group names are only used as a list of choices to select from in access restriction menus; ensure they match the groups that the Identity Provider sends to the website.<br /><br /><b style="background-color: #FFFFCC;">IMPORTANT NOTE: only the <i>official</i> name of the group will work.  The "also known as" names for the group will not work.  University of Michigan users can find the official name for a group on the group\'s MCommunity page, in large type at the top of the main section.</b><br /><br />After entering or changing these group(s), you must click the "Save Changes" button in order to make these groups available in the fields below.',
 		'type' => 'text',
 	),
 	array(
@@ -85,9 +93,9 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 		'name'     => 'Who can access this site?',
 		'desc'     => 'Allow only members of these groups (plus administrators) to access this site.',
 		'type'     => 'multiselect',
-		'multiple' => true,
-		'labels'   => array( 'placeholder' => 'Select one or more groups' ),
+		'labels'   => array( 'placeholder' => 'Select one or more groups...' ),
 		'options'  => $this->available_groups(),
+		'validate' => 'umichOidcSettings.validateRestrictSite',
 		'std'      => $option_defaults['restrict_site'],
 	),
 	array(

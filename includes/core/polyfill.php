@@ -14,13 +14,13 @@ if ( ! function_exists( 'array_is_list' ) ) {
 	 * Polyfill for array_is_list() which is not introduced until PHP 8.1.0
 	 * from https://www.php.net/manual/en/function.array-is-list.php#127044
 	 *
-	 * @param array $array The array to test.
+	 * @param array $a  The array to test.
 	 *
 	 * @returns bool
 	 */
-	function array_is_list( array $array ): bool {
+	function array_is_list( array $a ): bool {
 		$i = -1;
-		foreach ( $array as $k => $v ) {
+		foreach ( $a as $k => $v ) {
 			++$i;
 			if ( $k !== $i ) {
 				return false;

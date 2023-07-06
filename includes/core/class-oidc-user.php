@@ -121,7 +121,7 @@ class OIDC_User {
 		$options        = $ctx->options;
 		$session_length = $options['session_length'];
 		if ( \time() > ( ( (int) $id_token->iat ) + (int) $session_length ) ) {
-			log_message( "user init: OIDC session time (${session_length} seconds) expired, logging user out" );
+			log_message( "user init: OIDC session time ({$session_length} seconds) expired, logging user out" );
 			$ctx->oidc->logout();
 			$this->wp_user       = null;
 			$this->id_token      = null;
@@ -150,18 +150,17 @@ class OIDC_User {
 
 		$this->id_token = $id_token;
 		$this->userinfo = $userinfo;
-
 	}
 
 	/**
 	 * Get a piece of userinfo for an authenticated user.
 	 *
 	 * @param string $key What userinfo to get.  This key will be mapped trough the plugin claim_for_ options unless it starts with "userinfo:".
-	 * @param mixed  $default What to return if the requested userinfo is not found.
+	 * @param mixed  $default_value What to return if the requested userinfo is not found.
 	 *
 	 * @return mixed
 	 */
-	public function get_userinfo( $key, $default = '' ) {
+	public function get_userinfo( $key, $default_value = '' ) {
 
 		if ( ! $this->initialized ) {
 			$this->init();
@@ -185,10 +184,9 @@ class OIDC_User {
 
 		log_message( "looking up userinfo {$key}" );
 		if ( '' === $key || ! \is_object( $this->userinfo ) || ! \property_exists( $this->userinfo, $key ) ) {
-			return $default;
+			return $default_value;
 		}
 		return $this->userinfo->$key;
-
 	}
 
 	/**
@@ -206,7 +204,6 @@ class OIDC_User {
 			return true;
 		}
 		return false;
-
 	}
 
 	/**
@@ -243,7 +240,6 @@ class OIDC_User {
 		}
 
 		return $groups;
-
 	}
 
 	/**
@@ -265,7 +261,6 @@ class OIDC_User {
 		}
 
 		return $headers;
-
 	}
 
 	/**
@@ -292,6 +287,6 @@ class OIDC_User {
 				\header( "{$name}: {$field_value}" );
 			}
 		}
-
 	}
+
 }

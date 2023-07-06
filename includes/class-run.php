@@ -37,8 +37,8 @@ class Run {
 	 * Default values for plugin options.  Used on the plugin settings page.
 	 *
 	 * Don't set a default for any of the following options, we want the
-	 * want the autentication to fail if any of these are not preset:
-	 * present: 'provider_url', 'client_id', 'client_secret'.
+	 * authentication to fail if any of these are not present:
+	 *   'provider_url', 'client_id', 'client_secret'.
 	 *
 	 * @var      array    $option_defaults    Option default values.
 	 */
@@ -116,6 +116,13 @@ class Run {
 	public $restrict_access;
 
 	/**
+	 * Restrict_Access object.
+	 *
+	 * @var      object    $post_meta_box    Post_Meta_Box object.
+	 */
+	public $post_meta_box;
+
+	/**
 	 * Settings_Page object.
 	 *
 	 * @var      object    $settings_page    Settings_Page object.
@@ -161,7 +168,6 @@ class Run {
 		}
 		$this->internals['plugin_version'] = UMICH_OIDC_LOGIN_VERSION_INT;
 		\update_option( 'umich_oidc_internals', $this->internals );
-
 	}
 
 
@@ -235,8 +241,8 @@ class Run {
 		$this->auth_check = new \UMich_OIDC_Login\Core\Auth_Check( $this );
 		\add_filter( 'wp_auth_check_same_domain', array( $this->auth_check, 'auth_check_same_domain' ) );
 		\add_action( 'wp_enqueue_scripts', array( $this->auth_check, 'auth_check_load' ) );
-		\add_filter( 'heartbeat_send', array( $this->auth_check, 'auth_check' ), 20, 1 );
-		\add_filter( 'heartbeat_nopriv_send', array( $this->auth_check, 'auth_check' ), 20, 1 );
+		\add_filter( 'heartbeat_send', array( $this->auth_check, 'oidc_auth_check' ), 20, 1 );
+		\add_filter( 'heartbeat_nopriv_send', array( $this->auth_check, 'oidc_auth_check' ), 20, 1 );
 		\add_filter( 'auth_cookie_expiration', array( $this->auth_check, 'session_length' ) );
 
 		$this->shortcodes = new \UMich_OIDC_Login\Site\Shortcodes( $this );
@@ -270,12 +276,20 @@ class Run {
 		\add_filter( 'xmlrpc_prepare_post', array( $this->restrict_access, 'xmlrpc_prepare_post' ), 0, 3 );
 		\add_filter( 'xmlrpc_prepare_page', array( $this->restrict_access, 'xmlrpc_prepare_post' ), 0, 3 );
 		\add_filter( 'xmlrpc_prepare_comment', array( $this->restrict_access, 'xmlrpc_prepare_comment' ), 0, 2 );
+		\add_action( 'xmlrpc_call', array( $this->restrict_access, 'xmlrpc_call' ), 0, 3 );
 
+		// Metabox to restrict access to pages and posts.
+		// Works in both Gutenberg and the Classic Editor.
 		$this->post_meta_box = new \UMich_OIDC_Login\Admin\Post_Meta_Box( $this );
 		\add_filter( 'add_meta_boxes', array( $this->post_meta_box, 'access_meta_box' ) );
 		\add_action( 'admin_enqueue_scripts', array( $this->post_meta_box, 'admin_scripts' ) );
 		\add_filter( 'save_post', array( $this->post_meta_box, 'access_meta_box_save' ) );
-		\add_action( 'xmlrpc_call', array( $this->restrict_access, 'xmlrpc_call' ), 0, 3 );
+
+		\register_post_meta( '', '_umich_oidc_access', array(
+			'show_in_rest' => true,
+			'single' => true,
+			'type' => 'string',
+		) );
 
 		$this->settings_page = new \UMich_OIDC_Login\Admin\Settings_Page( $this );
 

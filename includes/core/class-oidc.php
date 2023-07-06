@@ -59,7 +59,6 @@ class OIDC {
 		}
 
 		return $hosts;
-
 	}
 
 	/**
@@ -123,14 +122,14 @@ class OIDC {
 
 		$message = "
 			<h1>{$header}</h1>
-			<p>We're sorry for the problem.  Please try the options below. ${help}</p>
+			<p>We're sorry for the problem.  Please try the options below. {$help}</p>
 			<ul>
 			<li><a href='{$home}'>Go to the main page</a></li>
 			<li><a href='{$login}'>Try logging in again</a></li>
 			<li><a href='javascript:history.back()'>Go back to the page you were just on</a></li>
 			</ul>
 			<p>Technical details:</p>
-			<code>${details}</code>
+			<code>{$details}</code>
 			";
 		\wp_die(
 			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- we escaped everything above.
@@ -140,7 +139,6 @@ class OIDC {
 				'response' => 500,
 			)
 		);
-
 	}
 
 	/**
@@ -250,7 +248,6 @@ class OIDC {
 
 		// phpcs:enable
 		return $return_url;
-
 	}
 
 	/**
@@ -277,18 +274,17 @@ class OIDC {
 		}
 
 		return \home_url( \esc_url_raw( $request_uri ) );
-
 	}
 
 	/**
 	 * Return a login or logout URL.
 	 *
 	 * @param string $type URL type: "login" or "logout".
-	 * @param string $return Where to send the user afterwards: "here" (page they were on), "home" (site home), "setting" (the Login or Logout Destination URL from the plugin options) or a site URI/URL.
+	 * @param string $return_to Where to send the user afterwards: "here" (page they were on), "home" (site home), "setting" (the Login or Logout Destination URL from the plugin options) or a site URI/URL.
 	 *
 	 * @return string Requested URL, or an empty string if $type is not "login" or "logout".
 	 */
-	public function get_oidc_url( $type, $return = '' ) {
+	public function get_oidc_url( $type, $return_to = '' ) {
 
 		$ctx     = $this->ctx;
 		$options = $ctx->options;
@@ -302,33 +298,33 @@ class OIDC {
 			return '';
 		}
 
-		if ( '' === $return ) {
+		if ( '' === $return_to ) {
 			// Use the configured options/settings.
-			$return = $options[ $type . '_action' ];
-			if ( '' === $return ) {
+			$return_to = $options[ $type . '_action' ];
+			if ( '' === $return_to ) {
 				// Nothing set, use defaults.
-				$return = ( 'login' === $type ) ? 'setting' : 'smart';
+				$return_to = ( 'login' === $type ) ? 'setting' : 'smart';
 			}
 		}
 
-		if ( 'smart' === $return ) {
+		if ( 'smart' === $return_to ) {
 			if ( 'logout' === $type ) {
 				if ( $ctx->public_resource
 					&& ! \str_starts_with( $this->get_current_url(), \admin_url() ) ) {
-					$return = 'here';
+					$return_to = 'here';
 				} else {
-					$return = 'setting';
+					$return_to = 'setting';
 				}
 			} else {
 				// "smart" can't be used with login URLs.
-				$return = 'setting';
+				$return_to = 'setting';
 			}
 		}
 
-		if ( 'setting' === $return ) {
-			$return = $options[ $type . '_return_url' ];
-			if ( '' === $return ) {
-				$return = ( 'login' === $type ) ? 'here' : \home_url();
+		if ( 'setting' === $return_to ) {
+			$return_to = $options[ $type . '_return_url' ];
+			if ( '' === $return_to ) {
+				$return_to = ( 'login' === $type ) ? 'here' : \home_url();
 			}
 		}
 
@@ -339,7 +335,7 @@ class OIDC {
 		 */
 
 		// Figure out the $return_url.
-		if ( 'here' === $return ) {
+		if ( 'here' === $return_to ) {
 			$return_url = $this->get_current_url();
 			if ( 'yes' === $options['use_oidc_for_wp_users'] ) {
 				if ( 'logout' === $type
@@ -352,17 +348,17 @@ class OIDC {
 					$return_url = \home_url();
 				}
 			}
-		} elseif ( 'home' === $return ) {
+		} elseif ( 'home' === $return_to ) {
 			$return_url = \home_url();
 		} else {
-			// $return is a full URL or URL path.
-			$return_url = \esc_url_raw( $return );
+			// $return_to is a full URL or URL path.
+			$return_url = \esc_url_raw( $return_to );
 			if ( '' === $return_url ) {
 				$return_url = \home_url();
 			}
 		}
 
-		if ( 'home' === $return ) {
+		if ( 'home' === $return_to ) {
 			$return_query_string = '';
 		} else {
 			$verifier            = $this->create_verifier( $return_url );
@@ -371,7 +367,6 @@ class OIDC {
 		}
 
 		return \esc_url_raw( \admin_url( 'admin-ajax.php?action=' . $action . $return_query_string ) );
-
 	}
 
 	/**
@@ -428,7 +423,6 @@ class OIDC {
 
 		log_message( "login_url called:\n    login_url={$login_url}\n    redirect={$redirect}\n    returning: {$url}" );
 		return $url;
-
 	}
 
 	/**
@@ -460,7 +454,6 @@ class OIDC {
 
 		// Otherwise, use the OIDC logout URL.
 		return $this->get_oidc_url( 'logout', '' );
-
 	}
 
 	/**
@@ -487,7 +480,6 @@ class OIDC {
 
 		$login_url = $this->get_oidc_url( 'login', '' );
 		$this->redirect( $login_url ); // Does not return.
-
 	}
 
 	/**
@@ -648,7 +640,6 @@ class OIDC {
 		\wp_set_current_user( $user->ID, $user->user_login );
 
 		$this->redirect( $return_url ); // Does not return.
-
 	}
 
 	/**
@@ -682,7 +673,6 @@ class OIDC {
 		\wp_logout();
 		// finally, add the logout action back in (probably not needed, but let's be safe).
 		\UMich_OIDC_Login\Core\patch_wp_logout_action( 'add' );
-
 	}
 
 	/**
@@ -703,7 +693,6 @@ class OIDC {
 
 		log_message( "logout complete, returning to {$return_url}" );
 		$this->redirect( $return_url ); // Does not return.
-
 	}
 
 }

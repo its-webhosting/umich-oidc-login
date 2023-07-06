@@ -19,9 +19,10 @@ $settings_tab_oidc = array(
 		'name' => 'Redirect URI',
 		'type' => 'html',
 		'html' => "
-<input type='text' name='redirect-uri-placeholder' id='redirect-url-placeholder' class='opk-field regular-text' value='$redirect_url' style='width: 100%;' readonly>
-<br />
-<p>You may need to provide this information to your OIDC Identity Provider (IdP) in order to register the website as an OIDC client / Relying Party (RP) and obtain a Client ID and Client Secret to use below. It is not currently posssible to customize this value.</p>
+<input type='text' name='redirect-uri-placeholder' id='redirect-uri-placeholder' class='optionskit-field-input' aria-details='redirect-uri-placeholder-help' value='$redirect_url' style='width: 100%;' readonly>
+<div class='optionskit-field-help' id='redirect-uri-placeholder-help' style='font-size: smaller; margin-top: 0.5em;'>
+You may need to provide this information to your OIDC Identity Provider (IdP) in order to register the website as an OIDC client / Relying Party (RP) and obtain a Client ID and Client Secret to use below. It is not currently posssible to customize this value.
+</div>
 		",
 	),
 	array(
@@ -56,13 +57,24 @@ $settings_tab_oidc = array(
 	array(
 		'id'   => 'scopes',
 		'name' => 'Scopes',
-		'desc' => 'Space-separated list of the types of information to request from the IdP for each user that logs in.<br /><b>Example:</b> <code>openid email profile edumember</code><br><ul style="list-style-type: disc;">
+		'desc' => 'Space-separated list of the types of information to request from the IdP for each user that logs in.',
+		'type' => 'text',
+		'std'  => $option_defaults['scopes'],
+	),
+	array(
+		'id'   => 'redirect_uri_description',
+		'name' => '',
+		'type' => 'html',
+		'html' => "
+<div style='font-size: smaller'>
+<b>Example:</b> <code>openid email profile edumember</code><br />
+<ul style='list-style-type: disc;'>
 		<li><code>openid</code> - required for WordPress to authenticate users via OIDC, provides the user\'s username</li>
 		<li><code>email</code> - gets the user\'s email address</li>
 		<li><code>profile</code> - gets the user\'s full name (display name), given name, and family name</li>
-		<li><code>edumember</code> - needed for WordPress to receive group membership information from Shibboleth</li></ul>',
-		'type' => 'text',
-		'std'  => $option_defaults['scopes'],
+		<li><code>edumember</code> - needed for WordPress to receive group membership information from Shibboleth</li></ul>
+</div>
+		",
 	),
 	array(
 		'id'   => 'claim_mappings_subsection',

@@ -94,7 +94,6 @@ class Auth_Check {
 			\add_action( 'admin_print_footer_scripts', 'wp_auth_check_html', 5 );
 			\add_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
 		}
-
 	}
 
 	/**
@@ -109,23 +108,22 @@ class Auth_Check {
 	 *
 	 * @returns mixed
 	 */
-	public function auth_check( $response ) {
+	public function oidc_auth_check( $response ) {
 
 		$ctx = $this->ctx;
 
 		if ( \array_key_exists( 'wp-auth-check', $response ) ) {
-			log_message( 'auth_check: WordPress: ' . ( $response['wp-auth-check'] ? 'yes' : 'no' ) );
+			log_message( 'oidc_auth_check: WordPress: ' . ( $response['wp-auth-check'] ? 'yes' : 'no' ) );
 			if ( $response['wp-auth-check'] ) {
 				return $response;
 			}
 		}
 
 		$session_state = $ctx->oidc_user->session_state();
-		log_message( "auth_check: OIDC: {$session_state}" );
+		log_message( "oidc_auth_check: OIDC: {$session_state}" );
 		$response['wp-auth-check'] = ( 'valid' === $session_state );
 
 		return $response;
-
 	}
 
 	/**

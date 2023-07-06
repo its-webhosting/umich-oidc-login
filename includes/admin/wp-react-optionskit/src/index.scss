@@ -1,0 +1,23 @@
+/**
+ * Styles for the WP React OptionsKit frontend.
+ *
+ * @copyright  2023 Regents of the University of Michigan
+ * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
+ */
+
+body.optionskit-panel-page {
+
+	#wpcontent {
+		padding-left: 0;
+	}
+
+	.wrap {
+		margin: 0;
+	}
+
+	.submit {
+		margin-left: 20px;
+		display: inline-block;
+	}
+
+}
