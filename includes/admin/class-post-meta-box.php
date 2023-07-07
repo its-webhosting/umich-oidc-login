@@ -51,13 +51,18 @@ class Post_Meta_Box {
 	 */
 	public function admin_scripts( $hook ) {
 		if ( 'post.php' === $hook || 'post-new.php' === $hook ) {
-			\wp_enqueue_script(
+			$asset_file = include UMICH_OIDC_LOGIN_DIR_URL . '/build/metabox/index.asset.php';
+			foreach ( $asset_file['dependencies'] as $style ) {
+				\wp_enqueue_style( $style );
+			}
+			\wp_register_script(
 				'umich-oidc-metabox',
 				UMICH_OIDC_LOGIN_DIR_URL . '/build/metabox/index.js',
-				array( 'wp-element', 'wp-components' ),
-				UMICH_OIDC_LOGIN_VERSION_INT,
-				true
+				$asset_file['dependencies'],
+				$asset_file['version'],
+				true,
 			);
+			\wp_enqueue_script( 'umich-oidc-metabox' );
 		}
 	}
 

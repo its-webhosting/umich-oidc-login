@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+unset CDPATH
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+TOP=$(dirname "${SCRIPT_DIR}")
+CACHE="${TOP}/scratch/composer-php7.3-cache"
+if [ ! -e "${CACHE}" ] ; then
+    mkdir -p "${CACHE}"
+fi
+docker run -it --rm -v "${TOP}:/app" -v "${CACHE}:/tmp" composer:php7.3 "$@"

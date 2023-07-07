@@ -341,8 +341,8 @@ class React_OptionsKit {
 				'settings'    => $this->get_registered_settings(),
 				'options'     => $this->get_options(),
 			);
-			\wp_enqueue_media();
-			\wp_add_inline_script( $this->func . '_opk', 'window.optionsKitSettings = ' . \wp_json_encode( $options_panel_settings ), 'before' );
+			wp_enqueue_media();
+			wp_add_inline_script( $this->func . '_opk', 'window.optionsKitSettings = ' . wp_json_encode( $options_panel_settings ), 'before' );
 		}
 	}
 

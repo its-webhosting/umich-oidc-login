@@ -10,11 +10,15 @@
     "login"
   ],
   "homepage": "https://wordpress.org/plugins/umich-oidc-login/",
-  "repository": "https://github.com/its-webhosting/umich-oidc-login",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/its-webhosting/umich-oidc-login.git",
+    "directory": "includes/admin/wp-react-optionskit"
+  },
   "bugs": {
     "url": "https://github.com/its-webhosting/umich-oidc-login/issues"
   },
-  "main": "index.js",
+  "main": "src/index.js",
   "dependencies": {
     "@wordpress/api-fetch": "^6.23.0",
     "@wordpress/components": "^23.4.0",
