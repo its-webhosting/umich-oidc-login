@@ -1,0 +1,1 @@
+This `scratch` directory contains files that are generated when someone builds, tests, or packages the plugin.  These files are unique to that person's development environment and should not be checked in to the git repository.

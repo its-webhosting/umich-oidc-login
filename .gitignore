@@ -20,10 +20,12 @@ build/
 
 # Dependency directories
 node_modules/
-/vendor
+vendor/
 
-# Temporary stuff used when building the plugin
-/scratch
+# Temporary stuff used when building, testing, or packaging the plugin.
+# Include /scratch/README.md but exclude everything else under /scratch.
+/scratch/**
+!/scratch/README.md
 
 # Optional npm cache directory
 .npm

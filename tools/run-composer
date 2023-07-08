@@ -8,4 +8,7 @@ CACHE="${TOP}/scratch/composer-php7.3-cache"
 if [ ! -e "${CACHE}" ] ; then
     mkdir -p "${CACHE}"
 fi
-docker run -it --rm -v "${TOP}:/app" -v "${CACHE}:/tmp" composer:php7.3 "$@"
+docker run -it --rm \
+    -v "${TOP}/umich-oidc-login:/app" \
+    -v "${CACHE}:/tmp" \
+    composer:php7.3 "$@"

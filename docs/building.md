@@ -13,8 +13,7 @@ The UMich OIDC Login plugin should be built using PHP 7.3, so it can be used wit
 ```bash
 git clone git@github.com:its-webhosting/umich-oidc-login.git
 cd umich-oidc-login
-UMICH_OIDC_LOGIN_TOP="$(pwd)"
-export PATH="${UMICH_OIDC_LOGIN_TOP}/tools:${PATH}"
+export PATH="$(pwd)/tools:${PATH}"
 ```
 
 ## Use Composer to install PHP dependencies
@@ -22,7 +21,6 @@ export PATH="${UMICH_OIDC_LOGIN_TOP}/tools:${PATH}"
 The official Docker image for Composer supports only PHP 8.  Build our own image that uses PHP 7.3 so that plugin can be used with both PHP 7.3 and PHP 8.x.
 
 ```bash
-mkdir -p scratch
 pushd scratch
 git clone https://github.com/composer/docker.git composer-docker
 cd composer-docker/2.5
@@ -38,6 +36,7 @@ We are using PHP-Scoper so we can put UMICH OIDC Login plugin dependencies into 
 If PHP-Scoper says the build directory exists and asks if you want to proceed, answer "no".  This will continue, using the existing directory.  Responding "yes" will re-create the directory, destroying any Gutenberg/React code that has been built there.
 
 ```bash
+pushd umich-oidc-login
 run-composer global require --dev humbug/php-scoper:0.15.0
 run-composer install
 run-composer global exec -- php-scoper add-prefix
@@ -50,7 +49,7 @@ run-composer dump-autoload --working-dir build
 run-node npm install
 run-node npm run-script build:metabox
 
-pushd includes/admin/wp-react-optionskit/
+cd includes/admin/wp-react-optionskit/
 run-node npm install
 run-node npm run-script build
 popd
