@@ -10,7 +10,7 @@ UMich OIDC Login is a WordPress plugin that allows users to log in to a WordPres
 This repository contains the source code for UMich OIDC Login.  It is meant for people who are maintaining and enhancing the plugin.
 
 * [How to build the plugin from its source code](docs/building.md)
-* How to set up a local development environment to run the plugin
+* [How to set up a local development environment to run the plugin](docs/developing.md)
 * [How to test the plugin](docs/testing.md)
 * How to package and publish a new release of the plugin
 

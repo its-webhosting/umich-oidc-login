@@ -1,0 +1,69 @@
+# Based on https://github.com/nezhar/wordpress-docker-compose
+
+version: "3.9"
+
+services:
+
+  nginx:
+    image: nginx:latest
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./docker-compose-files/nginx:/etc/nginx/conf.d
+      - ./scratch/certs:/etc/nginx/certs
+      - ./scratch/logs/nginx:/var/log/nginx
+      - ./scratch/wordpress:/var/www/html
+      - ./umich-oidc-login:/var/www/html/wp-content/plugins/umich-oidc-login # plugin development
+
+  wordpress:
+    image: wordpress:6.2.2-php8.2-fpm # https://hub.docker.com/_/wordpress/
+    restart: "always"
+    ports:
+      - 9000:9000
+    volumes:
+      - ./scratch/wordpress:/var/www/html # Full wordpress project
+      - ./umich-oidc-login:/var/www/html/wp-content/plugins/umich-oidc-login # plugin development
+      - ./scratch/logs/wordpress:/tmp
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: "${DB_NAME}"
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: "${DB_ROOT_PASSWORD}"
+    links:
+      - db
+      - nginx:wp.local
+
+  wpcli:
+    image: wordpress:cli
+    restart: "no"
+    volumes:
+      - ./scratch/wordpress:/var/www/html
+      - ./umich-oidc-login:/var/www/html/wp-content/plugins/umich-oidc-login # plugin development
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: "${DB_NAME}"
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: "${DB_ROOT_PASSWORD}"
+    links:
+      - db
+      - nginx:wp.local
+
+  db:
+    image: mariadb:latest # https://hub.docker.com/_/mariadb
+    restart: "always"
+    ports:
+      - 3306:3306
+    command: [
+        '--character-set-server=utf8mb4',
+        '--collation-server=utf8mb4_unicode_ci'
+    ]
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+
+volumes:
+  db_data:
