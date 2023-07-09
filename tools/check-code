@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+set -uo pipefail
+IFS=$'\n\t'
+unset CDPATH
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+TOP=$(dirname "${SCRIPT_DIR}")
+cd "${TOP}/umich-oidc-login"
+
+echo "===== checking PHP 7"
+
+# Make sure the WordPress Coding Standards package is installed
+run-composer global show wp-coding-standards/wpcs > /dev/null 2>&1
+if [ $? -ne 0 ] ; then
+	  echo "===== installing wp-coding-standards/wpcs"
+	  run-composer global require --dev wp-coding-standards/wpcs
+	  run-composer global exec -- phpcs --config-set installed_paths \
+        /tmp/vendor/wp-coding-standards/wpcs
+fi
+
+run-composer global exec -- phpcs --standard=WordPress \
+    --ignore="*/node_modules/*,*.js,*.css,*index.asset.php" \
+    *.php includes
+
+#
+# Check again with PHP 8
+#
+
+echo "===== checking PHP 8"
+
+# Make sure the WordPress Coding Standards package is installed
+# wpcs 2.3 doesn't work with PHP 8:
+#
+# 1 | ERROR | An error occurred during processing; checking has been aborted.
+#   |       | The error message was: trim(): Passing null to parameter #1
+#   |       | ($string) of type string is deprecated in
+#   |       | /tmp/vendor/wp-coding-standards/wpcs/WordPress/Sniffs/NamingConventions/PrefixAllGlobalsSniff.php
+#   |       | on line 280
+#
+# See https://github.com/WordPress/WordPress-Coding-Standards/issues/2202
+#
+set +e
+run-composer-php8 global show wp-coding-standards/wpcs > /dev/null 2>&1
+result="$?"
+set -e
+if [ "${result}" -ne 0 ] ; then
+	  echo "===== installing wp-coding-standards/wpcs"
+	  # Use wpcs:dev-develop to get a pre-release version of wpcs 3.0
+	  run-composer-php8 global require --dev wp-coding-standards/wpcs:dev-develop
+	  # No need to set installed_paths with wpcs 3.0
+fi
+
+run-composer-php8 global exec -- phpcs --standard=WordPress \
+    --ignore="*/node_modules/*,*.js,*.css,*index.asset.php" \
+    --exclude="Generic.CodeAnalysis.UnusedFunctionParameter" \
+    *.php includes
+
+#
+# Check settings page React app:
+#
+
+echo "===== checking wp-react-optionskit"
+pushd "${TOP}/umich-oidc-login/includes/admin/wp-react-optionskit/"
+run-node npm run lint:pkg-json
+run-node npm run lint:css
+run-node npm run lint:js
+popd
+
+#
+# Check UMich OIDC Access metabox React app:
+#
+
+echo "===== checking metabox"
+run-node npm run lint:pkg-json
+run-node npm run lint:css
+run-node npm run lint:js ./src
