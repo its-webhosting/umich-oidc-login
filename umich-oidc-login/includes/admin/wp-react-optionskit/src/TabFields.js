@@ -20,14 +20,14 @@ import parse from 'html-react-parser';
 import './TabFields.scss';
 
 // from Jason Bunting, https://stackoverflow.com/a/359910
-function executeFunctionByName(functionName, context /*, args */) {
-	var args = Array.prototype.slice.call(arguments, 2);
-	var namespaces = functionName.split(".");
-	var func = namespaces.pop();
-	for(var i = 0; i < namespaces.length; i++) {
-		context = context[namespaces[i]];
+function executeFunctionByName( functionName, context /*, args */ ) {
+	const args = Array.prototype.slice.call( arguments, 2 );
+	const namespaces = functionName.split( '.' );
+	const func = namespaces.pop();
+	for ( let i = 0; i < namespaces.length; i++ ) {
+		context = context[ namespaces[ i ] ];
 	}
-	return context[func].apply(context, args);
+	return context[ func ].apply( context, args );
 }
 
 function OptionsKitTextInput( { description, ...props } ) {
@@ -101,8 +101,14 @@ function OptionsKitSelectInput( { description, options, ...props } ) {
 	);
 }
 
-function OptionsKitMultiSelectInput( { description, options, labels, customValidate, ...props } ) {
-	const [ field] = useField( props );
+function OptionsKitMultiSelectInput( {
+	description,
+	options,
+	labels,
+	customValidate,
+	...props
+} ) {
+	const [ field ] = useField( props );
 	const value = options.filter( ( v ) => {
 		return field.value.indexOf( v.value ) >= 0;
 	} );
@@ -150,7 +156,11 @@ function OptionsKitMultiSelectInput( { description, options, labels, customValid
 					isMulti
 					options={ options }
 					defaultValue={ value }
-					placeholder={ labels && labels['placeholder'] ? labels['placeholder'] : 'Select...'}
+					placeholder={
+						labels && labels.placeholder
+							? labels.placeholder
+							: 'Select...'
+					}
 					styles={ styles }
 					{ ...props }
 					onChange={ ( v ) => {
@@ -160,12 +170,15 @@ function OptionsKitMultiSelectInput( { description, options, labels, customValid
 						// setFieldError workaround, see https://github.com/jaredpalmer/formik/issues/1278
 						formik.setFieldValue( props.id, result, false );
 						formik.setFieldTouched( props.id, true, false );
-						formik.setFieldError(props.id, executeFunctionByName( customValidate, window, v ) );
+						formik.setFieldError(
+							props.id,
+							executeFunctionByName( customValidate, window, v )
+						);
 					} }
 					onBlur={ formik.onBlur }
 				/>
 			</BaseControl>
-			<ErrorMessage name={ props.name } id={ props.id } >
+			<ErrorMessage name={ props.name } id={ props.id }>
 				{ ( msg ) => (
 					<Notice status="error" isDismissible={ false }>
 						{ msg }

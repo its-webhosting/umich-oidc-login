@@ -5,7 +5,7 @@
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
  */
 
-import React from 'react';
+import React from 'react'; // eslint-disable-line import/no-extraneous-dependencies
 import { Formik, Form, useFormikContext } from 'formik';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Notice, TabPanel } from '@wordpress/components';
@@ -77,7 +77,7 @@ function OptionsKitTabPanel() {
 	const observer = React.useRef( null );
 	React.useEffect( () => {
 		if ( ! observer.current && tabState.activeFieldName ) {
-			observer.current = new MutationObserver( () => { // eslint-disable-line no-undef
+			observer.current = new MutationObserver( () => { // eslint-disable-line
 				const element = document.getElementById(
 					tabState.activeFieldName
 				);
