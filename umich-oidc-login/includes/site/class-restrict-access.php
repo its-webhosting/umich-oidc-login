@@ -503,7 +503,7 @@ class Restrict_Access {
 			if ( self::ALLOWED === $result ) {
 				$posts[] = $post;
 			} else {
-				$found_posts =- 1;
+				--$found_posts;
 			}
 		}
 		if ( $found_posts < 0 ) {
@@ -709,6 +709,4 @@ class Restrict_Access {
 				break;
 		}
 	}
-
 }
-

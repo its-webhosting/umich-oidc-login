@@ -288,5 +288,4 @@ class OIDC_User {
 			}
 		}
 	}
-
 }

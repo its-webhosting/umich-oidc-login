@@ -29,4 +29,3 @@ if ( ! function_exists( 'array_is_list' ) ) {
 		return true;
 	}
 }
-

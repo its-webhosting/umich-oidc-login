@@ -16,8 +16,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
- * @author     Alessandro Tesoro
- * @author     Regent of the University of Michigan
+ * @author     Alessandro Tesoro, Regents of the University of Michigan
  * @version    0.8.0
  * @copyright  (c) 2018 Alessandro Tesoro
  * @license    http://www.gnu.org/licenses/gpl-2.0.txt GNU LESSER GENERAL PUBLIC LICENSE
@@ -477,5 +476,4 @@ class React_OptionsKit {
 <div id="optionskit-screen"></div>
 		<?php
 	}
-
 }

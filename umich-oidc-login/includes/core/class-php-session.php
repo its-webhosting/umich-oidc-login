@@ -275,5 +275,4 @@ class PHP_Session {
 
 		return $headers;
 	}
-
 }

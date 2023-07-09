@@ -191,5 +191,4 @@ class Setup {
 
 		return false;
 	}
-
 }

@@ -456,5 +456,4 @@ class Shortcodes {
 
 		return $content;
 	}
-
 }

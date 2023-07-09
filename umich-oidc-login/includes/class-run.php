@@ -285,14 +285,16 @@ class Run {
 		\add_action( 'admin_enqueue_scripts', array( $this->post_meta_box, 'admin_scripts' ) );
 		\add_filter( 'save_post', array( $this->post_meta_box, 'access_meta_box_save' ) );
 
-		\register_post_meta( '', '_umich_oidc_access', array(
-			'show_in_rest' => true,
-			'single' => true,
-			'type' => 'string',
-		) );
+		\register_post_meta(
+			'',
+			'_umich_oidc_access',
+			array(
+				'show_in_rest' => true,
+				'single'       => true,
+				'type'         => 'string',
+			)
+		);
 
 		$this->settings_page = new \UMich_OIDC_Login\Admin\Settings_Page( $this );
-
 	}
-
 }

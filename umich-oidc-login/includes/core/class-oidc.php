@@ -694,5 +694,4 @@ class OIDC {
 		log_message( "logout complete, returning to {$return_url}" );
 		$this->redirect( $return_url ); // Does not return.
 	}
-
 }

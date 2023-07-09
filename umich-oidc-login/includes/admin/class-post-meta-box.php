@@ -100,20 +100,21 @@ class Post_Meta_Box {
 			}
 		}
 
-		$settings = array(
+		$settings      = array(
 			'postType'        => \esc_html( $post_type ),
 			'availableGroups' => $ctx->settings_page->available_groups(),
-			'selectedGroups'  => $selected
+			'selectedGroups'  => $selected,
 		);
 		$settings_json = \wp_json_encode( $settings );
 		log_message( "UMich OIDC access meta box settings: {$settings_json}" );
 
 		?>
 		<script>
-			window.umichOidcMetabox = <?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's JSON we just generated that should already have proper escaping.
-			echo $settings_json;
-			?>
+			window.umichOidcMetabox =
+				<?php
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's JSON we just generated that should already have proper escaping.
+					echo $settings_json;
+				?>
 		</script>
 		<div id="umich-oidc-metabox"></div>
 		<?php
@@ -180,5 +181,4 @@ class Post_Meta_Box {
 
 		\update_post_meta( $post_id, '_umich_oidc_access', \implode( ',', $access ) );
 	}
-
 }

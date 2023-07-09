@@ -140,5 +140,4 @@ class Auth_Check {
 		}
 		return $length;
 	}
-
 }

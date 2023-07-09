@@ -70,7 +70,7 @@ class Settings_Page {
 			'umich-oidc-settings',
 			UMICH_OIDC_LOGIN_DIR_URL . '/assets/js/settings.js',
 			array(),
-			UMICH_OIDC_LOGIN_VERSION_INT + time(),  // TODO: remove time()
+			UMICH_OIDC_LOGIN_VERSION_INT,
 			true
 		);
 
@@ -336,7 +336,6 @@ class Settings_Page {
 
 		log_message( "available groups: |$input|" );
 		return $input;
-
 	}
 
 	/**
@@ -418,5 +417,4 @@ class Settings_Page {
 		}
 		return $input;
 	}
-
 }
