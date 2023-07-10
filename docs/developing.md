@@ -88,3 +88,28 @@ Watch for errors using
 ```bash
 tail -f scratch/logs/wordpress/wp-debug.log
 ```
+
+## Other tasks
+
+### Develop the plugin settings page
+
+This currently uses NodeJS 14.x installed on the local system, not from a Docker image.
+
+```bash
+TOP=$(pwd)
+cd umich-oidc-login/includes/admin/wp-react-optionskit
+# --hot=true must be last command line option
+npx wp-scripts start --host=wp.local --server-type=https \
+    --server-options-cert="${TOP}/scratch/certs/wp.local.crt" \
+    --server-options-key="${TOP}/scratch/certs/wp.local.key" \
+    --live-reload --hot=true
+```
+
+### Clean up and start over
+
+Delete the WordPress database and all WordPress files.
+
+```bash
+docker-compose down --volumes  # deletes the DB data volume
+rm -rf scratch/wordpress scratch/composer-php* scratch/logs
+```
