@@ -51,13 +51,13 @@ class Post_Meta_Box {
 	 */
 	public function admin_scripts( $hook ) {
 		if ( 'post.php' === $hook || 'post-new.php' === $hook ) {
-			$asset_file = include UMICH_OIDC_LOGIN_DIR_URL . '/build/metabox/index.asset.php';
+			$asset_file = include UMICH_OIDC_LOGIN_DIR . '/build/metabox/index.asset.php';
 			foreach ( $asset_file['dependencies'] as $style ) {
 				\wp_enqueue_style( $style );
 			}
 			\wp_register_script(
 				'umich-oidc-metabox',
-				UMICH_OIDC_LOGIN_DIR_URL . '/build/metabox/index.js',
+				UMICH_OIDC_LOGIN_DIR . '/build/metabox/index.js',
 				$asset_file['dependencies'],
 				$asset_file['version'],
 				true,
