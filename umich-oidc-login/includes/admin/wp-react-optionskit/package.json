@@ -20,15 +20,15 @@
   },
   "main": "src/index.js",
   "dependencies": {
-    "@wordpress/api-fetch": "^6.23.0",
-    "@wordpress/components": "^23.4.0",
-    "formik": "^2.2.9",
-    "html-react-parser": "^3.0.9",
-    "react-grid-system": "^8.1.8",
-    "react-select": "^5.7.0"
+    "@wordpress/api-fetch": "^6.34.0",
+    "@wordpress/components": "^25.3.0",
+    "formik": "^2.4.2",
+    "html-react-parser": "^4.0.0",
+    "react-grid-system": "^8.1.9",
+    "react-select": "^5.7.3"
   },
   "devDependencies": {
-    "@wordpress/scripts": "^25.3.0"
+    "@wordpress/scripts": "^26.8.0"
   },
   "scripts": {
     "build": "wp-scripts build",

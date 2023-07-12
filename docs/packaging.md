@@ -1,5 +1,11 @@
 # Packaging and publishing the UMich OIDC Login plugin
 
+## Update plugin dependencies
+
+Perform the steps in the ["Update plugin dependencies" section of the build instructions.](building.md#update-plugin-dependencies)
+
+This is important to address any security issues as well as to prevent getting so far out of date that it becomes very difficult to update.
+
 ## Increment version numbers
 
 The version numbers should be incremented (as appropriate) before the plugin is rebuilt.
