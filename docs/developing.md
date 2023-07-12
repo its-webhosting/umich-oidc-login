@@ -91,6 +91,12 @@ tail -f scratch/logs/wordpress/wp-debug.log
 
 ## Other tasks
 
+### Check for errors, warning and coding style issues
+
+```bash
+check-code
+```
+
 ### Develop the plugin settings page
 
 This currently uses NodeJS 14.x installed on the local system, not from a Docker image.
