@@ -253,7 +253,8 @@ class Run {
 		\add_shortcode( 'umich_oidc_member', array( $this->shortcodes, 'member' ) );
 		\add_shortcode( 'umich_oidc_not_member', array( $this->shortcodes, 'member' ) );
 		\add_shortcode( 'umich_oidc_url', array( $this->shortcodes, 'url' ) );
-		\add_shortcode( 'umich_oidc_user_info', array( $this->shortcodes, 'user_info' ) );
+		\add_shortcode( 'umich_oidc_userinfo', array( $this->shortcodes, 'userinfo' ) );  // canonical name
+		\add_shortcode( 'umich_oidc_user_info', array( $this->shortcodes, 'userinfo' ) );  // alias for umich_oidc_userinfo
 		\add_filter( 'login_message', array( $this->shortcodes, 'login_form' ) );
 
 		$this->restrict_access = new \UMich_OIDC_Login\Site\Restrict_Access( $this );

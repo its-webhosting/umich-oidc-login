@@ -250,7 +250,7 @@ class Shortcodes {
 	}
 
 	/**
-	 * Shortcode umich_oidc_user_info
+	 * Shortcode umich_oidc_userinfo (with alias umich_oidc_user_info)
 	 *
 	 * @param string $atts Shortcode attributes.
 	 * @param string $content Shortcode content. Should always be empty since this shortcode should not be used as an enclosing shortcode.
@@ -258,7 +258,7 @@ class Shortcodes {
 	 *
 	 * @return string Shortcode output - requested user info, escaped for HTML.
 	 */
-	public function user_info( $atts = array(), $content = null, $tag = '' ) {
+	public function userinfo( $atts = array(), $content = null, $tag = '' ) {
 
 		$ctx = $this->ctx;
 

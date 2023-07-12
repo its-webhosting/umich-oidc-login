@@ -170,7 +170,7 @@ The shortcodes below can be used in your content, widgets, and themes to control
 		'type' => 'html',
 		'html' => '
 <div id="umich_oidc_userinfo"><code>[umich_oidc_userinfo type="<i>WHAT</i>" default="" unprintable="???" separator=", " dictionary="="]</code></div>
-<p>Display information about the user who is currently logged in via OIDC.</p>
+<p>Display information about the user who is currently logged in via OIDC.  The shortcode name <code>umich_oidc_user_info</code> will also work.</p>
 <p><b>Example:</b> <code>[umich_oidc_userinfo type="given_name"]</code> will be replaced by the user\'s first name, if they are logged in, and will be replaced with nothing if they are not logged in.</p>
 <p><b>Parameters:</b></p>
 <ul style="list-style-type: disc; margin: 2px 1em;">
