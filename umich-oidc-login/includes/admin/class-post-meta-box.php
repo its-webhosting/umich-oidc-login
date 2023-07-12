@@ -57,7 +57,7 @@ class Post_Meta_Box {
 			}
 			\wp_register_script(
 				'umich-oidc-metabox',
-				UMICH_OIDC_LOGIN_DIR . '/build/metabox/index.js',
+				UMICH_OIDC_LOGIN_DIR_URL . '/build/metabox/index.js',
 				$asset_file['dependencies'],
 				$asset_file['version'],
 				true,
