@@ -1,13 +1,13 @@
 /**
  * UMich OIDC Login access restriction metabox for pages and posts.
  *
- * Works in both Gutenberg and the Clasic Editor.
+ * Works in both Gutenberg and the Classic Editor.
  *
  * @copyright  2023 Regents of the University of Michigan
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
  */
 
-const { render, useState } = wp.element;
+const { createRoot, render, createElement, useState } = wp.element;
 const { BaseControl, Notice } = wp.components;
 
 import Select from 'react-select';
@@ -115,4 +115,11 @@ const UmichOidcAccess = () => {
 	);
 };
 
-render( <UmichOidcAccess />, document.getElementById( 'umich-oidc-metabox' ) );
+const domElement = document.getElementById( 'umich-oidc-metabox' );
+const uiElement = createElement( UmichOidcAccess );
+
+if ( createRoot ) {
+	createRoot( domElement ).render( uiElement ); // React 18 and later
+} else {
+	render( uiElement, domElement ); // React 17 and before
+}

@@ -22,6 +22,7 @@
   "dependencies": {
     "@wordpress/api-fetch": "^6.34.0",
     "@wordpress/components": "^25.3.0",
+    "@wordpress/element": "^5.14.0",
     "formik": "^2.4.2",
     "html-react-parser": "^4.0.0",
     "react-grid-system": "^8.1.9",
