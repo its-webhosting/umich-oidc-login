@@ -14,7 +14,6 @@ var umichOidcSettings =  {
 	 * @return string empty string if values are OK, or an error message if they are invalid.
 	 */
 	validateRestrictSite: function (values) {
-		console.log('validateRestrictSite:', values);
 		if ( values.length === 0)  {
 			return 'Must have at least one group';
 		}
