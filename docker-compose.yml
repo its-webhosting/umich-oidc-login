@@ -6,7 +6,7 @@ services:
 
   nginx:
     image: nginx:latest
-    restart: always
+    restart: "unless-stopped"
     ports:
       - '80:80'
       - '443:443'
@@ -19,7 +19,7 @@ services:
 
   wordpress:
     image: wordpress:6.2.2-php8.2-fpm # https://hub.docker.com/_/wordpress/
-    restart: "always"
+    restart: "unless-stopped"
     ports:
       - 9000:9000
     volumes:
@@ -52,7 +52,7 @@ services:
 
   db:
     image: mariadb:latest # https://hub.docker.com/_/mariadb
-    restart: "always"
+    restart: "unless-stopped"
     ports:
       - 3306:3306
     command: [
