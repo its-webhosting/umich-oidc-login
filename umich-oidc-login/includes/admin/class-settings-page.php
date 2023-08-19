@@ -243,7 +243,7 @@ class Settings_Page {
 		if ( '' === $input ) {
 			// Allow people to save other settings before saving
 			// the provider URL.
-			return;
+			return '';
 		}
 		$url = \esc_url_raw( $input, array( 'https' ) );
 		if ( '' === $url ) {
@@ -407,7 +407,7 @@ class Settings_Page {
 
 		$input = \trim( $input );
 		if ( '' === $input ) {
-			return;
+			return '';
 		}
 
 		$url = \esc_url_raw( $input, array( 'https' ) );

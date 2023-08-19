@@ -343,7 +343,7 @@ class OIDC {
 					// Going back to the admin page will just
 					// automatically log the user in again.
 					$return_url = \home_url();
-				} elseif ( \str_contains( $return_url, '/wp-login.php' ) ) {
+				} elseif ( \str_starts_with( $return_url, \home_url( '/wp-login.php' ) ) || \untrailingslashit( $return_url ) === \home_url( '/login' ) ) {
 					// Avoid an authentication loop.
 					$return_url = \home_url();
 				}
