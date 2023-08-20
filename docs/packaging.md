@@ -26,7 +26,7 @@ Edit `umich-oidc-login/package.json`
 
 ### Main plugin file
 
-Edit `umich-oidc-login/umich-oidc.login.php`
+Edit `umich-oidc-login/umich-oidc-login.php`
 
 * In the plugin header comment at the top of the file:
   * Update `Version:` to be the new plugin version number.
