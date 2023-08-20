@@ -44,6 +44,12 @@ You may need to provide this information to your OIDC Identity Provider (IdP) in
 		'type' => 'text',
 	),
 	array(
+		'id'   => 'available_groups',
+		'name' => 'Groups for Authorization',
+		'desc' => 'One or more group names to use for authorization, separated by commas. The name of a group can contain spaces.  These group names are only used as a list of choices to select from in access restriction menus; ensure they match the groups that the Identity Provider sends to the website.<br /><br /><b style="background-color: #FFFFCC;">IMPORTANT NOTE: only the <i>official</i> name of the group will work.  The "also known as" names for the group will not work.  University of Michigan users can find the official name for a group on the group\'s MCommunity page, in large type at the top of the main section.</b><br /><br />After entering or changing these group(s), you must click the "Save Changes" button to make the groups available in other fields.',
+		'type' => 'text',
+	),
+	array(
 		'id'      => 'client_auth_method',
 		'name'    => 'Client Authentication Method',
 		'desc'    => 'How this WordPress OIDC client will authenticate to the OIDC IdP. If unsure, select <code>client_secret_post</code>.',

@@ -83,15 +83,9 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 		'type' => 'text',
 	),
 	array(
-		'id'   => 'available_groups',
-		'name' => 'Groups for Authorization',
-		'desc' => 'One or more group names to use for authorization, separated by commas. The name of a group can contain spaces.  These group names are only used as a list of choices to select from in access restriction menus; ensure they match the groups that the Identity Provider sends to the website.<br /><br /><b style="background-color: #FFFFCC;">IMPORTANT NOTE: only the <i>official</i> name of the group will work.  The "also known as" names for the group will not work.  University of Michigan users can find the official name for a group on the group\'s MCommunity page, in large type at the top of the main section.</b><br /><br />After entering or changing these group(s), you must click the "Save Changes" button in order to make these groups available in the fields below.',
-		'type' => 'text',
-	),
-	array(
 		'id'       => 'restrict_site',
 		'name'     => 'Who can access this site?',
-		'desc'     => 'Allow only members of these groups (plus administrators) to access this site.',
+		'desc'     => 'Allow only members of these groups (plus administrators) to access this site. Which groups show up here is determined by the <a href="#oidc/available_groups">Groups for Authorization</a> setting.',
 		'type'     => 'multiselect',
 		'labels'   => array( 'placeholder' => 'Select one or more groups...' ),
 		'options'  => $this->available_groups(),

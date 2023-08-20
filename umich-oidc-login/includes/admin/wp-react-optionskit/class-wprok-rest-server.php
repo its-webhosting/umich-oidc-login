@@ -31,6 +31,13 @@ namespace UMich_OIDC_Login\Admin\WP_React_OptionsKit;
 class WPROK_Rest_Server extends \WP_REST_Controller {
 
 	/**
+	 * OptionsKit panel object.
+	 *
+	 * @var object
+	 */
+	protected $panel;
+
+	/**
 	 * OptionsKit Namespace
 	 *
 	 * @var string
@@ -45,20 +52,6 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 	protected $version;
 
 	/**
-	 * The slug of the options panel.
-	 *
-	 * @var string
-	 */
-	protected $slug;
-
-	/**
-	 * All the registered settings that we're going to parse.
-	 *
-	 * @var array
-	 */
-	protected $settings;
-
-	/**
 	 * Store errors here.
 	 *
 	 * @var object
@@ -68,27 +61,25 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 	/**
 	 * Get controller started.
 	 *
-	 * @param string $slug REST controller slug.
-	 * @param array  $settings WP React Optionskit registered settings.
+	 * @param object $panel OptionsKit panel object.
 	 */
-	public function __construct( $slug, $settings ) {
+	public function __construct( $panel ) {
 
 		$this->version   = 'v1';
-		$this->slug      = $slug;
-		$this->settings  = $settings;
-		$this->namespace = 'wprok/' . $this->slug . '/' . $this->version;
+		$this->panel     = $panel;
+		$this->namespace = 'wprok/' . $this->panel->func . '/' . $this->version;
 
 		// Create a new instance of WP_Error.
 		$this->errors = new \WP_Error();
 
-		add_filter( $this->slug . '_settings_sanitize_text', array( $this, 'sanitize_text_field' ), 3, 10 );
-		add_filter( $this->slug . '_settings_sanitize_textarea', array( $this, 'sanitize_textarea_field' ), 3, 10 );
-		add_filter( $this->slug . '_settings_sanitize_radio', array( $this, 'sanitize_text_field' ), 3, 10 );
-		add_filter( $this->slug . '_settings_sanitize_select', array( $this, 'sanitize_text_field' ), 3, 10 );
-		add_filter( $this->slug . '_settings_sanitize_checkbox', array( $this, 'sanitize_checkbox_field' ), 3, 10 );
-		add_filter( $this->slug . '_settings_sanitize_multiselect', array( $this, 'sanitize_multiple_field' ), 3, 10 );
-		add_filter( $this->slug . '_settings_sanitize_multicheckbox', array( $this, 'sanitize_multiple_field' ), 3, 10 );
-		add_filter( $this->slug . '_settings_sanitize_file', array( $this, 'sanitize_file_field' ), 3, 10 );
+		add_filter( $this->panel->func . '_settings_sanitize_text', array( $this, 'sanitize_text_field' ), 3, 10 );
+		add_filter( $this->panel->func . '_settings_sanitize_textarea', array( $this, 'sanitize_textarea_field' ), 3, 10 );
+		add_filter( $this->panel->func . '_settings_sanitize_radio', array( $this, 'sanitize_text_field' ), 3, 10 );
+		add_filter( $this->panel->func . '_settings_sanitize_select', array( $this, 'sanitize_text_field' ), 3, 10 );
+		add_filter( $this->panel->func . '_settings_sanitize_checkbox', array( $this, 'sanitize_checkbox_field' ), 3, 10 );
+		add_filter( $this->panel->func . '_settings_sanitize_multiselect', array( $this, 'sanitize_multiple_field' ), 3, 10 );
+		add_filter( $this->panel->func . '_settings_sanitize_multicheckbox', array( $this, 'sanitize_multiple_field' ), 3, 10 );
+		add_filter( $this->panel->func . '_settings_sanitize_file', array( $this, 'sanitize_file_field' ), 3, 10 );
 	}
 
 	/**
@@ -219,7 +210,7 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 			return false;
 		}
 
-		$registered_settings = $this->settings;
+		$registered_settings = $this->panel->settings;
 		$settings_received   = $request->get_params();
 		$data_to_save        = array();
 
@@ -238,8 +229,8 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 
 					// Sanitize the input.
 					$setting_type = $setting['type'];
-					$output       = apply_filters( $this->slug . '_settings_sanitize_' . $setting_type, $settings_received[ $setting['id'] ], $this->errors, $setting );
-					$output       = apply_filters( $this->slug . '_settings_sanitize_' . $setting['id'], $output, $this->errors, $setting );
+					$output       = apply_filters( $this->panel->func . '_settings_sanitize_' . $setting_type, $settings_received[ $setting['id'] ], $this->errors, $setting );
+					$output       = apply_filters( $this->panel->func . '_settings_sanitize_' . $setting['id'], $output, $this->errors, $setting );
 
 					if ( 'checkbox' === $setting_type && false === $output ) {
 						continue;
@@ -257,8 +248,13 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 			return new \WP_REST_Response( $this->errors, 422 );
 		}
 
-		update_option( $this->slug . '_settings', $data_to_save );
+		update_option( $this->panel->func . '_settings', apply_filters( $this->panel->func . '_save_options', $data_to_save ) );
 
-		return rest_ensure_response( $data_to_save );
+		$response = array(
+			'options'  => $data_to_save,
+			'notices'  => apply_filters( $this->panel->func . '_notices', $this->panel->notices ),
+			'settings' => $this->panel->get_registered_settings(),  // recalculate with newly saved options, $this->panel->settings contains the old settings.
+		);
+		return rest_ensure_response( $response );
 	}
 }

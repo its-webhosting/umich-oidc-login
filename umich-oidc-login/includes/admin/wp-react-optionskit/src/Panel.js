@@ -133,13 +133,18 @@ function submitOptionsData( values, actions ) {
 	} )
 		.then( ( res ) => {
 			// Update values (what was returned may be different than submitted)
-			actions.setValues( { ...values, ...res } );
+			const newValues = { ...values, ...res.options };
+			window.optionsKitSettings.options = newValues;
+			window.optionsKitSettings.notices = res.notices;
+			window.optionsKitSettings.settings = res.settings;
+			actions.setValues( newValues );
 			const formErrorMessage = settings.labels.success;
 			actions.setFormikState( ( prevState ) => {
 				return {
 					...prevState,
 					status: {
 						...prevState.status,
+						notices: res.notices,
 						formErrorMessage,
 						formErrorType: 'success',
 						showFormError: true,
@@ -246,12 +251,12 @@ function OptionsKitNoticeList( {
 }
 
 function OptionsKitNotices() {
-	const [ notices, setNotices ] = React.useState(
-		window.optionsKitSettings.notices
-	);
+	const formik = useFormikContext();
+	const notices = formik.status.notices;
 
 	const removeNotice = ( id ) => {
-		setNotices( notices.filter( ( notice ) => notice.id !== id ) );
+		const newNotices = notices.filter( ( notice ) => notice.id !== id );
+		formik.setStatus( { ...formik.status, notices: newNotices } );
 	};
 
 	return (
@@ -306,6 +311,7 @@ function Panel() {
 			<Formik
 				initialValues={ settings.options }
 				initialStatus={ {
+					notices: settings.notices,
 					formErrorMessage: '',
 					formErrorType: 'success',
 					showFormError: false,

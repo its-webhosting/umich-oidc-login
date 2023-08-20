@@ -51,6 +51,8 @@ class Settings_Page {
 
 		// Setup the options panel menu.
 		\add_filter( 'umich_oidc_menu', array( $this, 'setup_menu' ) );
+		\add_filter( 'umich_oidc_notices', array( $this, 'notices' ) );
+		\add_filter( 'umich_oidc_save_options', array( $this, 'save_options' ) );
 
 		// Register settings tabs.
 		\add_filter( 'umich_oidc_settings_tabs', array( $this, 'register_settings_tabs' ) );
@@ -73,30 +75,6 @@ class Settings_Page {
 			UMICH_OIDC_LOGIN_VERSION_INT,
 			true
 		);
-
-		$options          = $this->ctx->options;
-		$missing_options  = '';
-		$separator        = ' ';
-		$required_options = array(
-			'provider_url'  => 'Identity Provider URL',
-			'client_id'     => 'Client ID',
-			'client_secret' => 'Client Secret',
-		);
-		foreach ( \array_keys( $required_options ) as $opt ) {
-			if ( ! \array_key_exists( $opt, $options ) ||
-				'' === $options[ $opt ] ) {
-				$opt_name         = $required_options[ $opt ];
-				$missing_options .= "{$separator}<a href='#oidc/{$opt}'>{$opt_name}</a>";
-				$separator        = ', ';
-			}
-		}
-		if ( '' !== $missing_options ) {
-			$this->panel->add_notice( 'missing-options', 'warning', "UMich OIDC Login requires the following options to be set before users will be able to log in via OIDC: {$missing_options}" );
-		}
-
-		if ( ! \class_exists( 'Pantheon_Sessions' ) ) {
-			$this->panel->add_notice( 'pantheon-plugin', 'warning', 'UMich OIDC Login strongly recommends using the <a href="https://wordpress.org/plugins/wp-native-php-sessions/" target="_blank">WordPress Native PHP Sessions</a> plugin to prevent conflicts with other WordPress plugins that also use PHP sessions, and to ensure correct operation when the site has multiple web servers.' );
-		}
 	}
 
 	/**
@@ -113,6 +91,62 @@ class Settings_Page {
 			'menu_title' => 'UMich OIDC Login',
 			'capability' => 'manage_options',
 		);
+	}
+
+	/**
+	 * Setup notices for the options panel.
+	 *
+	 * @param array $notices original notices for the options panel.
+	 *
+	 * @return array
+	 */
+	public function notices( $notices ) {
+		$notices = array();  // start over.
+
+		$options          = $this->ctx->options;
+		$missing_options  = '';
+		$separator        = ' ';
+		$required_options = array(
+			'provider_url'  => 'Identity Provider URL',
+			'client_id'     => 'Client ID',
+			'client_secret' => 'Client Secret',
+		);
+		foreach ( \array_keys( $required_options ) as $opt ) {
+			if ( ! \array_key_exists( $opt, $options ) || '' === $options[ $opt ] ) {
+				$opt_name         = $required_options[ $opt ];
+				$missing_options .= "{$separator}<a href='#oidc/{$opt}'>{$opt_name}</a>";
+				$separator        = ', ';
+			}
+		}
+
+		if ( '' !== $missing_options ) {
+			$notices[] = array(
+				'id'      => 'missing-options',
+				'status'  => 'warning',
+				'content' => "UMich OIDC Login requires the following options to be set before users will be able to log in via OIDC: {$missing_options}",
+			);
+		}
+
+		if ( ! \class_exists( 'Pantheon_Sessions' ) ) {
+			$notices[] = array(
+				'id'      => 'pantheon-plugin',
+				'status'  => 'warning',
+				'content' => 'UMich OIDC Login strongly recommends using the <a href="https://wordpress.org/plugins/wp-native-php-sessions/" target="_blank">WordPress Native PHP Sessions</a> plugin to prevent conflicts with other WordPress plugins that also use PHP sessions, and to ensure correct operation when the site has multiple web servers.',
+			);
+		}
+		return $notices;
+	}
+
+	/**
+	 * Modify options before saving changes.
+	 *
+	 * @param array $options new options to save.
+	 *
+	 * @return array
+	 */
+	public function save_options( $options ) {
+		$this->ctx->options = $options; // save the new data so the notices filter can use them.
+		return $options;
 	}
 
 	/**
@@ -210,6 +244,7 @@ class Settings_Page {
 
 		$option_defaults = $this->ctx->option_defaults;
 
+		// Use require rather than require_once to ensure new values are calculated each time.
 		require 'settings-tab-general.php';    // sets $settings_tab_general.
 		require 'settings-tab-oidc.php';       // sets $settings_tab_oidc.
 		require 'settings-tab-shortcodes.php'; // sets $settings_tab_shortcodes.
