@@ -21,6 +21,7 @@ Then
 * Set "Use OIDC for WordPress Users" to "no".
 * Go to /wp-admin and make WordPress logins function correctly, that the session times out properly, and that the user can reauthenticate properly.
 * Go to /wp-login.php and make WordPress logins function correctly.
+* Go to /login and make sure WordPress logins function correctly.
 * Go to main page and make sure OIDC logins function correctly, that the session times out properly, and the user gets redirected back to the main page after reauthenticating.
 * Paste in the URL of a page that requires login make sure that the user gets automatically prompted to log in via OIDC, that the session times out properly, and the user gets redirected back to the protected page after reauthenticating.
 * Go to a page that requires login.  Once viewing the page as a logged in user, log out and make sure that the user gets redirected back to the site main page.
@@ -30,7 +31,11 @@ Then
 * Set "Use OIDC for WordPress Users" to "optional".
 * Go to /wp-admin and make sure both login options (OIDC and WP) function correctly.
 * Go to /wp-login.php and make sure both login options (OIDC and WP) function correctly.
-* Try as an OIDC user that does not have a corresponding WordPress account, make sure that the user gets an "Access Denied" error.
+* Go to /login and make sure WordPress logins function correctly.
+* Try as an OIDC user that does not have a corresponding WordPress account:
+  * /wp-admin - make sure that the user gets an "Access Denied" error.
+  * /wp-login.php - make sure user is logged in and gets sent to the site's main page
+  * /login - make sure user is logged in and gets sent to the site's main page
 * Go to main page and make sure OIDC logins function correctly, that the session times out properly, and the user gets redirected back to the main page after reauthenticating.
 * Paste in the URL of a page that requires login make sure that the user gets automatically prompted to log in via OIDC, that the session times out properly, and the user gets redirected back to the protected page after reauthenticating.
 * Go to a page that requires login.  Once viewing the page as a logged in user, log out and make sure that the user gets redirected back to the site main page.
@@ -40,12 +45,21 @@ Then
 * Set "Use OIDC for WordPress Users" to "yes".
 * Go to /wp-admin and verify that OIDC is used and that the user is logged in to WordPress afterward.
 * Go to /wp-login.php and verify that OIDC is used and that the user is logged in to WordPress afterward (site main page).
+* Go to /login and make sure WordPress logins function correctly.
 * Log out via OIDC and verify that the user is logged out of both OIDC and their WordPress user account.
 * Log out via the WordPress menu and verify that the user is logged out of both OIDC and their WordPress user account.
 * Go to main page and make sure OIDC logins function correctly, that the session times out properly, and the user gets redirected back to the main page after reauthenticating.
 * Paste in the URL of a page that requires login make sure that the user gets automatically prompted to log in via OIDC, that the session times out properly, and the user gets redirected back to the protected page after reauthenticating.
 * Go to a page that requires login.  Once viewing the page as a logged in user, log out and make sure that the user gets redirected back to the site main page.
 
+### Login / logout actions
+
+* Set Login Destination URL to /hello-world/
+* Set Logout Destination URL to https://umich.edu/
+* Clear web host caches and browser cache.
+* Log in from the main page, then log out and make sure the user gets sent to the correct page each time.
+* Delete values for Login, Logout Destination URLs.
+* Clear caches again.
 
 ## REST API
 
