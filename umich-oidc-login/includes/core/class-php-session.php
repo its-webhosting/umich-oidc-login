@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message as log_message;
+use function UMich_OIDC_Login\Core\log_message;
 
 /**
  * PHP session management.
@@ -154,6 +154,7 @@ class PHP_Session {
 
 		$key = 'umich_oidc_' . $key;
 		if ( isset( $_SESSION ) && \array_key_exists( $key, $_SESSION ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- session data is created by the plugin and stored securely in the database.  Sanitization should be done at the time something is added to the session, not at the time it is retrieved.
 			return $_SESSION[ $key ];
 		}
 		return $default_value;

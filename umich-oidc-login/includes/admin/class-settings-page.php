@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message as log_message;
+use function UMich_OIDC_Login\Core\log_message;
 
 /**
  * Admin dashboard settings page
@@ -408,7 +408,7 @@ class Settings_Page {
 		}
 
 		$values = array_map(
-			function( $v ) {
+			function ( $v ) {
 				return $v['value'];
 			},
 			$setting['options']

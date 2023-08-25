@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message as log_message;
+use function UMich_OIDC_Login\Core\log_message;
 
 /**
  * Fired during plugin activation or deactivation.

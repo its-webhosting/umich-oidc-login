@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message as log_message;
+use function UMich_OIDC_Login\Core\log_message;
 
 /**
  * Post Meta Box for restricting access to pages and posts.
@@ -165,7 +165,7 @@ class Post_Meta_Box {
 		if ( \count( $access ) > 1 ) {
 			$access = \array_filter(
 				$access,
-				function( $g ) {
+				function ( $g ) {
 					return '_everyone_' !== $g;
 				}
 			);
@@ -173,7 +173,7 @@ class Post_Meta_Box {
 		if ( \count( $access ) > 1 ) {
 			$access = \array_filter(
 				$access,
-				function( $g ) {
+				function ( $g ) {
 					return '_logged_in' !== $g;
 				}
 			);
