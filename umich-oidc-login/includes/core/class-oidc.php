@@ -40,6 +40,35 @@ class OIDC {
 	}
 
 	/**
+	 * Get the domain to use in cookies.
+	 * This code is based on https://github.com/pantheon-systems/wp-native-php-sessions/blob/main/pantheon-sessions.php
+	 *
+	 * @return string
+	 */
+	private function get_cookie_domain() {
+		// If the user specifies the cookie domain, also use it for session name.
+		if ( defined( 'COOKIE_DOMAIN' ) && constant( 'COOKIE_DOMAIN' ) ) {
+			$cookie_domain = constant( 'COOKIE_DOMAIN' );
+		} else {
+			$session_name  = \wp_parse_url( \home_url(), PHP_URL_HOST );
+			$cookie_domain = \ltrim( $session_name, '.' );
+			// Strip leading periods, www., and port numbers from cookie domain.
+			if ( \strpos( $cookie_domain, 'www.' ) === 0 ) {
+				$cookie_domain = \substr( $cookie_domain, 4 );
+			}
+			$cookie_domain = \explode( ':', $cookie_domain );
+			$cookie_domain = '.' . $cookie_domain[0];
+		}
+
+		// Per RFC 2109, cookie domains must contain at least one dot other than the
+		// first. For hosts such as 'localhost' or IP Addresses we don't set a cookie domain.
+		if ( \count( \explode( '.', $cookie_domain ) ) > 2 && ! \is_numeric( \str_replace( '.', '', $cookie_domain ) ) ) {
+			return $cookie_domain;
+		}
+		return '';
+	}
+
+	/**
 	 * Filter for array of hosts that it is safe to redirect to.
 	 *
 	 * @param array $hosts  Array of hostnames that are allowed in redirect URLs.
@@ -69,11 +98,36 @@ class OIDC {
 	 * @return void
 	 */
 	public function redirect( $url ) {
-		log_message( "redirecting to {$url}" );
+
+		global $wp;
+		$source_path = $wp->request ? $wp->request : ( isset( $_SERVER['REQUEST_URI'] ) ? \esc_url_raw( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '/' );
+		$source_path = '/' . ltrim( $source_path, '/' );
+		log_message( "redirecting from {$source_url} to {$url}" );
+
 		// TODO: call wp_validate_redirect() to be safe.  This
 		// will require adding a filter for allowed_redirect_hosts
 		// to add the IdP endpoints.
+
 		\nocache_headers();
+
+		/*
+		 * WP Engine will cache the redirect unless we set a cookie with a name starting with wordpress_.
+		 * See https://wpengine.com/support/cache/#Cache_Exclusions .
+		 * Fortunately, we don't have to worry about this for the redirects that the JumboJett OIDC
+		 * package generates because those are all handled as AJAX requests through /wp-admin/wp-ajax.php,
+		 * and WP Engine doesn't cache anything under /wp-admin .
+		 */
+		if ( isset( $_SERVER['IS_WPE'] ) ) {
+			$cookie_options = array(
+				'expires'  => time() + 60, // just long enough to keep WP Engine from caching the redirect.
+				'path'     => $source_path, // only this page.
+				'domain'   => $this->get_cookie_domain(),
+				'secure'   => true,
+				'httponly' => true,
+			);
+			\setcookie( 'wordpress_umich_oidc_login_redirect', 'do-not-cache-this-request', $cookie_options );
+		}
+
 		\wp_safe_redirect( $url );
 		exit;
 	}
@@ -337,26 +391,27 @@ class OIDC {
 		// Figure out the $return_url.
 		if ( 'here' === $return_to ) {
 			$return_url = $this->get_current_url();
-			if ( 'yes' === $options['use_oidc_for_wp_users'] ) {
-				if ( 'logout' === $type
-					&& \str_starts_with( $return_url, \admin_url() ) ) {
-					// Going back to the admin page will just
-					// automatically log the user in again.
-					$return_url = \home_url();
-				} elseif ( \str_starts_with( $return_url, \home_url( '/wp-login.php' ) ) || \untrailingslashit( $return_url ) === \home_url( '/login' ) ) {
-					// Avoid an authentication loop.
-					$return_url = \home_url();
-				}
-			}
 		} elseif ( 'home' === $return_to ) {
 			$return_url = \home_url();
 		} else {
-			// $return_to is a full URL or URL path.
-			$return_url = \esc_url_raw( $return_to );
-			if ( '' === $return_url ) {
-				$return_url = \home_url();
-			}
+			$return_url = $return_to; // it's a URL.
 		}
+		if ( '' === $return_url ) {
+			$return_url = \home_url();
+		}
+		if ( 'yes' === $options['use_oidc_for_wp_users']
+			&& 'logout' === $type
+			&& \str_starts_with( $return_url, \admin_url() ) ) {
+			// Going back to the admin page will just automatically log the user in again.
+			$return_url = \home_url();
+		}
+		if ( 'no' !== $options['use_oidc_for_wp_users']
+			&& ( \str_starts_with( $return_url, \home_url( '/wp-login.php' ) )
+				|| \untrailingslashit( $return_url ) === \home_url( '/login' ) ) ) {
+				// Avoid an authentication loop.
+				$return_url = \home_url();
+		}
+		log_message( "get_oidc_url: return_url={$return_url}" );
 
 		if ( 'home' === $return_to ) {
 			$return_query_string = '';
@@ -600,6 +655,23 @@ class OIDC {
 				'Unable to determine username.'
 			);
 		}
+
+		/*
+		 * If the site is hosted on WP Engine, set a cookie starting with
+		 * wordpress_ to signal to WP Engine not to cache pages/posts.
+		 * See https://wpengine.com/support/cache/#Cache_Exclusions .
+		 */
+		if ( isset( $_SERVER['IS_WPE'] ) ) {
+			$cookie_options = array(
+				'expires'  => 0, // session cookie.
+				'path'     => '/',
+				'domain'   => $this->get_cookie_domain(),
+				'secure'   => true,
+				'httponly' => true,
+			);
+			\setcookie( 'wordpress_umich_oidc_login', 'logged-in', $cookie_options );
+		}
+
 		log_message( "Logged in OIDC username: {$username}" );
 
 		if ( 'no' === $options['use_oidc_for_wp_users'] ) {
@@ -650,6 +722,18 @@ class OIDC {
 	public function logout() {
 
 		log_message( 'logging out' );
+
+		// If the site is hosted on WP Engine, unset the login cookie.
+		if ( isset( $_SERVER['IS_WPE'] ) ) {
+			$cookie_options = array(
+				'expires'  => 1, // in the past (1 second into January 1, 1970).
+				'path'     => '/',
+				'domain'   => $this->get_cookie_domain(),
+				'secure'   => true,
+				'httponly' => true,
+			);
+			\setcookie( 'wordpress_umich_oidc_login', '', $cookie_options );
+		}
 
 		// TODO: call Jumbojett signOut() to let the IdP know that the user has signed out of this RP.  The U-M IdP doesn't currently support this.
 
