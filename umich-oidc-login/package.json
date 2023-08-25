@@ -22,7 +22,7 @@
 		"react-select": "^5.7.4"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^26.11.0"
+		"@wordpress/scripts": "26.6.3"
 	},
 	"scripts": {
 		"build": "wp-scripts build",

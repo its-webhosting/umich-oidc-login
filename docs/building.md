@@ -63,7 +63,7 @@ Stop here, you're done.
 
 ## Update plugin dependencies
 
-When you need to update the plugin dependencies (for example, when releasing a new version of the plugin), follow the steps below.
+When you need to update the plugin dependencies (for example, when releasing a new version of the plugin), follow the steps below.  The steps will first remove old depenency artifacts, then update the config files, and finally rebuild the plugin.  Avoid running the composer or npm `update` command as that won't get everything right.
 
 ### Update Composer-managed dependencies
 
@@ -71,30 +71,33 @@ When you need to update the plugin dependencies (for example, when releasing a n
 rm -rf scratch/composer-*-cache
 cd umich-oidc-login
 rm -rf composer.lock build vendor
-run-composer update
 cd ..
 ```
+
+Edit `composer.json`, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version.
 
 ### Update NodeJS dependencies
 
 ```bash
 cd umich-oidc-login
-rm -rf node_modules package-lock.json
-run-node npm update
+rm -rf build node_modules package-lock.json
 ```
 
-You may want to edit `package.json` and fix package version numbers more aggressively, by hand.  If you do, then re-run the commands above to get a new `package-lock.json`.
+Edit `package.json`:
+* For all `@wordpress/*` packages, change the version of the package to the _exact_ version (no caret) listed in the [Changelog for the latest release of WordPress](https://wordpress.org/documentation/article/wordpress-versions/).
+* For all other packages, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version, usually using the caret notation.
 
 ```bash
 pushd includes/admin/wp-react-optionskit
 rm -rf build node_modules package-lock.json
-run-node npm update
 ```
 
-You may want to edit `package.json` and fix package version numbers more aggressively, by hand.  If you do, then re-run the commands above to get a new `package-lock.json`.
+Edit `package.json`:
+* For all `@wordpress/*` packages, change the version of the package to the _exact_ version (no caret) listed in the [Changelog for the latest release of WordPress](https://wordpress.org/documentation/article/wordpress-versions/).
+* For all other packages, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version, usually using the caret notation.
 
 
-### Rebuild everything
+### Now rebuild everything
 
 Follow the instructions above to
 * [build Composer packages](#build-composer-packages)
