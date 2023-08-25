@@ -102,7 +102,7 @@ class OIDC {
 		global $wp;
 		$source_path = $wp->request ? $wp->request : ( isset( $_SERVER['REQUEST_URI'] ) ? \esc_url_raw( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '/' );
 		$source_path = '/' . ltrim( $source_path, '/' );
-		log_message( "redirecting from {$source_url} to {$url}" );
+		log_message( "redirecting from {$source_path} to {$url}" );
 
 		// TODO: call wp_validate_redirect() to be safe.  This
 		// will require adding a filter for allowed_redirect_hosts
@@ -450,20 +450,6 @@ class OIDC {
 				break;
 
 			case 'optional':
-				// Ensure the user gets sent back to the same
-				// page after authentication. This overrides
-				// WordPress' default behavior but ensures
-				// people who log in via OIDC get the same
-				// experience for both 'yes' and 'optional'.
-				// Skip this if $redirect is set, since in
-				// that case wp_login_url() already added a
-				// redirect_to query string parameter.
-				if ( empty( $redirect ) ) {
-					$r   = $this->get_current_url();
-					$url = \add_query_arg( 'redirect_to', \rawurlencode( $r ), $login_url );
-				}
-				break;
-
 			case 'no':
 			default:
 				// If we're not on an admin interface page and a OIDC session
