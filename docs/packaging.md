@@ -68,6 +68,7 @@ Remove any previous build
 cd umich-oidc-login
 rm -rf build node_modules vendor \
     includes/admin/wp-react-optionskit/build \
+    includes/admin/wp-react-optionskit/node_modules \
     includes/admin/wp-react-optionskit/vendor
 ```
 
