@@ -81,13 +81,6 @@ class React_OptionsKit {
 	private $action_buttons = array();
 
 	/**
-	 * Setup labels for translation and modification.
-	 *
-	 * @var array
-	 */
-	private $labels = array();
-
-	/**
 	 * Notices to display.
 	 *
 	 * @var array
@@ -114,7 +107,6 @@ class React_OptionsKit {
 
 		$this->slug   = $slug;
 		$this->func   = str_replace( '-', '_', $slug );
-		$this->labels = $this->get_labels();
 
 		$GLOBALS[ $this->func . '_options' ] = get_option( $this->func . '_settings', true );
 
@@ -334,7 +326,7 @@ class React_OptionsKit {
 				'page_title'  => esc_html( $this->page_title ),
 				'logo'        => $this->image,
 				'buttons'     => $this->action_buttons,
-				'labels'      => $this->labels,
+				'labels'      => $this->get_labels(),
 				'notices'     => apply_filters( $this->func . '_notices', $this->notices ),
 				'tabs'        => $this->get_settings_tabs(),
 				'sections'    => $this->get_registered_settings_sections(),

@@ -52,6 +52,7 @@ class Settings_Page {
 		// Setup the options panel menu.
 		\add_filter( 'umich_oidc_menu', array( $this, 'setup_menu' ) );
 		\add_filter( 'umich_oidc_notices', array( $this, 'notices' ) );
+		\add_filter( 'umich_oidc_labels', array( $this, 'labels' ) );
 		\add_filter( 'umich_oidc_save_options', array( $this, 'save_options' ) );
 
 		// Register settings tabs.
@@ -135,6 +136,19 @@ class Settings_Page {
 			);
 		}
 		return $notices;
+	}
+
+	/**
+	 * Setup labels for the options panel.
+	 *
+	 * @param array $labels default labels for the options panel.
+	 *
+	 * @return array
+	 */
+	public function labels( $labels ) {
+
+		$labels['success'] = 'Settings successfully saved.  Clear any WordPress and web hosting caches to ensure new access restrictions fully take effect.';
+		return $labels;
 	}
 
 	/**
