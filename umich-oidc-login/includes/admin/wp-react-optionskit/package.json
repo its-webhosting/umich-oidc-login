@@ -23,8 +23,8 @@
     "@wordpress/api-fetch": "6.32.1",
     "@wordpress/components": "25.1.10",
     "@wordpress/element": "5.12.1",
-    "formik": "^2.4.3",
-    "html-react-parser": "^4.2.1",
+    "formik": "^2.4.4",
+    "html-react-parser": "^4.2.2",
     "react-grid-system": "^8.1.9",
     "react-select": "^5.7.4"
   },
