@@ -50,11 +50,11 @@ run-composer dump-autoload --working-dir build
 ## Build Gutenberg and React code
 
 ```bash
-run-node npm install --production=false  # ensure @wordpress/scripts devDependnecy gets installed
+run-node npm install --production=false  # ensure @wordpress/scripts devDependency gets installed
 run-node npm run-script build:metabox
 
 cd includes/admin/wp-react-optionskit/
-run-node npm install --production=false  # ensure @wordpress/scripts devDependnecy gets installed
+run-node npm install --production=false  # ensure @wordpress/scripts devDependency gets installed
 run-node npm run-script build
 popd
 ```
@@ -63,7 +63,7 @@ Stop here, you're done.
 
 ## Update plugin dependencies
 
-When you need to update the plugin dependencies (for example, when releasing a new version of the plugin), follow the steps below.  The steps will first remove old depenency artifacts, then update the config files, and finally rebuild the plugin.  Avoid running the composer or npm `update` command as that won't get everything right.
+When you need to update the plugin dependencies (for example, when releasing a new version of the plugin), follow the steps below.  The steps will first remove old dependency artifacts, then update the config files, and finally rebuild the plugin.  Avoid running the composer or npm `update` command as that won't get everything right.
 
 ### Update Composer-managed dependencies
 

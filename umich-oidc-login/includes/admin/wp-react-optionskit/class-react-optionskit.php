@@ -105,8 +105,8 @@ class React_OptionsKit {
 			return;
 		}
 
-		$this->slug   = $slug;
-		$this->func   = str_replace( '-', '_', $slug );
+		$this->slug = $slug;
+		$this->func = str_replace( '-', '_', $slug );
 
 		$GLOBALS[ $this->func . '_options' ] = get_option( $this->func . '_settings', true );
 

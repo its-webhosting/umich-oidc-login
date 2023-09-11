@@ -107,7 +107,7 @@ rm -rf umich-oidc-login/node_modules  # only needed when building
 rm -rf umich-oidc-login/includes/admin/wp-react-optionskit/node_modules  # only needed when building
 ```
 
-We're not deleting `composer.json`, `composer.lock`, `package.json` and `package-lock.json` in order to be clear what code we're shipping.
+We're not deleting `composer.json`, `composer.lock`, `package.json` and `package-lock.json` in order to be clear about what code we're shipping.
 
 Compare the files in the old and new release.  Look for things that got added that should not be shipped.
 
@@ -131,8 +131,8 @@ Go to
 https://github.com/its-webhosting/umich-oidc-login/releases
 
 * Click "Draft a new release" button
-* Choose a tag: v1.1.2
-* Release title: 1.1.2
+* Choose a tag -> Create new tag on publish: v1.2.0
+* Release title: 1.2.0
 * For the release notes:
 
 ```markdown

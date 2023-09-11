@@ -4,7 +4,7 @@ How to set up a local development environment to run and modify the plugin.
 
 The development environment is set up at https://wp.local/
 
-Unless specified, all commands below should be run from the top-level directory of the plugin source code repostory.
+Unless specified, all commands below should be run from the top-level directory of the plugin source code repository.
 
 ## Requirements
 
@@ -95,6 +95,18 @@ tail -f scratch/logs/wordpress/wp-debug.log
 
 ```bash
 check-code
+```
+
+If you get the following error
+```
+Error while loading rules from rules directory - ENOENT: no such file or directory, scandir '/home/node/app/node_modules/npm-package-json-lint/src/rules'
+```
+then run
+```bash
+pushd node_modules/npm-package-json-lint/src
+cp -a rules rules-dir
+sed -i -e "s/'rules'/'rules-dir'/" Rules.js
+popd
 ```
 
 ### Develop the plugin settings page
