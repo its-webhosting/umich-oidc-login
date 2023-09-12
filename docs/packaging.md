@@ -173,6 +173,17 @@ rsync -a -v -v --delete --dry-run \
 rsync -a -v --delete \
     /path/to/your/releases/directory/umich-oidc-login/ trunk
 svn stat
+
+# delete files that are no longer in the new release:
+svn stat | perl -n -e 'print "$1\n" if /^!\s+(.+)/;'
+svn stat | perl -n -e 'print "$1\n" if /^!\s+(.+)/;' | xargs svn delete
+# add new files:
+svn stat | perl -n -e 'print "$1\n" if /^\?\s+(.+)/;'
+svn stat | perl -n -e 'print "$1\n" if /^\?\s+(.+)/;' | xargs svn add
+
+# make sure everything looks good:
+svn stat
+
 svn ci -m "Updating trunk to version X.Y.Z"  # CHANGE version number!
 
 # Tag the new release that you just added above:
