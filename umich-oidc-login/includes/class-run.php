@@ -167,7 +167,7 @@ class Run {
 			\update_option( 'umich_oidc_settings', $this->options );
 		}
 		$this->internals['plugin_version'] = UMICH_OIDC_LOGIN_VERSION_INT;
-		\update_option( 'umich_oidc_internals', $this->internals );
+		\update_site_option( 'umich_oidc_internals', $this->internals );
 	}
 
 
@@ -190,13 +190,24 @@ class Run {
 			log_message( 'WARNING: plugin options not an array' );
 			$options = array();
 		}
+
+		if( is_multisite() ) {
+			$msOptions = \get_site_option( 'umich_oidc_network_settings' );
+			if ( ! \is_array( $msOptions ) ) {
+				log_message( 'WARNING: plugin options not an array' );
+				$msOptions = array();
+			}
+
+			$options = is_network_admin() ? $msOptions : \array_merge( $msOptions, $options );
+		}
+
 		$this->options = \array_merge( $this->option_defaults, $options );
 
 		$internal_defaults = array(
 			'plugin_version' => 0,
 		);
 
-		$internals = \get_option( 'umich_oidc_internals' );
+		$internals = \get_site_option( 'umich_oidc_internals' );
 		if ( ! \is_array( $internals ) ) {
 			$internals = array();
 		}
@@ -224,6 +235,10 @@ class Run {
 			// redirect URL list on the IdP.
 			\add_action( 'wp_ajax_openid-connect-authorize', array( $this->oidc, 'login' ) );
 			\add_action( 'wp_ajax_nopriv_openid-connect-authorize', array( $this->oidc, 'login' ) );
+
+			// Multisite handler
+			\add_action( 'wp_ajax_openid-connect-multisite', array( $this->oidc, 'login_multisite' ) );
+			\add_action( 'wp_ajax_nopriv_openid-connect-multisite', array( $this->oidc, 'login_multisite' ) );
 
 			// Logout handler.
 			\add_action( 'wp_ajax_umich-oidc-logout', array( $this->oidc, 'logout_and_redirect' ) );

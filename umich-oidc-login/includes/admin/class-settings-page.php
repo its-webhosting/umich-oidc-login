@@ -38,6 +38,13 @@ class Settings_Page {
 	protected $panel;
 
 	/**
+	 * Holds the network options panel controller.
+	 *
+	 * @var object $networkPanel
+	 */
+	protected $networkPanel;
+
+	/**
 	 * Settings page object.
 	 *
 	 * @param object $ctx Context for this WordPress request / this run of the plugin.
@@ -46,28 +53,55 @@ class Settings_Page {
 
 		$this->ctx = $ctx;
 
+		// SETUP SITE OPTIONS
 		$this->panel = new \UMich_OIDC_Login\Admin\WP_React_OptionsKit\React_OptionsKit( 'umich_oidc' );
 		$this->panel->set_page_title( 'UMich OIDC Login Settings' );
 
 		// Setup the options panel menu.
-		\add_filter( 'umich_oidc_menu', array( $this, 'setup_menu' ) );
-		\add_filter( 'umich_oidc_notices', array( $this, 'notices' ) );
-		\add_filter( 'umich_oidc_labels', array( $this, 'labels' ) );
+		\add_filter( 'umich_oidc_menu',         array( $this, 'setup_menu' ) );
+		\add_filter( 'umich_oidc_notices',      array( $this, 'notices' ) );
+		\add_filter( 'umich_oidc_labels',       array( $this, 'labels' ) );
 		\add_filter( 'umich_oidc_save_options', array( $this, 'save_options' ) );
 
 		// Register settings tabs.
-		\add_filter( 'umich_oidc_settings_tabs', array( $this, 'register_settings_tabs' ) );
-		\add_filter( 'umich_oidc_registered_settings_sections', array( $this, 'register_settings_subsections' ) );
+		\add_filter( 'umich_oidc_settings_tabs',                array( $this, 'register_settings_tabs' ) );
+		\add_filter( 'umich_oidc_registered_settings_sections', array( $this, 'registered_settings_subsections' ) );
 
 		// Register settings fields for the options panel.
-		\add_filter( 'umich_oidc_registered_settings', array( $this, 'register_settings' ) );
+		\add_filter( 'umich_oidc_registered_settings', array( $this, 'registered_settings' ) );
 
-		\add_filter( 'umich_oidc_settings_sanitize_provider_url', array( $this, 'sanitize_provider_url' ), 3, 10 );
-		\add_filter( 'umich_oidc_settings_sanitize_scopes', array( $this, 'sanitize_scopes' ), 3, 10 );
-		\add_filter( 'umich_oidc_settings_sanitize_login_return_url', array( $this, 'sanitize_url' ), 3, 10 );
+		\add_filter( 'umich_oidc_settings_sanitize_provider_url',      array( $this, 'sanitize_provider_url' ), 3, 10 );
+		\add_filter( 'umich_oidc_settings_sanitize_scopes',            array( $this, 'sanitize_scopes' ), 3, 10 );
+		\add_filter( 'umich_oidc_settings_sanitize_login_return_url',  array( $this, 'sanitize_url' ), 3, 10 );
 		\add_filter( 'umich_oidc_settings_sanitize_logout_return_url', array( $this, 'sanitize_url' ), 3, 10 );
-		\add_filter( 'umich_oidc_settings_sanitize_available_groups', array( $this, 'sanitize_available_groups' ), 3, 10 );
-		\add_filter( 'umich_oidc_settings_sanitize_restrict_site', array( $this, 'sanitize_group_choices' ), 3, 10 );
+		\add_filter( 'umich_oidc_settings_sanitize_available_groups',  array( $this, 'sanitize_available_groups' ), 3, 10 );
+		\add_filter( 'umich_oidc_settings_sanitize_restrict_site',     array( $this, 'sanitize_group_choices' ), 3, 10 );
+
+		// SETUP NETWORK OPTIONS
+		if( is_multisite() ) {
+			$this->networkPanel = new \UMich_OIDC_Login\Admin\WP_React_OptionsKit\React_OptionsKit( 'umich_oidc', 'network' );
+			$this->networkPanel->set_page_title( 'UMich OIDC Login Network Settings' );
+
+			// Setup the options panel menu.
+			\add_filter( 'umich_oidc_network_menu',         array( $this, 'setup_network_menu' ) );
+			\add_filter( 'umich_oidc_network_notices',      array( $this, 'notices' ) );
+			\add_filter( 'umich_oidc_network_labels',       array( $this, 'labels' ) );
+			\add_filter( 'umich_oidc_network_save_options', array( $this, 'save_options' ) );
+
+			// Register settings tabs.
+			\add_filter( 'umich_oidc_network_settings_tabs',                array( $this, 'register_network_settings_tabs' ) );
+			\add_filter( 'umich_oidc_network_registered_settings_sections', array( $this, 'registered_settings_subsections' ) );
+
+			// Register settings fields for the options panel.
+			\add_filter( 'umich_oidc_network_registered_settings', array( $this, 'registered_network_settings' ) );
+
+			\add_filter( 'umich_oidc_network_settings_sanitize_provider_url',      array( $this, 'sanitize_provider_url' ), 3, 10 );
+			\add_filter( 'umich_oidc_network_settings_sanitize_scopes',            array( $this, 'sanitize_scopes' ), 3, 10 );
+			\add_filter( 'umich_oidc_network_settings_sanitize_login_return_url',  array( $this, 'sanitize_url' ), 3, 10 );
+			\add_filter( 'umich_oidc_network_settings_sanitize_logout_return_url', array( $this, 'sanitize_url' ), 3, 10 );
+			\add_filter( 'umich_oidc_network_settings_sanitize_available_groups',  array( $this, 'sanitize_available_groups' ), 3, 10 );
+			\add_filter( 'umich_oidc_network_settings_sanitize_restrict_site',     array( $this, 'sanitize_group_choices' ), 3, 10 );
+		}
 
 		\wp_enqueue_script(
 			'umich-oidc-settings',
@@ -92,6 +126,21 @@ class Settings_Page {
 			'menu_title' => 'UMich OIDC Login',
 			'capability' => 'manage_options',
 		);
+	}
+
+	/**
+	 * Setup the network menu for the options panel.
+	 *
+	 * @param array $menu original settings of the menu.
+	 *
+	 * @return array
+	 */
+	public function setup_network_menu( $menu ) {
+		return array_replace( $menu, array(
+			'page_title' => 'UMich OIDC Login',
+			'menu_title' => 'UMich OIDC Login',
+			'capability' => 'manage_options',
+		) );
 	}
 
 	/**
@@ -176,6 +225,28 @@ class Settings_Page {
 			'oidc'       => 'OIDC',
 			'shortcodes' => 'Shortcodes',
 		);
+
+		if( is_multisite() ) {
+			unset( $tabs['oidc'] );
+		}
+
+		return $tabs;
+	}
+
+	/**
+	 * Register settings tabs for the options panel.
+	 *
+	 * @param array $tabs Default tabs.
+	 *
+	 * @return array
+	 */
+	public function register_network_settings_tabs( $tabs ) {
+		$tabs = array(
+			'general'    => 'General',
+			'oidc'       => 'OIDC',
+			'shortcodes' => 'Shortcodes',
+		);
+
 		return $tabs;
 	}
 
@@ -186,7 +257,7 @@ class Settings_Page {
 	 *
 	 * @return array
 	 */
-	public function register_settings_subsections( $sections ) {
+	public function registered_settings_subsections( $sections ) {
 		return $sections;
 	}
 
@@ -254,7 +325,7 @@ class Settings_Page {
 	 *
 	 * @return array
 	 */
-	public function register_settings( $settings ) {
+	public function registered_settings( $settings, $location = 'site' ) {
 
 		$option_defaults = $this->ctx->option_defaults;
 
@@ -269,7 +340,42 @@ class Settings_Page {
 			'shortcodes' => $settings_tab_shortcodes,
 		);
 
+		if( is_multisite() && ($location == 'site') ) {
+			unset( $settings['oidc'] );
+		}
+
+		foreach( $settings as $tKey => $tSettings ) {
+			foreach( $tSettings as $sKey => $setting ) {
+				if( isset( $setting['show'] ) ) {
+					if( is_multisite() ) {
+						$setting['show'] = is_array( $setting['show'] ) ? $setting['show'] : array( $setting['show'] );
+
+						if( !in_array( $location, $setting['show'] ) ) {
+							unset( $settings[ $tKey ][ $sKey ] );
+						}
+					}
+					else if( !in_array( 'single', $setting['show'] ) ) {
+						unset( $settings[ $tKey ][ $sKey ] );
+					}
+				}
+			}
+
+			$settings[ $tKey ] = array_values( $settings[ $tKey ] );
+		}
+
 		return $settings;
+	}
+
+	/**
+	 * Register network settings for the plugin.
+	 *
+	 * @param array $settings Default settings.
+	 *
+	 * @return array
+	 */
+	public function registered_network_settings( $settings ) {
+
+		return $this->registered_settings( $settings, 'network' );
 	}
 
 

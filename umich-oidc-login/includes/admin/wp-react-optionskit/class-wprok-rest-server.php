@@ -248,7 +248,12 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 			return new \WP_REST_Response( $this->errors, 422 );
 		}
 
-		update_option( $this->panel->func . '_settings', apply_filters( $this->panel->func . '_save_options', $data_to_save ) );
+		if( $this->panel->location == 'network' ) {
+			update_site_option( $this->panel->func . '_settings', apply_filters( $this->panel->func . '_save_options', $data_to_save ) );
+		}
+		else {
+			update_option( $this->panel->func . '_settings', apply_filters( $this->panel->func . '_save_options', $data_to_save ) );
+		}
 
 		$response = array(
 			'options'  => $data_to_save,

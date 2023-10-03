@@ -23,6 +23,10 @@ $settings_tab_general = array(
 			'yes'      => 'YES: Require WordPress users to use OIDC to log in to the WordPress dashboard.  This will also log them in to the website.',
 		),
 		'std'     => $option_defaults['use_oidc_for_wp_users'],
+		'show'    => array(
+			'single',
+			'network'
+		),
 	),
 	array(
 		'id'   => 'use_oidc_for_wp_users_description',
@@ -35,7 +39,7 @@ $settings_tab_general = array(
 <li>Make sure you can log in to the website using OIDC. Otherwise, you will lock yourself out of your WordPress dashboard.</li>
 <li>Make sure the username for each WordPress user is the same as their OIDC username. WordPress users with usernames that are different from the person\'s OIDC username will either not be accessible at all, or will be accessible by a different person than you intend.</li>
 </ul>
-<p>If you lock yourself out of your WordPress dashboard, you can run the following <a href="https://wp-cli.org">WP-CLI</a> commands to re-enable WordPress user passwords.  Copy and paste these commands into a note so you will have them if you need them (they are also available in the <a href="https://wordpress.org/plugins/umich-oidc-login/#faq">plugin FAQ</a>).</p>
+<p>If you lock yourself out of your WordPress dashboard, you can run the following <a href="https://wp-cli.org">WP-CLI</a> commands to re-enable WordPress user passwords.	Copy and paste these commands into a note so you will have them if you need them (they are also available in the <a href="https://wordpress.org/plugins/umich-oidc-login/#faq">plugin FAQ</a>).</p>
 <pre>
 # Re-enable WordPress passwords:
 wp option patch delete umich_oidc_settings use_oidc_for_wp_users
@@ -44,6 +48,10 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 </pre>
 </div>
 		',
+		'show'    => array(
+			'single',
+			'network'
+		),
 	),
 	array(
 		'id'      => 'login_action',
