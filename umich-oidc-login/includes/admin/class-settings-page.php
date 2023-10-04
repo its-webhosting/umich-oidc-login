@@ -177,11 +177,11 @@ class Settings_Page {
 			);
 		}
 
-		if ( ! \class_exists( 'Pantheon_Sessions' ) ) {
+		if ( ! \class_exists( 'Pantheon_Sessions' ) || (is_multisite() && !is_plugin_active_for_network( 'wp-native-php-sessions/pantheon-sessions.php' )) ) {
 			$notices[] = array(
 				'id'      => 'pantheon-plugin',
 				'status'  => 'warning',
-				'content' => 'UMich OIDC Login strongly recommends using the <a href="https://wordpress.org/plugins/wp-native-php-sessions/" target="_blank">WordPress Native PHP Sessions</a> plugin to prevent conflicts with other WordPress plugins that also use PHP sessions, and to ensure correct operation when the site has multiple web servers.',
+				'content' => 'UMich OIDC Login strongly recommends using'. ( is_multisite() ? ' and <a href="'. get_admin_url( 1, '/network/plugins.php' ).'">network activiating</a> ' : ' ' ) .'the <a href="https://wordpress.org/plugins/wp-native-php-sessions/" target="_blank">WordPress Native PHP Sessions</a> plugin to prevent conflicts with other WordPress plugins that also use PHP sessions, and to ensure correct operation when the site has multiple web servers.',
 			);
 		}
 		return $notices;
