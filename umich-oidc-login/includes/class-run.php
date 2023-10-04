@@ -192,13 +192,13 @@ class Run {
 		}
 
 		if( is_multisite() ) {
-			$msOptions = \get_site_option( 'umich_oidc_network_settings' );
-			if ( ! \is_array( $msOptions ) ) {
+			$site_options = \get_site_option( 'umich_oidc_network_settings' );
+			if ( ! \is_array( $site_options ) ) {
 				log_message( 'WARNING: plugin options not an array' );
-				$msOptions = array();
+				$site_options = array();
 			}
 
-			$options = is_network_admin() ? $msOptions : \array_merge( $msOptions, $options );
+			$options = is_network_admin() ? $site_options : \array_merge( $site_options, $options );
 		}
 
 		$this->options = \array_merge( $this->option_defaults, $options );
