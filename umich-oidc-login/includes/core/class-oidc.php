@@ -87,6 +87,15 @@ class OIDC {
 			}
 		}
 
+		// add multisite networks site domains to list
+		if( is_multisite() && (defined( 'SUBDOMAIN_INSTALL' ) && SUBDOMAIN_INSTALL) ) {
+			foreach( get_sites() as $site ) {
+				if( !in_array( $site->domain, $hosts ) ) {
+					$hosts[] = $site->domain;
+				}
+			}
+		}
+
 		return $hosts;
 	}
 
@@ -629,9 +638,10 @@ class OIDC {
 
 			if( get_current_blog_id() != $dest_blog_id ) {
 				$url_params = array(
-					'action' => 'openid-connect-multisite',
-					'id'     => session_id(),
-					'data' => json_encode(array(
+					'action'     => 'openid-connect-multisite',
+					'id'         => session_id(),
+					'sn'         => session_name(),
+					'data'       => json_encode(array(
 						'state'    => $session->get( 'state' ),
 						'id_token' => $session->get( 'id_token' ),
 						'userinfo' => $session->get( 'userinfo' )
@@ -639,7 +649,7 @@ class OIDC {
 					'return_url' => $return_url,
 					'verifier'   => null
 				);
-				$url_params['verifier'] = $this->create_verifier( $url_params['id'] . $url_params['return_url'] . $url_params['data'] );
+				$url_params['verifier'] = $this->create_verifier( $url_params['id'] . $url_params['sn'] . $url_params['return_url'] . $url_params['data'] );
 
 				unset( $url_params['data'] );
 
@@ -732,6 +742,7 @@ class OIDC {
 	 */
 	public function login_multisite() {
 		$session_data = '';
+		$session_name = isset( $_GET['sn'] )         ? $_GET['sn']         : session_name();
 		$session_id   = isset( $_GET['id'] )         ? $_GET['id']         : '';
 		$return_url   = isset( $_GET['return_url'] ) ? $_GET['return_url'] : '';
 
@@ -758,7 +769,7 @@ class OIDC {
 				'sslverify' => false,
 				'cookies'   => array(
 					new \WP_Http_Cookie(array(
-						'name'  => session_name(),
+						'name'  => $session_name,
 						'value' => $session_id,
 					))
 				)
@@ -769,7 +780,7 @@ class OIDC {
 			$session_data = wp_remote_retrieve_body( $res );
 		}
 
-		if( $this->check_verifier( $_GET['verifier'], $session_id . $return_url . $session_data ) ) {
+		if( $this->check_verifier( $_GET['verifier'], $session_id . $session_name . $return_url . $session_data ) ) {
 			$session_data = json_decode( $session_data );
 
 			foreach( get_object_vars( $session_data ) as $key => $val ) {
