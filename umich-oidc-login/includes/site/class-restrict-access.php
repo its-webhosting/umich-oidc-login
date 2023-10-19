@@ -77,12 +77,20 @@ class Restrict_Access {
 		$oidc_user      = $ctx->oidc_user;
 		$logged_in_oidc = $oidc_user->logged_in();
 		$logged_in_wp   = \is_user_logged_in();
-		$logged_in      = $logged_in_oidc || $logged_in_wp;
+		log_message(
+			'checking access, required=' . \implode( ',', $access ) .
+			" logged_in_oidc={$logged_in_oidc}" .
+			" session_state={$oidc_user->session_state()}" .
+			" logged_in_wp={$logged_in_wp}"
+		);
+
+		$logged_in = $logged_in_oidc || $logged_in_wp;
 		if ( '_logged_in_' === $access[0] && $logged_in ) {
 			return self::ALLOWED;
 		}
 
-		if ( ! $logged_in ) {
+		if ( ! $logged_in_oidc ) {
+			// If the user is not logged in via OIDC, we can't check their groups.
 			return self::DENIED_NOT_LOGGED_IN;
 		}
 
