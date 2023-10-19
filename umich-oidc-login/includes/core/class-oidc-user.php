@@ -44,13 +44,6 @@ class OIDC_User {
 	private $initialized = false;
 
 	/**
-	 * The current WordPress user.
-	 *
-	 * @var      WP_User    $wp_user    The current WordPress user.
-	 */
-	public $wp_user = null;
-
-	/**
 	 * The authenticated user's OIDC id token.
 	 *
 	 * @var      Object    $id_token    The OIDC id token for the currently authenticated user.  null if the user is not authenticated.
@@ -96,8 +89,14 @@ class OIDC_User {
 		}
 		$this->initialized = true;
 
-		$session             = $ctx->session;
-		$session_state       = $session->get( 'state', 'none' );
+		$session       = $ctx->session;
+		$session_state = $session->get( 'state', 'unknown' );
+		if ( 'unknown' === $session_state ) {
+			// For troubleshooting purposes, differentiate between a known session that the user is not logged
+			// into and a session for which we are unable to determine the state and hence set it to 'none'.
+			log_message( 'user init: no state saved in session, setting to none' );
+			$session_state = 'none';
+		}
 		$this->session_state = $session_state;
 
 		$id_token = $session->get( 'id_token', null );
@@ -110,7 +109,7 @@ class OIDC_User {
 			if ( 'expired' === $session_state && ! \wp_doing_ajax() ) {
 				// An AJAX request will not clear an expired session, but a regular page load will.
 				log_message( 'user init: page load, clearing expired session' );
-
+				$ctx->oidc->logout();
 				$this->session_state = 'none';
 				$session->set( 'state', 'none' );
 				$session->close();
@@ -123,7 +122,6 @@ class OIDC_User {
 		if ( \time() > ( ( (int) $id_token->iat ) + (int) $session_length ) ) {
 			log_message( "user init: OIDC session time ({$session_length} seconds) expired, logging user out" );
 			$ctx->oidc->logout();
-			$this->wp_user       = null;
 			$this->id_token      = null;
 			$this->userinfo      = null;
 			$this->session_state = 'expired';

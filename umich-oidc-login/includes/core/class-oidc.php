@@ -736,6 +736,7 @@ class OIDC {
 			// No WordPress user is logged in.
 			return;
 		}
+		log_message( "also logging user={$user_id} out of WordPress" );
 
 		// remove the WordPress logout action that can call this method.
 		\UMich_OIDC_Login\Core\patch_wp_logout_action( 'remove' );

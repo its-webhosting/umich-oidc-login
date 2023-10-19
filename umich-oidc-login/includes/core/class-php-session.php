@@ -251,6 +251,7 @@ class PHP_Session {
 
 		// If no other plugin or package is using the session, destroy it.
 		if ( 0 === \count( $_SESSION ) ) {
+			log_message( 'session clear_all: destroying empty session' );
 			$this->destroy();
 		}
 	}
@@ -270,10 +271,11 @@ class PHP_Session {
 		if ( ! isset( $_SESSION ) || \count( $_SESSION ) > 0 ) {
 			return $headers;
 		}
-		log_message( $_SESSION );
 
+		log_message( 'session fix_headers: destroying empty session' );
 		$this->destroy();
 
+		// Return headers without modification; they will not contain the PHP session cookie we just destroyed.
 		return $headers;
 	}
 }
