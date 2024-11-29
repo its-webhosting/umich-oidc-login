@@ -1,7 +1,5 @@
 # Based on https://github.com/nezhar/wordpress-docker-compose
 
-version: "3.9"
-
 services:
 
   nginx:
