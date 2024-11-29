@@ -42,9 +42,16 @@ echo "127.0.0.1 wp.local" | sudo tee -a /etc/hosts
 ## Install WordPress
 
 ```bash
+# clean up to ensure we get fresh builds of everything
+docker compose down --volumes
+docker image prune --all
+docker volume prune --all
+rm -rf scratch/[a-z]*
+
 echo "DB_NAME='wordpress'" > .env
 echo "DB_ROOT_PASSWORD='$(openssl rand -base64 24 | cut -c 1-32)'" >> .env
-docker-compose up
+
+docker compose up
 
 run-wp core install \
     --url=https://wp.local \
@@ -72,6 +79,12 @@ run-wp rewrite structure '/%postname%/'
 run-wp plugin delete akismet hello
 run-wp plugin install wp-native-php-sessions --activate
 ```
+
+Make sure everything works by visiting https://wp.local/
+
+And log in at https://wp.local/wp-admin/
+* Make sure everything is OK in the admin dashbaord.
+* Update core, plugins, and themes to latest.
 
 ## UMICH OIDC Login plugin
 

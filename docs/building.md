@@ -25,7 +25,7 @@ The official Docker image for Composer supports only PHP 8.  Build our own image
 ```bash
 pushd scratch
 git clone https://github.com/composer/docker.git composer-docker
-cd composer-docker/2.5
+cd composer-docker/latest
 sed -i .old 's/^FROM php:8-alpine/FROM php:7.3-alpine/' Dockerfile
 docker build -t composer:php7.3 .
 popd
@@ -41,6 +41,10 @@ If PHP-Scoper says the build directory exists and asks if you want to proceed, a
 
 ```bash
 pushd umich-oidc-login
+
+rm -rf vendor build
+mkdir vendor
+
 run-composer global require --dev humbug/php-scoper:0.15.0
 run-composer install
 run-composer global exec -- php-scoper add-prefix
@@ -75,6 +79,8 @@ cd ..
 ```
 
 Edit `composer.json`, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version.
+
+NOTE: specifying `"paragonie/constant_time_encoding": "^2.7.0",` forces PHP 7.3 compatibility for `phpseclib`. This dependency should be removed when we drop support for PHP 7.x.
 
 ### Update NodeJS dependencies
 

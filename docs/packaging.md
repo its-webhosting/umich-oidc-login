@@ -10,6 +10,12 @@ This is important to address any security issues as well as to prevent getting s
 
 The version numbers should be incremented (as appropriate) before the plugin is rebuilt.
 
+### composer.json
+
+Edit `umich-oidc-login/composer.json`
+
+* If code was changed or dependencies were updated, update the version number in `composer.json`.
+
 ### Settings page React app (wp-react-optionskit)
 
 Edit `umich-oidc-login/includes/admin/wp-react-optionskit/package.json`
