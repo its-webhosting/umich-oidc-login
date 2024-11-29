@@ -54,11 +54,11 @@ run-composer dump-autoload --working-dir build
 ## Build Gutenberg and React code
 
 ```bash
-run-node npm install --production=false  # ensure @wordpress/scripts devDependency gets installed
+run-node npm install --include dev  # ensure @wordpress/scripts devDependency gets installed
 run-node npm run-script build:metabox
 
 cd includes/admin/wp-react-optionskit/
-run-node npm install --production=false  # ensure @wordpress/scripts devDependency gets installed
+run-node npm install --include dev  # ensure @wordpress/scripts devDependency gets installed
 run-node npm run-script build
 popd
 ```
@@ -89,8 +89,10 @@ cd umich-oidc-login
 rm -rf build node_modules package-lock.json
 ```
 
+Edit `../tools/run-node` and update the image version to be the major version number listed in `package.json` in the branch for the latest release of [wordpress/wordpress-develop](https://github.com/WordPress/wordpress-develop/tree/trunk).
+
 Edit `package.json`:
-* For all `@wordpress/*` packages, change the version of the package to the _exact_ version (no caret) listed in the [Changelog for the latest release of WordPress](https://wordpress.org/documentation/article/wordpress-versions/).
+* For all `@wordpress/*` packages, change the version of the package to the _exact_ version (no caret) listed in `package.json` in the branch for the latest release of [wordpress/wordpress-develop](https://github.com/WordPress/wordpress-develop/tree/trunk).
 * For all other packages, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version, usually using the caret notation.
 
 ```bash

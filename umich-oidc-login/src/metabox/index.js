@@ -87,6 +87,7 @@ const UmichOidcAccess = () => {
 				help={ helpText }
 				label={ labelText }
 				className="components-select-control optionskit-multiselect-field"
+				__nextHasNoMarginBottom
 			>
 				<Select
 					defaultValue={ settings.selectedGroups }
