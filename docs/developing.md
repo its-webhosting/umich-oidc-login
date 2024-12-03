@@ -124,15 +124,17 @@ popd
 
 ### Develop the plugin settings page
 
-This currently uses NodeJS 14.x installed on the local system, not from a Docker image.
+This currently uses Node.js >= 18.12 installed on the local system, not from a Docker image.
 
 ```bash
 TOP=$(pwd)
 cd umich-oidc-login/includes/admin/wp-react-optionskit
 # --hot=true must be last command line option
-npx wp-scripts start --host=wp.local --server-type=https \
+env WDS_SOCKET_PORT=0 npx wp-scripts start \
+    --host="wp.local" --server-type=https \
     --server-options-cert="${TOP}/scratch/certs/wp.local.crt" \
     --server-options-key="${TOP}/scratch/certs/wp.local.key" \
+    --server-options-ca="$(mkcert -CAROOT)/rootCA.pem"\
     --live-reload --hot=true
 ```
 

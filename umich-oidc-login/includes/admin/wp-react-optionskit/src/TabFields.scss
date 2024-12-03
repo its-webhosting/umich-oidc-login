@@ -25,13 +25,17 @@
 		margin: 5px 0;
 	}
 
-	.components-radio-control__option {
-		margin-bottom: 0.5em;
-	}
-
 	// Prevent multiselect from being too big
 	.optionskit-multiselect-field input[type="text"] {
 		min-height: 1px;
+	}
+
+	.components-radio-control__option {
+		align-items: start;
+	}
+
+	input[type="radio"] {
+		margin-top: 0;
 	}
 
 }

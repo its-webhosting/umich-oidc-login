@@ -6,6 +6,7 @@
  */
 
 import React from 'react'; // eslint-disable-line import/no-extraneous-dependencies
+import ReactDOM from 'react-dom'; // eslint-disable-line import/no-extraneous-dependencies
 import { Formik, Form, useFormikContext } from 'formik';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Notice, TabPanel } from '@wordpress/components';
@@ -60,11 +61,18 @@ function OptionsKitTabPanel() {
 		if ( '' !== newTabName && ! ( newTabName in settings.tabs ) ) {
 			return;
 		}
-		setTabState( ( state ) => ( {
-			activeTabName: newTabName,
-			activeFieldName: newFieldName,
-			serialNumber: state.serialNumber + 1,
-		} ) );
+		ReactDOM.flushSync( () => {
+			const element = document.getElementById( newFieldName );
+			if ( element ) {
+				element.scrollIntoView( { behavior: 'smooth' } );
+			}
+			setTabState( {
+				...tabState,
+				activeTabName: newTabName,
+				activeFieldName: newFieldName,
+				serialNumber: tabState.serialNumber + 1,
+			} );
+		} );
 	}
 
 	React.useEffect( () => {
@@ -72,35 +80,7 @@ function OptionsKitTabPanel() {
 		return () => {
 			window.removeEventListener( 'popstate', onPopstateEvent );
 		};
-	}, [] );
-
-	const observer = React.useRef( null );
-	React.useEffect( () => {
-		if ( ! observer.current && tabState.activeFieldName ) {
-			observer.current = new MutationObserver( () => { // eslint-disable-line
-				const element = document.getElementById(
-					tabState.activeFieldName
-				);
-				if ( element ) {
-					observer.current.disconnect();
-					observer.current = null;
-					element.scrollIntoView( { behavior: 'smooth' } );
-				}
-			} );
-			const target = document.getElementById( 'optionskit-navigation' );
-			observer.current.observe( target, {
-				childList: true,
-				subtree: true,
-			} );
-		}
-
-		return () => {
-			if ( observer.current ) {
-				observer.current.disconnect();
-				observer.current = null;
-			}
-		};
-	}, [ tabState ] );
+	}, [tabState] );
 
 	function onTabSelect( tabName ) {
 		window.history.pushState( { tabName }, '', '#' + tabName );

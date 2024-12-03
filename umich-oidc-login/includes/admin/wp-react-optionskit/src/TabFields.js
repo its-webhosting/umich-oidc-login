@@ -57,6 +57,7 @@ function OptionsKitTextInput( { description, ...props } ) {
 				onChange={ ( v ) => {
 					formik.setFieldValue( props.id, v );
 				} }
+				__nextHasNoMarginBottom
 			/>
 			<ErrorMessage name={ props.name }>
 				{ ( msg ) => (
@@ -89,6 +90,7 @@ function OptionsKitSelectInput( { description, options, ...props } ) {
 				onBlur={ ( e ) => {
 					formik.handleBlur( e.nativeEvent );
 				} }
+				__nextHasNoMarginBottom
 			/>
 			<ErrorMessage name={ props.name }>
 				{ ( msg ) => (
@@ -151,6 +153,7 @@ function OptionsKitMultiSelectInput( {
 				id={ props.id }
 				help={ parse( description ) }
 				className="components-select-control optionskit-multiselect-field"
+				__nextHasNoMarginBottom
 			>
 				<Select
 					isMulti
