@@ -76,8 +76,8 @@ You may need to provide this information to your OIDC Identity Provider (IdP) in
 <b>Example:</b> <code>openid email profile edumember</code><br />
 <ul style='list-style-type: disc;'>
 		<li><code>openid</code> - required for WordPress to authenticate users via OIDC, provides the user\'s username</li>
-		<li><code>email</code> - gets the user\'s email address</li>
-		<li><code>profile</code> - gets the user\'s full name (display name), given name, and family name</li>
+		<li><code>email</code> - gets the user's email address</li>
+		<li><code>profile</code> - gets the user's full name (display name), given name, and family name</li>
 		<li><code>edumember</code> - needed for WordPress to receive group membership information from Shibboleth</li></ul>
 </div>
 		",
