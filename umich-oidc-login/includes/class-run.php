@@ -284,16 +284,20 @@ class Run {
 		$this->post_meta_box = new \UMich_OIDC_Login\Admin\Post_Meta_Box( $this );
 		\add_filter( 'add_meta_boxes', array( $this->post_meta_box, 'access_meta_box' ) );
 		\add_action( 'admin_enqueue_scripts', array( $this->post_meta_box, 'admin_scripts' ) );
-		\add_filter( 'save_post', array( $this->post_meta_box, 'access_meta_box_save' ) );
+		\add_action( 'save_post', array( $this->post_meta_box, 'access_meta_save' ), 10, 2 );
 
 		\register_post_meta(
 			'',
 			'_umich_oidc_access',
 			array(
-				'show_in_rest' => true,
-				'single'       => true,
-				'type'         => 'string',
-			)
+				'label'             => 'UMich OIDC Access',
+				'description'       => 'Restrict access to this post or page to specific groups.',
+				'single'            => true,
+				'type'              => 'string',
+				'show_in_rest'      => true,
+				'auth_callback'     => array( $this->post_meta_box, 'access_meta_auth' ),
+				'sanitize_callback' => array( $this->post_meta_box, 'access_meta_sanitize' ),
+			),
 		);
 
 		$this->settings_page = new \UMich_OIDC_Login\Admin\Settings_Page( $this );
