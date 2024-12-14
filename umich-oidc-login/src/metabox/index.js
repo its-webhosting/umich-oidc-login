@@ -7,8 +7,8 @@
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
  */
 
-const { createRoot, render, createElement, useState } = wp.element;
-const { BaseControl, Notice } = wp.components;
+import { createRoot, render, createElement, useState } from '@wordpress/element';
+import { BaseControl, Notice } from '@wordpress/components';
 
 import Select from 'react-select';
 
