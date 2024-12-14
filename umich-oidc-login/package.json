@@ -20,7 +20,7 @@
 	},
 	"main": "src/metabox/index.js",
 	"dependencies": {
-		"react-select": "^5.8.3"
+		"react-select": "^5.9.0"
 	},
 	"devDependencies": {
 		"@wordpress/scripts": "30.0.6"

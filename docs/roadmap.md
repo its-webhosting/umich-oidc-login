@@ -118,6 +118,7 @@ To work on something,
         * `/private/reports/` - only members of group B
         * `/private/committees/` - only members of groups A or B
   * Protected files need to be opened and streamed to the browser by PHP only after checking access requirements, rather than being served by the web server.
+  * Make sure this also fully works for WordPress attachments.
   * Ensure works with WP Engine
   * Ensure works with Pantheon
     * Pantheon does not allow .htaccess files.

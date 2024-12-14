@@ -1,11 +1,5 @@
 # Packaging and publishing the UMich OIDC Login plugin
 
-## Update plugin dependencies
-
-Perform the steps in the ["Update plugin dependencies" section of the build instructions.](building.md#update-plugin-dependencies)
-
-This is important to address any security issues as well as to prevent getting so far out of date that it becomes very difficult to update.
-
 ## Increment version numbers
 
 The version numbers should be incremented (as appropriate) before the plugin is rebuilt.
@@ -41,7 +35,6 @@ Edit `umich-oidc-login/umich-oidc-login.php`
 * Update define for UMICH_OIDC_LOGIN_VERSION_INT to the integer representation of the new plugin version number.
   * For alpha and beta releases, subtract 100 and then use the last two digits as a serial number for alpha/beta releases.  For example, version 1.2.0-alpha1 is written `1019900` (1.1.99.00).
 
-
 ### README.txt
 
 Update `umich-oidc-login/README.txt` (note: this is the `.txt` file in the subdirectory, _not_ the `.md` file in the repository's main directory).
@@ -58,6 +51,13 @@ Update `umich-oidc-login/README.txt` (note: this is the `.txt` file in the subdi
 Check the `README.txt` file for problems using both
 * https://wpreadme.com
 * https://wordpress.org/plugins/developers/readme-validator/
+
+
+## Update plugin dependencies
+
+Perform the steps in the ["Update plugin dependencies" section of the build instructions.](building.md#update-plugin-dependencies)
+
+This is important to address any security issues as well as to prevent getting so far out of date that it becomes very difficult to update.
 
 
 ## Rebuild the plugin
