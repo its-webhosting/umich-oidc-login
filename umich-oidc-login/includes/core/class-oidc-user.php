@@ -148,6 +148,7 @@ class OIDC_User {
 
 		$this->id_token = $id_token;
 		$this->userinfo = $userinfo;
+		log_message( "user init OK: {$this->session_state} {$userinfo->$username_claim}" );
 	}
 
 	/**

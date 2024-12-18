@@ -73,7 +73,6 @@ class Restrict_Access {
 			return self::ALLOWED;
 		}
 
-		$oidc           = $ctx->oidc;
 		$oidc_user      = $ctx->oidc_user;
 		$logged_in_oidc = $oidc_user->logged_in();
 		$logged_in_wp   = \is_user_logged_in();
@@ -136,6 +135,18 @@ class Restrict_Access {
 		$options = $ctx->options;
 
 		if ( self::DENIED_NOT_LOGGED_IN === $type ) {
+
+			/* Special case: Some hosting providers, especially those that use Varnish, strip cookies from
+			 * requests for static assets in order to improve cache hit rates.  Avoid redirecting the user
+			 * when the request is for /favicon.ico which WordPress will handle and generate if the file
+			 * doesn't exist in the filesystem as that can cause an authenticated user to be continuously
+			 * reauthenticated.  Instead, return a 401.
+			 */
+			if ( '/favicon.ico' === $_SERVER['REQUEST_URI'] || is_favicon() ) {
+				log_message( 'unauthenticated favicon.ico request, returning 401' );
+				\wp_die( 'Authentication required', 'Authentication required', array( 'response' => 401 ) );
+			}
+
 			switch ( $options['use_oidc_for_wp_users'] ) {
 				case 'yes':
 					$oidc->redirect( $oidc->get_oidc_url( 'login', '' ) ); // Does not return.
@@ -288,7 +299,7 @@ class Restrict_Access {
 		$post_id = isset( $post->ID ) ? $post->ID : 0;
 		log_message( "restrict excerpt = {$post_id}" );
 		if ( $post_id <= 0 ) {
-			return;
+			return '';
 		}
 
 		$ctx    = $this->ctx;
@@ -347,7 +358,7 @@ class Restrict_Access {
 	 * have access to from showing up in search results from WordPress'
 	 * built-in search.
 	 *
-	 * @param string $posts The list of posts.
+	 * @param array $posts The list of posts.
 	 *
 	 * @return array The filtered list of posts that the current user has access to.
 	 */
@@ -602,13 +613,13 @@ class Restrict_Access {
 			return $this->xmlrpc_block_comment( $_comment, 'You do not have access to this content.' );
 		}
 
-		$access = $this->ctx->settings_page->post_access_groups( $post['ID'] );
+		$access = $this->ctx->settings_page->post_access_groups( $comment['post_id'] );
 		$result = $this->check_access( $access );
 		if ( self::ALLOWED !== $result ) {
 			return $this->xmlrpc_block_comment( $_comment, 'You do not have access to this content.' );
 		}
 
-		return $_post;
+		return $_comment;
 	}
 
 	/**
