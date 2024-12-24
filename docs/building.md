@@ -43,7 +43,6 @@ If PHP-Scoper says the build directory exists and asks if you want to proceed, a
 pushd umich-oidc-login
 
 rm -rf vendor build
-mkdir vendor
 
 run-composer global require --dev humbug/php-scoper:0.15.0
 run-composer install

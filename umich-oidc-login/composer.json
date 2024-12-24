@@ -11,7 +11,6 @@
     ],
     "scripts": {
 	    "lint": [
-		    "phpcs --config-set installed_paths ~/.config/composer/vendor/wp-coding-standards/wpcs",
 		    "phpcs --standard=WordPress *.php includes"
 	    ]
     },
@@ -22,7 +21,10 @@
     },
     "config": {
         "allow-plugins": {
-            "composer/installers": true
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
+    },
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^3.1.0"
     }
 }

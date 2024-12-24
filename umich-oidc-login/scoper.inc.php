@@ -26,27 +26,19 @@ return [
     // For more see: https://github.com/humbug/php-scoper#finders-and-paths
     'finders' => [
         Finder::create()
-            ->files()
-            ->ignoreVCS(true)
-            ->notName('/LICENSE|.*\\.md|.*\\.dist|Makefile|composer\\.json|composer\\.lock/')
-            ->exclude([
-                'doc',
-                'test',
-                'test_old',
-                'tests',
-                'Tests',
-            ])
-            ->in('vendor'),
-        Finder::create()->append([
-            'composer.json',
-        ]),
+              ->notPath(['bin', 'tests', 'wp-coding-standards', 'squizlabs', 'phpcsstandards', 'dealerdirect' ])
+              ->ignoreVCS(true)
+              ->files()
+              ->notName('/LICENSE|.*\\.md|.*\\.dist|Makefile|composer\\.json|composer\\.lock/')
+              ->in('vendor')
+              ->append(['composer.json']),
     ],
 
     // Whitelists a list of files. Unlike the other whitelist related features, this one is about completely leaving
     // a file untouched.
     // Paths are relative to the configuration file unless if they are already absolute
     'files-whitelist' => [
-        'src/a-whitelisted-file.php',
+        // 'src/a-whitelisted-file.php',
     ],
 
     // When scoping PHP files, there will be scenarios where some of the code being scoped indirectly references the
