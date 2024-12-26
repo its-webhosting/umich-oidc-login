@@ -25,6 +25,10 @@
 		margin: 5px 0;
 	}
 
+	hr {
+		border: 2px solid #cccccc;
+	}
+
 	// Prevent multiselect from being too big
 	.optionskit-multiselect-field input[type="text"] {
 		min-height: 1px;
@@ -36,6 +40,13 @@
 
 	input[type="radio"] {
 		margin-top: 0;
+	}
+
+	input[type="checkbox"] {
+		margin-top: 4px;
+	}
+	.components-checkbox-control__label {
+		margin-top: 4px;
 	}
 
 }

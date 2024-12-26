@@ -33,10 +33,31 @@ $return_attribute_description = '
 
 $settings_tab_shortcodes = array(
 	array(
+		'id'    => 'shortcode_html_attributes_allowed',
+		'name'  => 'Custom buttons and links',
+		'label' => 'Allow HTML attributes',
+		'desc'  => '
+If enabled, users that can create or edit pages, posts, or widgets can add HTML attributes to the
+<code>umich_oidc_button</code> and <code>umich_oidc_link</code> shortcodes to customize formatting or functionality.
+<br /><br />
+<span style="background-color: #FFFFCC;">
+<b>CAUTION:</b> This can be abused to get around security restrictions in a way that is simlar to users who have the
+<a href="https://wordpress.org/documentation/article/roles-and-capabilities/#unfiltered_html">WordPress
+<code>unfiltered_html</code> capability</a>.</code>
+</span>
+<br /><br />
+If disabled, any HTML attributes in the <code>umich_oidc_button</code> and <code>umich_oidc_link</code> shortcodes will
+be ignored.  This applies to the entire site, including HTML attributes of existing shortcodes.
+',
+		'type'  => 'checkbox',
+		'std'   => $option_defaults['shortcode_html_attributes_allowed'],
+	),
+	array(
 		'id'   => 'shortcodes_subsection',
 		'name' => 'SHORTCODES',
 		'type' => 'html',
 		'html' => '
+<hr />
 The shortcodes below can be used in your content, widgets, and themes to control what shows up for different users.<br /><br />
 <table style="margin-left: 1em;">
 <tr><th style="padding: 4px;"><a href="#shortcodes/shortcodes_button"><code>umich_oidc_button</code></a></th><td style="padding: 4px;">Generate a login or logout button.</td></tr>
@@ -48,6 +69,8 @@ The shortcodes below can be used in your content, widgets, and themes to control
 <tr><th style="padding: 4px;"><a href="#shortcodes/shortcodes_url"><code>umich_oidc_url</code></a></th><td style="padding: 4px;">Generate a login or logout URL.</td></tr>
 <tr><th style="padding: 4px;"><a href="#shortcodes/shortcodes_userinfo"><code>umich_oidc_userinfo</code></a></th><td style="padding: 4px;">Display information about the currently-logged-in OIDC user.</td></tr>
 </table>
+&nbsp;
+<hr />
 		',
 	),
 	array(
@@ -60,11 +83,11 @@ The shortcodes below can be used in your content, widgets, and themes to control
 <p><b>Example:</b> <code>[umich_oidc_button type=\"login\"]</code> will be replaced by a button that users can use to log in.</p>
 <p><b>Parameters:</b></p>
 <ul style='list-style-type: disc; margin: 2px 1em;'>
-<li>{$return_attribute_description}</li>
+<li>$return_attribute_description</li>
 <li><b>text</b> - <i>Optional, defaults to \"Log in\" for login, or \"Log out\" for logout.</i> Controls the text that the button displays.</li>
 <li><b>text_login</b> - <i>Optional, defaults \"Log in\".</i> Controls the text that the <code>type=\"login-logout\"</code> link displays for logins.</li>
 <li><b>text_logout</b> - <i>Optional, defaults \"Log out\".</i> Controls the text that the <code>type=\"login-logout\"</code> logout link displays for logouts.</li>
-<li>{$loginlogout_type_attribute_description}</li>
+<li>$loginlogout_type_attribute_description</li>
 <li><b><i>HTML_ATTRIBUTES</i></b> - <i>Optional.</i> Any HTML attributes to add to the button.  List multiple HTML attributes as separate shortcode parameters.</li>
 </ul>
 		",
@@ -79,11 +102,11 @@ The shortcodes below can be used in your content, widgets, and themes to control
 <p><b>Example:</b> <code>[umich_oidc_link type=\"login\"]</code> will be replaced by a link that users can use to log in.</p>
 <p><b>Parameters:</b></p>
 <ul style='list-style-type: disc; margin: 2px 1em;'>
-<li>{$return_attribute_description}</li>
+<li>$return_attribute_description</li>
 <li><b>text</b> - <i>Optional, defaults to \"Log in\" for login, or \"Log out\" for logout.</i> Controls the text that the link displays.</li>
 <li><b>text_login</b> - <i>Optional, defaults \"Log in\".</i> Controls the text that the <code>type=\"login-logout\"</code> login link displays for logins.</li>
 <li><b>text_logout</b> - <i>Optional, defaults \"Log out\".</i> Controls the text that the <code>type=\"login-logout\"</code> logout link displays for logouts.</li>
-<li>{$loginlogout_type_attribute_description}</li>
+<li>$loginlogout_type_attribute_description</li>
 <li><b><i>HTML_ATTRIBUTES</i></b> - <i>Optional.</i> Any HTML attributes to add to the link.  List multiple HTML attributes as separate shortcode parameters.</li>
 </ul>
 		",
@@ -156,9 +179,9 @@ The shortcodes below can be used in your content, widgets, and themes to control
 <p><b>Example:</b> <code>[umich_oidc_userinfo type=\"login\"]</code> will be replaced with a URL that can be used to log the user in.</p>
 <p><b>Parameters:</b></p>
 <ul style='list-style-type: disc; margin: 2px 1em;'>
-<li>{$loginlogout_type_attribute_description}</li>
+<li>$loginlogout_type_attribute_description</li>
 <li>
-{$return_attribute_description}
+$return_attribute_description
 <p><b>NOTE:</b> These URLs cannot be copied and used outside of the site.  If you want to have a link elsewhere that will log someone in and then take them to specific content, restrict access to the content and then share the direct link to the protected content.</p>
 </li>
 </ul>

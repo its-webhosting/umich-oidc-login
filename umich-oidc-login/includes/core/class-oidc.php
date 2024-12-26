@@ -411,14 +411,20 @@ class OIDC {
 				// Avoid an authentication loop.
 				$return_url = \home_url();
 		}
-		log_message( "get_oidc_url: return_url={$return_url}" );
+
+		$valid_return_url = \wp_validate_redirect( $return_url );
+		if ( '' === $valid_return_url ) {
+			$valid_return_url = \home_url();
+			log_message( "get_oidc_url: invalid return_url={$return_url} using home URL instead" );
+		}
+		log_message( "get_oidc_url: return_url={$valid_return_url}" );
 
 		if ( 'home' === $return_to ) {
 			$return_query_string = '';
 		} else {
-			$verifier            = $this->create_verifier( $return_url );
-			$return_url          = \rawurlencode( $return_url );
-			$return_query_string = '&umich-oidc-verifier=' . $verifier . '&umich-oidc-return=' . $return_url;
+			$verifier            = $this->create_verifier( $valid_return_url );
+			$return_query_string = '&umich-oidc-verifier=' . $verifier . '&umich-oidc-return='
+			                       . \rawurlencode( $valid_return_url );
 		}
 
 		return \esc_url_raw( \admin_url( 'admin-ajax.php?action=' . $action . $return_query_string ) );

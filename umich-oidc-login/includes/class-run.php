@@ -43,21 +43,22 @@ class Run {
 	 * @var      array    $option_defaults    Option default values.
 	 */
 	public $option_defaults = array(
-		'claim_for_email'       => 'email',
-		'claim_for_family_name' => 'family_name',
-		'claim_for_full_name'   => 'name',
-		'claim_for_given_name'  => 'given_name',
-		'claim_for_groups'      => 'edumember_ismemberof',
-		'claim_for_username'    => 'preferred_username',
-		'client_auth_method'    => 'client_secret_post',
-		'login_action'          => 'setting',
-		'login_return_url'      => '',
-		'logout_action'         => 'smart',
-		'logout_return_url'     => '',
-		'restrict_site'         => array( '_everyone_' ),
-		'session_length'        => 86400,
-		'scopes'                => 'openid email profile edumember',
-		'use_oidc_for_wp_users' => 'no',
+		'claim_for_email'                   => 'email',
+		'claim_for_family_name'             => 'family_name',
+		'claim_for_full_name'               => 'name',
+		'claim_for_given_name'              => 'given_name',
+		'claim_for_groups'                  => 'edumember_ismemberof',
+		'claim_for_username'                => 'preferred_username',
+		'client_auth_method'                => 'client_secret_post',
+		'login_action'                      => 'setting',
+		'login_return_url'                  => '',
+		'logout_action'                     => 'smart',
+		'logout_return_url'                 => '',
+		'restrict_site'                     => array( '_everyone_' ),
+		'session_length'                    => 86400,
+		'scopes'                            => 'openid email profile edumember',
+		'use_oidc_for_wp_users'             => 'no',
+		'shortcode_html_attributes_allowed' => false,
 	);
 
 	/**

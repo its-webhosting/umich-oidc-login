@@ -13,6 +13,7 @@ import {
 	TextControl,
 	SelectControl,
 	RadioControl,
+	CheckboxControl,
 	Notice,
 } from '@wordpress/components';
 import Select from 'react-select';
@@ -222,6 +223,32 @@ function OptionsKitRadioInput( { description, options, ...props } ) {
 	);
 }
 
+function OptionsKitCheckboxInput( { description, ...props } ) {
+	const [ field ] = useField( props );
+	const formik = useFormikContext();
+	return (
+		<>
+			<CheckboxControl
+				help={ parse( description ) }
+				//{ ...field }
+				{ ...props }
+				onChange={ ( v ) => {
+					formik.setFieldValue( props.id, v );
+				} }
+				checked={ formik.values[ props.id ] }
+				__nextHasNoMarginBottom
+			/>
+			<ErrorMessage name={ props.name }>
+				{ ( msg ) => (
+					<Notice status="error" isDismissible={ false }>
+						{ msg }
+					</Notice>
+				) }
+			</ErrorMessage>
+		</>
+	);
+}
+
 function SettingsField( { setting } ) {
 	switch ( setting.type ) {
 		case 'text':
@@ -269,6 +296,18 @@ function SettingsField( { setting } ) {
 						name={ setting.id }
 						description={ setting.desc }
 						options={ setting.options }
+					/>
+				</>
+			);
+
+		case 'checkbox':
+			return (
+				<>
+					<OptionsKitCheckboxInput
+						id={ setting.id }
+						name={ setting.id }
+						label={ setting.label }
+						description={ setting.desc }
 					/>
 				</>
 			);

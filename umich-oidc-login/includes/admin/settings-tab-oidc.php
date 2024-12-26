@@ -34,13 +34,13 @@ You may need to provide this information to your OIDC Identity Provider (IdP) in
 	array(
 		'id'   => 'client_id',
 		'name' => 'Client ID',
-		'desc' => 'Tells the IdP which website this is. Paste the OIDC Client ID here that you receied when you registered this website with the IdP.',
+		'desc' => 'Tells the IdP which website this is. Paste the OIDC Client ID here that you received when you registered this website with the IdP.',
 		'type' => 'text',
 	),
 	array(
 		'id'   => 'client_secret',
 		'name' => 'Client Secret',
-		'desc' => 'Proves the identity of this website to the IdP. Keep this secret, it is a password. Paste the OIDC Client Secret here that you receied when you registered this website with the IdP.',
+		'desc' => 'Proves the identity of this website to the IdP. Keep this secret, it is a password. Paste the OIDC Client Secret here that you received when you registered this website with the IdP.',
 		'type' => 'text',
 	),
 	array(
@@ -86,7 +86,7 @@ You may need to provide this information to your OIDC Identity Provider (IdP) in
 		'id'   => 'claim_mappings_subsection',
 		'name' => 'OIDC CLAIM MAPPINGS',
 		'type' => 'html',
-		'html' => '<hr style="border: 2px solid #cccccc;" /><p>Specify the name of the OIDC claim that the IdP uses for each piece of information.  The name on the left can also be used in UMich OIDC shortcodes to retrieve that information.</p><p><b>Example:</b> If the <code>username</code> field below is set to <code>preferred_name</code> then the shortcode <code>[umich_oidc_user_info type="username"]</code> will be replaced with the value that the IdP returned in its <code>preferred_username</code> claim for the currently authenticated user.</p>',
+		'html' => '<hr /><p>Specify the name of the OIDC claim that the IdP uses for each piece of information.  The name on the left can also be used in UMich OIDC shortcodes to retrieve that information.</p><p><b>Example:</b> If the <code>username</code> field below is set to <code>preferred_name</code> then the shortcode <code>[umich_oidc_user_info type="username"]</code> will be replaced with the value that the IdP returned in its <code>preferred_username</code> claim for the currently authenticated user.</p>',
 	),
 	array(
 		'id'   => 'claim_for_username',
