@@ -185,12 +185,14 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 	 * @param string $input   The input to sanitize.
 	 * @param object $errors  WP_Error object for errors that are found.
 	 * @param array  $setting The wp-react-optionskit setting array for this field.
-	 * @return bool|\WP_Error
+	 * @return bool|null
 	 */
-	public function sanitize_checkbox_field( $input, $errors = null, $setting = null ) {
+	public function sanitize_checkbox_field( $input, $errors, $setting ) {
+
 		if ( is_bool( $input ) ) {
 			return $input;
 		}
+
 		if ( is_numeric( $input ) ) {
 			if ( 1 === intval( $input ) ) {
 				return true;
@@ -199,11 +201,10 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 				return false;
 			}
 		}
-		if ( null === $errors ) {
-			$errors = new \WP_Error();
-		}
-		$errors->add( 'error', 'Invalid checkbox value.' );
-		return $errors;
+
+		$field_id = $setting['id'];
+		$errors->add( $field_id, 'Invalid checkbox value.' );
+		return null;
 	}
 
 	/**
