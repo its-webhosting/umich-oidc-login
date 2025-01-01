@@ -48,7 +48,7 @@
 }
 
 #optionskit-topbar {
-	padding: 15px 20px;
+	padding: 15px 20px 0 20px;
 	border-bottom: 1px solid #e2e4e7;
 	background: #fff;
 
@@ -85,6 +85,10 @@
 		color: #000;
 	}
 
+	.optionskit-autosave-status-icon {
+		vertical-align: middle;
+	}
+
 }
 
 .optionskit-navigation-wrapper {
@@ -108,8 +112,4 @@
 		background-color: #f0f0f1;
 	}
 
-}
-
-.optionskit-bottom-save-area {
-	margin-left: 20px;
 }

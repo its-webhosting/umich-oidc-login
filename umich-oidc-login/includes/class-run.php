@@ -59,6 +59,7 @@ class Run {
 		'scopes'                            => 'openid email profile edumember',
 		'use_oidc_for_wp_users'             => 'no',
 		'shortcode_html_attributes_allowed' => false,
+		'autosave'                          => true,
 	);
 
 	/**

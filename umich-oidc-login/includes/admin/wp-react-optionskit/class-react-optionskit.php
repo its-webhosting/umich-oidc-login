@@ -95,6 +95,13 @@ class React_OptionsKit {
 	public $settings = array();
 
 	/**
+	 * Whether to autosave changes to the settings.
+	 *
+	 * @var boolean
+	 */
+	public $autosave = false;
+
+	/**
 	 * Get things started.
 	 *
 	 * @param boolean $slug Unique identifier for this options page.
@@ -121,6 +128,16 @@ class React_OptionsKit {
 	 */
 	public function set_page_title( $page_title = '' ) {
 		$this->page_title = $page_title;
+	}
+
+	/**
+	 * Set whether changes plugin settings get saved automatically.
+	 *
+	 * @param boolean $autosave New autosave value.
+	 * @return void
+	 */
+	public function set_autosave( $autosave = false ) {
+		$this->autosave = $autosave;
 	}
 
 	/**
@@ -326,6 +343,7 @@ class React_OptionsKit {
 				'page_title'  => esc_html( $this->page_title ),
 				'logo'        => $this->image,
 				'buttons'     => $this->action_buttons,
+				'autosave'    => $this->autosave,
 				'labels'      => $this->get_labels(),
 				'notices'     => apply_filters( $this->func . '_notices', $this->notices ),
 				'tabs'        => $this->get_settings_tabs(),

@@ -41,15 +41,15 @@ If enabled, users that can create or edit pages, posts, or widgets can add HTML 
 <code>umich_oidc_button</code> and <code>umich_oidc_link</code> shortcodes to customize formatting or functionality.
 <br /><br />
 <span style="background-color: #FFFFCC;">
-<b>CAUTION:</b> This can be abused to get around security restrictions in a way that is simlar to users who have the
+<b>CAUTION:</b> This can be abused to get around security restrictions in a similar way that users who have the
 <a href="https://wordpress.org/documentation/article/roles-and-capabilities/#unfiltered_html">WordPress
-<code>unfiltered_html</code> capability</a>.</code>
+<code>unfiltered_html</code> capability</a> can.</code>
 </span>
 <br /><br />
 If disabled, any HTML attributes in the <code>umich_oidc_button</code> and <code>umich_oidc_link</code> shortcodes will
 be ignored.  This applies to the entire site, including HTML attributes of existing shortcodes.
 ',
-		'type'  => 'checkbox',
+		'type'  => 'toggle',
 		'std'   => $option_defaults['shortcode_html_attributes_allowed'],
 	),
 	array(

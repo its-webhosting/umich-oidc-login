@@ -8,8 +8,11 @@
 import React from 'react'; // eslint-disable-line import/no-extraneous-dependencies
 import ReactDOM from 'react-dom'; // eslint-disable-line import/no-extraneous-dependencies
 import { Formik, Form, useFormikContext } from 'formik';
+import debounce from 'lodash.debounce';
+import isEqual from 'react-fast-compare';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Notice, TabPanel } from '@wordpress/components';
+import { Button, Notice, TabPanel, Icon, Spinner } from '@wordpress/components';
+import * as icons from '@wordpress/icons';
 import TabFields from './TabFields';
 import './Panel.scss';
 
@@ -80,7 +83,7 @@ function OptionsKitTabPanel() {
 		return () => {
 			window.removeEventListener( 'popstate', onPopstateEvent );
 		};
-	}, [tabState] );
+	}, [ tabState ] );
 
 	function onTabSelect( tabName ) {
 		window.history.pushState( { tabName }, '', '#' + tabName );
@@ -127,14 +130,21 @@ function submitOptionsData( values, actions ) {
 						notices: res.notices,
 						formErrorMessage,
 						formErrorType: 'success',
-						showFormError: true,
+						showFormError: ! settings.autosave,
 					},
 				};
 			} );
-			window.scrollTo( { top: 0, behavior: 'smooth' } );
 			actions.setSubmitting( false );
+			if ( newValues.hasOwnProperty( 'autosave' ) && Boolean( newValues.autosave ) !== settings.autosave ) {
+				window.location.reload();
+			}
 		} )
 		.catch( ( err ) => {
+			if ( err.status === 400 || err.status === 401 || err.status === 403) {
+				// Session timed out or nonce expired. Force reauthentication.
+				window.location.reload();
+				return;
+			}
 			let formErrorMessage = settings.labels.error;
 			const settingInfo = {};
 			for ( const tab in settings.settings ) {
@@ -164,7 +174,6 @@ function submitOptionsData( values, actions ) {
 					},
 				};
 			} );
-			window.scrollTo( { top: 0, behavior: 'smooth' } );
 			actions.setSubmitting( false );
 		} );
 }
@@ -230,7 +239,64 @@ function OptionsKitNoticeList( {
 	);
 }
 
+function AutoSaveFields() {
+
+	const formik = useFormikContext();
+	const [ lastValues, setLastValues ] = React.useState( formik.values );
+
+	const debouncedSubmit = React.useCallback(
+		debounce(
+			() => {
+				if ( formik.isValid && ! formik.isValidating && ! formik.isSubmitting
+					&& ! isEqual( formik.values, lastValues ) ) {
+					formik.submitForm().then( () => { setLastValues( formik.values ); } );
+				}
+			},
+			500,
+		),
+		[ formik.submitForm, formik.values, formik.isValidating, formik.isValid, formik.isSubmitting ]
+	);
+
+	React.useEffect(() => {
+			if ( formik.isValid && ! formik.isValidating && ! formik.isSubmitting
+				&& ! isEqual( formik.values, lastValues ) ) {
+				console.log('triggering...',  formik.values, lastValues, formik.isValid, formik.isSubmitting);
+				debouncedSubmit();
+			}
+		},
+		[ debouncedSubmit, formik.values, formik.isValidating, formik.isValid, formik.isSubmitting ]
+	);
+
+	let autosaveStatus = 'Settings status unknown';
+	let autosaveIcon = <Icon icon={ icons.help } />;
+	if ( ! formik.dirty && formik.submitCount === 0 ) {
+		autosaveStatus = 'No changes made.';
+		autosaveIcon = <Icon icon={ icons.border } className='optionskit-autosave-status-icon' />;
+	} else if ( formik.isSubmitting || formik.isValidating) {
+		autosaveStatus = 'Saving changes...';
+		autosaveIcon = <Spinner className='optionskit-autosave-status-icon' />;
+	} else if ( formik.errors && Object.keys( formik.errors ).length > 0 ) {
+		autosaveStatus = 'Changes not saved due to errors.';
+		autosaveIcon = <Icon icon={ icons.info } className='optionskit-autosave-status-icon' />; // icons.error requires a later version of @wordpress/icons than 10.8.2.
+	} else if ( isEqual( formik.values, lastValues ) ) {
+		autosaveStatus = 'Changes saved.';
+		autosaveIcon = <Icon icon={ icons.published } className='optionskit-autosave-status-icon' />;
+	} else {
+		autosaveStatus = 'Unsaved changes.';
+		autosaveIcon = <Icon icon={ icons.plusCircle } className='optionskit-autosave-status-icon' />;
+	}
+
+	return (
+		<>
+			<div className='optionskit-autosave-status'>
+				{ autosaveIcon } { autosaveStatus }
+			</div>
+		</>
+	);
+}
+
 function OptionsKitNotices() {
+	const settings = window.optionsKitSettings;
 	const formik = useFormikContext();
 	const notices = formik.status.notices;
 
@@ -239,8 +305,22 @@ function OptionsKitNotices() {
 		formik.setStatus( { ...formik.status, notices: newNotices } );
 	};
 
+	let debugBar = false ? (
+		<div>
+			{ formik.isValid ? 'valid' : 'INVALID' } &nbsp;|&nbsp;
+			{ formik.isValidating ? 'VALIDATING' : 'not validating' } &nbsp;|&nbsp;
+			{ formik.isSubmitting ? 'SUBMITTING' : 'not submitting' } &nbsp;|&nbsp;
+			{ formik.dirty ? 'DIRTY' : 'clean' } &nbsp;|&nbsp;
+			{ formik.touched ? 'TOUCHED' : 'untouched' }
+		</div>
+	) : '';
+
 	return (
-		<OptionsKitNoticeList notices={ notices } onRemove={ removeNotice } />
+		<>
+			<OptionsKitNoticeList notices={ notices } onRemove={ removeNotice } />
+			{ debugBar }
+		</>
+
 	);
 }
 
@@ -286,6 +366,21 @@ function Panel() {
 		actionButtons = <ul className="optionskit-title-links">{ buttons }</ul>;
 	}
 
+	let saveArea;
+	if ( settings.autosave ) {
+		saveArea = (
+			<div className="optionskit-save-area">
+				<AutoSaveFields />
+			</div>
+		);
+	} else {
+		saveArea = (
+			<div className="optionskit-save-area">
+				<FormSubmitButton label={settings.labels.save }/>
+			</div>
+		);
+	}
+
 	return (
 		<section id="optionskit-panel" className="optionskit-panel wrap">
 			<Formik
@@ -305,9 +400,7 @@ function Panel() {
 							{ settings.page_title }
 						</h1>
 						{ actionButtons }
-						<div className="optionskit-save-area">
-							<FormSubmitButton label={ settings.labels.save } />
-						</div>
+						{ saveArea }
 						<div className="optionskit-page-notice">
 							<FormErrorNotice />
 							<OptionsKitNotices />
@@ -318,9 +411,6 @@ function Panel() {
 						<div id="optionskit-navigation">
 							<OptionsKitTabPanel />
 						</div>
-					</div>
-					<div className="optionskit-bottom-save-area">
-						<FormSubmitButton label={ settings.labels.save } />
 					</div>
 				</Form>
 			</Formik>

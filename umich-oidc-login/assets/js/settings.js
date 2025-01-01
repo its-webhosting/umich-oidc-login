@@ -9,23 +9,23 @@ var umichOidcSettings =  {
 
 	/** Check to see if the contents of the restrict_site form field are valid.
 	 *
-	 * @param array list value/label pairs the user selected:
-	 *     [ { value: 123, label: 'option 1' }, { value: 456, label: 'option 2' } ]
-	 * @return string empty string if values are OK, or an error message if they are invalid.
+	 * @param array list values the user selected:
+	 *     [ '_everyone_', 'Example Group' ]
+	 * @return undefined|string undefined if values are OK, or a string containing an error message if they are invalid.
 	 */
 	validateRestrictSite: function (values) {
-		if ( values.length === 0)  {
+		if ( values.length === 0 )  {
 			return 'Must have at least one group';
 		}
 		if ( values.length > 1 ) {
-			if ( values.find(({ value }) => value === '_everyone_') ) {
+			if ( values.includes( '_everyone_' ) ) {
 				return '"( Everyone )" cannot be used together with other groups.';
 			}
-			if ( values.find(({ value }) => value === '_logged_in_') ) {
+			if ( values.includes( '_logged_in_' ) ) {
 				return '"( Logged-in Users )" cannot be used together with other groups.';
 			}
 		}
-		return '';
+		return undefined;
 	}
 
 };

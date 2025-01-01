@@ -48,6 +48,7 @@ class Settings_Page {
 
 		$this->panel = new \UMich_OIDC_Login\Admin\WP_React_OptionsKit\React_OptionsKit( 'umich_oidc' );
 		$this->panel->set_page_title( 'UMich OIDC Login Settings' );
+		$this->panel->set_autosave( $ctx->options['autosave'] );
 
 		// Setup the options panel menu.
 		\add_filter( 'umich_oidc_menu', array( $this, 'setup_menu' ) );
@@ -160,6 +161,7 @@ class Settings_Page {
 	 */
 	public function save_options( $options ) {
 		$this->ctx->options = $options; // save the new data so the notices filter can use them.
+		$this->panel->set_autosave( $options['autosave'] );
 		return $options;
 	}
 

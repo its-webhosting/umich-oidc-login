@@ -8,12 +8,12 @@
 import { useFormikContext, useField, ErrorMessage } from 'formik';
 import { Container, Row, Col } from 'react-grid-system';
 import {
-	//__experimentalInputControl as InputControl,
 	BaseControl,
 	TextControl,
 	SelectControl,
 	RadioControl,
 	CheckboxControl,
+	ToggleControl,
 	Notice,
 } from '@wordpress/components';
 import Select from 'react-select';
@@ -31,24 +31,21 @@ function executeFunctionByName( functionName, context /*, args */ ) {
 	return context[ func ].apply( context, args );
 }
 
-function OptionsKitTextInput( { description, ...props } ) {
-	/*
-	 * As of 2023-02-19 with @wordpress/components 23.4.0
-	 * There are some InputControl problems, perhaps becauase it is experimental
-	 *   - a wrapping <div> is required to avoid element overlap problems
-	 *   - help (in fact, the whole BaseComponent) does not get rendered
-			<div>
-			<InputControl
-				help={ parse( description ) }
-				{ ...field }
-				{ ...props }
-				onChange={ (value, e) => { formik.handleChange( e.event.nativeEvent ) } }
-				onBlur={ (e) => { formik.handleBlur( e.nativeEvent ) } }
-			/>
-			</div>
-	 */
-	const [ field ] = useField( props );
-	const formik = useFormikContext();
+function handleValidation( validate ) {
+	if ( typeof validate === 'function' ) {
+		return validate;
+	}
+	if ( typeof validate === 'string' ) {
+		return ( v ) => { return executeFunctionByName( validate, window, v ); };
+	}
+	return undefined;
+}
+
+function OptionsKitTextInput( { description, validate, ...props } ) {
+	const [ field, meta, helpers ] = useField( {
+		name: props.name,
+		validate: handleValidation( validate ),
+	} );
 	return (
 		<>
 			<TextControl
@@ -56,28 +53,25 @@ function OptionsKitTextInput( { description, ...props } ) {
 				{ ...field }
 				{ ...props }
 				onChange={ ( v ) => {
-					formik.setFieldValue( props.id, v );
+					helpers.setTouched( true, false );
+					helpers.setValue( v, true );
 				} }
 				__nextHasNoMarginBottom
 			/>
-			<ErrorMessage name={ props.name }>
-				{ ( msg ) => (
-					<Notice status="error" isDismissible={ false }>
-						{ msg }
-					</Notice>
-				) }
-			</ErrorMessage>
+			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
 		</>
 	);
 }
 
-function OptionsKitSelectInput( { description, options, ...props } ) {
-	const [ field ] = useField( props );
+function OptionsKitSelectInput( { description, options, validate, ...props } ) {
+	const [ field, meta, helpers ] = useField( {
+		name: props.name,
+		validate: handleValidation( validate ),
+	} );
 	const opts = Object.keys( options ).map( ( item ) => ( {
 		label: options[ item ],
 		value: item,
 	} ) );
-	const formik = useFormikContext();
 	return (
 		<>
 			<SelectControl
@@ -85,21 +79,13 @@ function OptionsKitSelectInput( { description, options, ...props } ) {
 				help={ parse( description ) }
 				{ ...field }
 				{ ...props }
-				onChange={ ( value, e ) => {
-					formik.handleChange( e.event.nativeEvent );
-				} }
-				onBlur={ ( e ) => {
-					formik.handleBlur( e.nativeEvent );
+				onChange={ ( v ) => {
+					helpers.setTouched( true, false );
+					helpers.setValue( v, true );
 				} }
 				__nextHasNoMarginBottom
 			/>
-			<ErrorMessage name={ props.name }>
-				{ ( msg ) => (
-					<Notice status="error" isDismissible={ false }>
-						{ msg }
-					</Notice>
-				) }
-			</ErrorMessage>
+			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
 		</>
 	);
 }
@@ -108,14 +94,16 @@ function OptionsKitMultiSelectInput( {
 	description,
 	options,
 	labels,
-	customValidate,
+	validate,
 	...props
 } ) {
-	const [ field ] = useField( props );
+	const [ field, meta, helpers ] = useField( {
+		name: props.name,
+		validate: handleValidation( validate ),
+	} );
 	const value = options.filter( ( v ) => {
 		return field.value.indexOf( v.value ) >= 0;
 	} );
-	const formik = useFormikContext();
 	const styles = {
 		control: ( base ) => ( {
 			...base,
@@ -147,7 +135,7 @@ function OptionsKitMultiSelectInput( {
 			backgroundColor: '#007cba',
 		} ),
 	};
-
+	// don't pass { ...field } since it contains `value` which will prevent Select from updating.
 	return (
 		<>
 			<BaseControl
@@ -171,36 +159,27 @@ function OptionsKitMultiSelectInput( {
 						const result = v.map( ( item ) => {
 							return item.value;
 						} );
-						// setFieldError workaround, see https://github.com/jaredpalmer/formik/issues/1278
-						formik.setFieldValue( props.id, result, false );
-						formik.setFieldTouched( props.id, true, false );
-						formik.setFieldError(
-							props.id,
-							executeFunctionByName( customValidate, window, v )
-						);
+						helpers.setTouched( true, false );
+						helpers.setValue( result, true );
 					} }
-					onBlur={ formik.onBlur }
+					onBlur={ field.onBlur }
 				/>
 			</BaseControl>
-			<ErrorMessage name={ props.name } id={ props.id }>
-				{ ( msg ) => (
-					<Notice status="error" isDismissible={ false }>
-						{ msg }
-					</Notice>
-				) }
-			</ErrorMessage>
+			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
 		</>
 	);
 }
 
-function OptionsKitRadioInput( { description, options, ...props } ) {
+function OptionsKitRadioInput( { description, options, validate, ...props } ) {
+	const [ field, meta, helpers ] = useField( {
+		name: props.name,
+		validate: handleValidation( validate ),
+	} );
 	const opts = Object.keys( options ).map( ( item ) => ( {
 		label: options[ item ],
 		value: item,
 	} ) );
-	const formik = useFormikContext();
-	// don't pass { ...field } since it contains `value` which will prevent
-	// RadioControl from updating.
+	// don't pass { ...field } since it contains `value` which will prevent RadioControl from updating.
 	return (
 		<>
 			<RadioControl
@@ -208,61 +187,90 @@ function OptionsKitRadioInput( { description, options, ...props } ) {
 				help={ parse( description ) }
 				{ ...props }
 				onChange={ ( v ) => {
-					formik.setFieldValue( props.id, v );
+					helpers.setTouched( true, false );
+					helpers.setValue( v, true );
 				} }
-				selected={ formik.values[ props.id ] }
+				onBlur={ field.onBlur }
+				selected={ field.value }
 			/>
-			<ErrorMessage name={ props.name }>
-				{ ( msg ) => (
-					<Notice status="error" isDismissible={ false }>
-						{ msg }
-					</Notice>
-				) }
-			</ErrorMessage>
+			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
 		</>
 	);
 }
 
-function OptionsKitCheckboxInput( { description, ...props } ) {
-	const [ field ] = useField( props );
-	const formik = useFormikContext();
+function OptionsKitCheckboxInput( { description, validate, ...props } ) {
+	const [ field, meta, helpers ] = useField( {
+		name: props.name,
+		validate: handleValidation( validate ),
+	} );
+	// don't pass { ...field } since it contains `value` which will prevent CheckboxControl from updating.
 	return (
 		<>
 			<CheckboxControl
 				help={ parse( description ) }
-				//{ ...field }
 				{ ...props }
 				onChange={ ( v ) => {
-					formik.setFieldValue( props.id, v );
+					helpers.setTouched( true, false );
+					helpers.setValue( v, true );
 				} }
-				checked={ formik.values[ props.id ] }
+				onBlur={ field.onBlur }
+				checked={ field.value }
 				__nextHasNoMarginBottom
 			/>
-			<ErrorMessage name={ props.name }>
-				{ ( msg ) => (
-					<Notice status="error" isDismissible={ false }>
-						{ msg }
-					</Notice>
-				) }
-			</ErrorMessage>
+			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
+		</>
+	);
+}
+
+function OptionsKitToggleInput( { description, validate, ...props } ) {
+	const [ field, meta, helpers ] = useField( {
+		name: props.name,
+		validate: handleValidation( validate ),
+	} );
+	// don't pass { ...field } since it contains `value` which will prevent ToggleControl from updating.
+	return (
+		<>
+			<ToggleControl
+				help={ parse( description ) }
+				{ ...props }
+				onChange={ ( v ) => {
+					helpers.setTouched( true, false );
+					helpers.setValue( v, true );
+				} }
+				onBlur={ field.onBlur }
+				checked={ field.value }
+				__nextHasNoMarginBottom
+			/>
+			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
 		</>
 	);
 }
 
 function SettingsField( { setting } ) {
+	let defaultValidation;
 	switch ( setting.type ) {
+
 		case 'text':
+			defaultValidation = ( v ) => { return undefined; }; // TODO: if field is required, ensure v is not empty.
 			return (
 				<>
 					<OptionsKitTextInput
 						id={ setting.id }
 						name={ setting.id }
 						description={ setting.desc }
+						validate={ setting.validate ? setting.validate : defaultValidation }
 					/>
 				</>
 			);
 
 		case 'select':
+			defaultValidation = ( v ) => {
+				const valid = Object.keys( setting.options );
+				if ( ! valid.includes( v ) ) {
+					return 'Internal error: invalid value: ' + v;
+				}
+				return undefined;
+			};
 			return (
 				<>
 					<OptionsKitSelectInput
@@ -270,11 +278,22 @@ function SettingsField( { setting } ) {
 						name={ setting.id }
 						description={ setting.desc }
 						options={ setting.options }
+						validate={ setting.validate ? setting.validate : defaultValidation }
 					/>
 				</>
 			);
 
 		case 'multiselect':
+			defaultValidation = ( v ) => {
+				let valid = setting.options.map( ( item ) => { return item.value; } );
+				const invalid = v.filter( ( item ) => {
+					return ! valid.includes( item );
+				} );
+				if ( invalid.length > 0 ) {
+					return 'Internal error: invalid value(s): ' + invalid.join( ', ' );
+				};
+				return undefined;
+			};
 			return (
 				<>
 					<OptionsKitMultiSelectInput
@@ -283,12 +302,19 @@ function SettingsField( { setting } ) {
 						description={ setting.desc }
 						options={ setting.options }
 						labels={ setting.labels }
-						customValidate={ setting.validate }
+						validate={ setting.validate ? setting.validate : defaultValidation }
 					/>
 				</>
 			);
 
 		case 'radio':
+			defaultValidation = ( v ) => {
+				const valid = Object.keys( setting.options );
+				if ( ! valid.includes( v ) ) {
+					return 'Internal error: invalid value: ' + v;
+				}
+				return undefined;
+			};
 			return (
 				<>
 					<OptionsKitRadioInput
@@ -296,11 +322,18 @@ function SettingsField( { setting } ) {
 						name={ setting.id }
 						description={ setting.desc }
 						options={ setting.options }
+						validate={ setting.validate ? setting.validate : defaultValidation }
 					/>
 				</>
 			);
 
 		case 'checkbox':
+			defaultValidation = ( v ) => {
+				if ( typeof v !== 'boolean' ) {
+					return 'Internal error: invalid value (not boolean): ' + v;
+				}
+				return undefined;
+			};
 			return (
 				<>
 					<OptionsKitCheckboxInput
@@ -308,9 +341,30 @@ function SettingsField( { setting } ) {
 						name={ setting.id }
 						label={ setting.label }
 						description={ setting.desc }
+						validate={ setting.validate ? setting.validate : defaultValidation }
 					/>
 				</>
 			);
+
+		case 'toggle':
+			defaultValidation = ( v ) => {
+				if ( typeof v !== 'boolean' ) {
+					return 'Internal error: invalid value (not boolean): ' + v;
+				}
+				return undefined;
+			};
+			return (
+				<>
+					<OptionsKitToggleInput
+						id={ setting.id }
+						name={ setting.id }
+						label={ setting.label }
+						description={ setting.desc }
+						validate={ setting.validate ? setting.validate : defaultValidation }
+					/>
+				</>
+			);
+
 
 		case 'html':
 			return <div id={ setting.id }>{ parse( setting.html ) }</div>;

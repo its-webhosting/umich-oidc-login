@@ -7,7 +7,7 @@
 
 .optionskit-form .form-table {
 
-	padding: 2em 0 1em 0;
+	padding: 1em 0 15em 0;
 	line-height: 1.5;
 
 	.optionskit-field-row {
@@ -49,9 +49,21 @@
 		margin-top: 4px;
 	}
 
+	.components-form-toggle {
+		margin-top: 4px;
+	}
+	.components-toggle-control__label {
+		margin-top: 4px;
+	}
+
 }
 
 .optionskit-form-wrapper {
+
+	height: 100%;
+	position: fixed;
+	overflow-y: auto;
+	margin-top: 1em;
 
 	.description {
 		font-style: normal;
