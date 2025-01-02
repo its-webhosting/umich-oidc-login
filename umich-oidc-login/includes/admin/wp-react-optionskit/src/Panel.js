@@ -244,23 +244,36 @@ function AutoSaveFields() {
 	const formik = useFormikContext();
 	const [ lastValues, setLastValues ] = React.useState( formik.values );
 
-	const debouncedSubmit = React.useCallback(
-		debounce(
-			() => {
-				if ( formik.isValid && ! formik.isValidating && ! formik.isSubmitting
-					&& ! isEqual( formik.values, lastValues ) ) {
-					formik.submitForm().then( () => { setLastValues( formik.values ); } );
-				}
-			},
-			500,
-		),
-		[ formik.submitForm, formik.values, formik.isValidating, formik.isValid, formik.isSubmitting ]
-	);
+	// From https://www.developerway.com/posts/debouncing-in-react
+	const useDebounce = (callback) => {
+		const ref = React.useRef();
 
-	React.useEffect(() => {
+		React.useEffect( () => {
+			ref.current = callback;
+		}, [ callback ]);
+
+		const debouncedCallback = React.useMemo( () => {
+			const func = () => {
+				ref.current?.();
+			};
+
+			return debounce( func, 1500 );
+		}, []);
+
+		return debouncedCallback;
+	};
+
+	const debouncedSubmit = useDebounce(async () => {
+		if ( formik.isValid && ! formik.isValidating && ! formik.isSubmitting
+			&& ! isEqual( formik.values, lastValues ) ) {
+			await formik.submitForm();
+			setLastValues( formik.values );
+		}
+	} );
+
+	React.useEffect( () => {
 			if ( formik.isValid && ! formik.isValidating && ! formik.isSubmitting
 				&& ! isEqual( formik.values, lastValues ) ) {
-				console.log('triggering...',  formik.values, lastValues, formik.isValid, formik.isSubmitting);
 				debouncedSubmit();
 			}
 		},
