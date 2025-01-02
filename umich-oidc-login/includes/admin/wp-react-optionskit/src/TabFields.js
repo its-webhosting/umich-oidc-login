@@ -5,7 +5,7 @@
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
  */
 
-import { useFormikContext, useField, ErrorMessage } from 'formik';
+import { useFormikContext, useField } from 'formik';
 import { Container, Row, Col } from 'react-grid-system';
 import {
 	BaseControl,
@@ -251,7 +251,15 @@ function SettingsField( { setting } ) {
 	switch ( setting.type ) {
 
 		case 'text':
-			defaultValidation = ( v ) => { return undefined; }; // TODO: if field is required, ensure v is not empty.
+			defaultValidation = ( v ) => {
+				if ( typeof v !== 'string' ) {
+					return 'Internal error: invalid value (not a string).';
+				}
+				if ( !! setting.required && v.trim().length === 0 ) {
+					return 'This field is required.';
+				}
+				return undefined;
+			};
 			return (
 				<>
 					<OptionsKitTextInput
@@ -267,7 +275,7 @@ function SettingsField( { setting } ) {
 			defaultValidation = ( v ) => {
 				const valid = Object.keys( setting.options );
 				if ( ! valid.includes( v ) ) {
-					return 'Internal error: invalid value: ' + v;
+					return 'Internal error: invalid value.';
 				}
 				return undefined;
 			};
@@ -311,7 +319,7 @@ function SettingsField( { setting } ) {
 			defaultValidation = ( v ) => {
 				const valid = Object.keys( setting.options );
 				if ( ! valid.includes( v ) ) {
-					return 'Internal error: invalid value: ' + v;
+					return 'Internal error: invalid value.';
 				}
 				return undefined;
 			};
@@ -330,7 +338,7 @@ function SettingsField( { setting } ) {
 		case 'checkbox':
 			defaultValidation = ( v ) => {
 				if ( typeof v !== 'boolean' ) {
-					return 'Internal error: invalid value (not boolean): ' + v;
+					return 'Internal error: invalid value.';
 				}
 				return undefined;
 			};
@@ -349,7 +357,7 @@ function SettingsField( { setting } ) {
 		case 'toggle':
 			defaultValidation = ( v ) => {
 				if ( typeof v !== 'boolean' ) {
-					return 'Internal error: invalid value (not boolean): ' + v;
+					return 'Internal error: invalid value.';
 				}
 				return undefined;
 			};

@@ -26,7 +26,48 @@ var umichOidcSettings =  {
 			}
 		}
 		return undefined;
-	}
+	},
+
+	/** Ensure the contents of the field are a valid URL, URL path, or empty.
+	 *
+	 * @param string optional URL or URL path.
+	 * @return undefined|string undefined if valid, or a string containing an error message.
+	 */
+	validateUrlOrPath: function (value) {
+		if ( ! typeof value === 'string' ) {
+			return 'Internal error (not a string)';
+		}
+		value = value.trim();
+		if ( value === '' ) {
+			return undefined;
+		}
+		if ( value.startsWith('/') ) {
+			return undefined;
+		}
+		if ( value.match( /^https:\/\// ) ) {
+			return undefined;
+		}
+		return 'Must be a URL starting with "https://" or "/"';
+	},
+
+	/** Ensure the contents of the field are a valid URL or empty.
+	 *
+	 * @param string optional URL or URL path.
+	 * @return undefined|string undefined if valid, or a string containing an error message.
+	 */
+	validateUrl: function (value) {
+		if ( ! typeof value === 'string' ) {
+			return 'Internal error (not a string)';
+		}
+		value = value.trim();
+		if ( value === '' ) {
+			return undefined;
+		}
+		if ( value.match( /^https:\/\// ) ) {
+			return undefined;
+		}
+		return 'Must be a URL starting with "https://"';
+	},
 
 };
 
