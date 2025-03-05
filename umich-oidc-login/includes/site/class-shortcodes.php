@@ -225,11 +225,14 @@ class Shortcodes {
 		$url  = $oidc->get_oidc_url( $type, $return );
 
 		$attributes = '';
-		foreach ( \array_keys( $orig_atts ) as $a ) {
-			if ( ! \in_array( \strtolower( $a ), array( 'type', 'return', 'text', 'text_login', 'text_logout' ), true ) ) {
-				$name        = \esc_html( $a );
-				$value       = \esc_html( $orig_atts[ $a ] );
-				$attributes .= " {$name}='{$value}'";
+		if ( true === $this->ctx->options['shortcode_html_attributes_allowed'] ) {
+			foreach ( \array_keys( $orig_atts ) as $a ) {
+				if ( ! \in_array( \strtolower( $a ), array( 'type', 'return', 'text', 'text_login', 'text_logout' ),
+					true ) ) {
+					$name       = \esc_html( $a );
+					$value      = \esc_html( $orig_atts[ $a ] );
+					$attributes .= " {$name}='{$value}'";
+				}
 			}
 		}
 
@@ -245,7 +248,7 @@ class Shortcodes {
 		}
 
 		if ( '' === $attributes ) {
-			// As of UMICH OIDC Login 1.2.1, if there are no attributes, then the HTML cannot contain malicious content.
+			// As of UMICH OIDC Login 1.3.0, if there are no attributes, then the HTML cannot contain malicious content.
 			return $html;
 		}
 
