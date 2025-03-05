@@ -166,10 +166,11 @@ class Run {
 				$this->options['use_oidc_for_wp_users'] = 'yes';
 			}
 			unset( $this->options['link_accounts'] );
-			\update_option( 'umich_oidc_settings', $this->options );
 		}
+
 		$this->internals['plugin_version'] = UMICH_OIDC_LOGIN_VERSION_INT;
 		\update_option( 'umich_oidc_internals', $this->internals );
+		\update_option( 'umich_oidc_settings', $this->options );  // save default values for any new options.
 	}
 
 
