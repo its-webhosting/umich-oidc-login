@@ -20,19 +20,19 @@
   },
   "main": "src/index.js",
   "dependencies": {
-    "@wordpress/api-fetch": "7.8.2",
-    "@wordpress/components": "25.1.10",
-    "@wordpress/element": "6.8.1",
-    "@wordpress/icons": "10.8.2",
+    "@wordpress/api-fetch": "7.19.1",
+    "@wordpress/components": "29.5.3",
+    "@wordpress/element": "6.19.1",
+    "@wordpress/icons": "10.19.1",
     "formik": "^2.4.6",
     "lodash.debounce": "^4.0.8",
     "react-fast-compare": "^3.2.2",
-    "html-react-parser": "^5.2.0",
+    "html-react-parser": "^5.2.3",
     "react-grid-system": "^8.2.1",
-    "react-select": "^5.9.0"
+    "react-select": "^5.10.1"
   },
   "devDependencies": {
-    "@wordpress/scripts": "30.0.6"
+    "@wordpress/scripts": "30.12.1"
   },
   "scripts": {
     "build": "wp-scripts build",
