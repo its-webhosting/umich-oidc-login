@@ -5,9 +5,14 @@ services:
   nginx:
     image: nginx:latest
     restart: "unless-stopped"
+    depends_on:
+      - wordpress
+    hostname: wp.local
     ports:
       - '80:80'
       - '443:443'
+    networks:
+      - app_network
     volumes:
       - ./docker-compose-files/nginx:/etc/nginx/conf.d
       - ./scratch/certs:/etc/nginx/certs
@@ -16,43 +21,60 @@ services:
       - ./umich-oidc-login:/var/www/html/wp-content/plugins/umich-oidc-login # plugin development
 
   wordpress:
-    image: wordpress:6.2.2-php8.2-fpm # https://hub.docker.com/_/wordpress/
+    image: wordpress:6.8.0-php8.3-fpm # https://hub.docker.com/_/wordpress/
     restart: "unless-stopped"
+    depends_on:
+      - db
     ports:
       - 9000:9000
+    networks:
+      - app_network
     volumes:
       - ./scratch/wordpress:/var/www/html # Full wordpress project
       - ./umich-oidc-login:/var/www/html/wp-content/plugins/umich-oidc-login # plugin development
+      - ./scratch/certs/ca:/usr/local/share/ca-certificates
       - ./scratch/logs/wordpress:/tmp
+    entrypoint:
+      - "/bin/bash"
+      - "-c"
+      - "update-ca-certificates ; exec docker-entrypoint.sh php-fpm"
+      - "--"
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_NAME: "${DB_NAME}"
       WORDPRESS_DB_USER: root
       WORDPRESS_DB_PASSWORD: "${DB_ROOT_PASSWORD}"
-    links:
-      - db
-      - nginx:wp.local
 
   wpcli:
     image: wordpress:cli
     restart: "no"
+    depends_on:
+      - db
+    networks:
+      - app_network
     volumes:
       - ./scratch/wordpress:/var/www/html
       - ./umich-oidc-login:/var/www/html/wp-content/plugins/umich-oidc-login # plugin development
+      - ./scratch/certs/ca:/usr/local/share/ca-certificates
+    user: "root"
+    entrypoint:
+      - "/bin/bash"
+      - "-c"
+      - "update-ca-certificates ; exec su -s /bin/bash www-data docker-entrypoint.sh $@"
+      - "--"
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_NAME: "${DB_NAME}"
       WORDPRESS_DB_USER: root
       WORDPRESS_DB_PASSWORD: "${DB_ROOT_PASSWORD}"
-    links:
-      - db
-      - nginx:wp.local
 
   db:
     image: mariadb:latest # https://hub.docker.com/_/mariadb
     restart: "unless-stopped"
     ports:
       - 3306:3306
+    networks:
+      - app_network
     command: [
         '--character-set-server=utf8mb4',
         '--collation-server=utf8mb4_unicode_ci'
@@ -65,3 +87,7 @@ services:
 
 volumes:
   db_data:
+
+networks:
+  app_network:
+    driver: bridge
