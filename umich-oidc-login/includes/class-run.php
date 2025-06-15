@@ -288,18 +288,22 @@ class Run {
 		\add_filter( 'add_meta_boxes', array( $this->post_meta_box, 'access_meta_box' ) );
 		\add_action( 'admin_enqueue_scripts', array( $this->post_meta_box, 'admin_scripts' ) );
 		\add_action( 'save_post', array( $this->post_meta_box, 'access_meta_save' ), 10, 2 );
+		\add_filter( 'rest_request_before_callbacks', array( $this->post_meta_box, 'rest_request_before_callbacks' ), 0, 3 );
 
 		\register_post_meta(
 			'',
 			'_umich_oidc_access',
+			// We can't use 'validate_callback' below, see
+			// https://stackoverflow.com/questions/65217925/is-there-custom-validation-of-meta-values-in-wordpress-rest-api
+			// for details.
 			array(
 				'label'             => 'UMich OIDC Access',
 				'description'       => 'Restrict access to this post or page to specific groups.',
 				'single'            => true,
 				'type'              => 'string',
-				'show_in_rest'      => true,
 				'auth_callback'     => array( $this->post_meta_box, 'access_meta_auth' ),
-				'sanitize_callback' => array( $this->post_meta_box, 'access_meta_sanitize' ),
+				'sanitize_callback' => array( $this->post_meta_box, 'access_meta_sanitize_and_validate' ),
+				'show_in_rest'      => true,
 			),
 		);
 

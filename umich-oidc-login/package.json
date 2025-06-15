@@ -20,7 +20,13 @@
 	},
 	"main": "src/metabox/index.js",
 	"dependencies": {
-		"react-select": "^5.10.1"
+		"@wordpress/api-fetch": "7.19.1",
+		"@wordpress/components": "29.5.3",
+		"@wordpress/element": "6.19.1",
+		"@wordpress/icons": "10.19.1",
+		"react-select": "^5.10.1",
+		"react-fast-compare": "^3.2.2",
+		"lodash.debounce": "^4.0.8"
 	},
 	"devDependencies": {
 		"@wordpress/scripts": "30.12.1"

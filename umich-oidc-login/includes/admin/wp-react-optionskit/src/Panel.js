@@ -285,7 +285,7 @@ function AutoSaveFields() {
 	if ( ! formik.dirty && formik.submitCount === 0 ) {
 		autosaveStatus = 'No changes made.';
 		autosaveIcon = <Icon icon={ icons.border } className='optionskit-autosave-status-icon' />;
-	} else if ( formik.isSubmitting || formik.isValidating) {
+	} else if ( formik.isSubmitting || formik.isValidating ) {
 		autosaveStatus = 'Saving changes...';
 		autosaveIcon = <Spinner className='optionskit-autosave-status-icon' />;
 	} else if ( formik.errors && Object.keys( formik.errors ).length > 0 ) {
