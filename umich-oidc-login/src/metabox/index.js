@@ -54,6 +54,7 @@ const UmichOidcAccess = () => {
 			...base,
 			color: '#fff',
 			backgroundColor: '#007cba',
+			whiteSpace: 'normal'
 		} ),
 	};
 
