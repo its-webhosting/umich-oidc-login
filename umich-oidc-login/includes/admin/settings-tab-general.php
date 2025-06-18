@@ -60,7 +60,7 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 	array(
 		'id'   => 'login_return_url',
 		'name' => 'Login Destination URL',
-		'desc' => 'URL to send users to after they successfullly log in. This is only used if the Post-Login Action is set to "URL" above.  Can be a full URL (starting with "https://") or a site URL path (such as "/some/page").',
+		'desc' => 'URL to send users to after they successfully log in. This is only used if the Post-Login Action is set to "URL" above.  Can be a full URL (starting with "https://") or a site URL path (such as "/some/page").',
 		'type' => 'text',
 		'validate' => 'umichOidcSettings.validateUrlOrPath',
 	),
@@ -120,5 +120,24 @@ for a page or post in order to save UMich OIDC Login changes you have made.
 ',
 		'type'  => 'toggle',
 		'std'   => $option_defaults['autosave'],
+	),
+	array(
+		'id'    => 'test_prereleases',
+		'name'  => 'Upgrading',
+		'label' => 'Test pre-releases',
+		'desc'  => '
+Enable this option to opt-in to testing new beta and release candidate versions of the UMich OIDC Login plugin ahead
+of official releases.  By turning this setting on for development, testing, or staging websites, you can help ensure any
+problems get addressed before production (live) websites get the new version of this plugin.  Pre-releases are usually
+available for <i>one week</i> in advance of official releases unless a problem is found.  You can get notified when new
+releases and pre-releases are available by going to the <a href="https://github.com/its-webhosting/umich-oidc-login/">
+UMich OIDC Login GitHub repository</a>, logging in, and turning on Watch -> Custom -> Releases.
+<br /><br />
+<b>NOTE:</b> If you manually install a pre-release version of the plugin, this setting will get turned on automatically
+so you will also get future pre-releasses.  If that\'s not what you want, turn this setting off after manually
+installing the pre-release.
+',
+		'type'  => 'toggle',
+		'std'   => $option_defaults['test_prereleases'],
 	),
 );

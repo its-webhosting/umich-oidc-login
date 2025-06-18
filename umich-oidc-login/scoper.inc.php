@@ -29,7 +29,7 @@ return [
               ->notPath(['bin', 'tests', 'wp-coding-standards', 'squizlabs', 'phpcsstandards', 'dealerdirect' ])
               ->ignoreVCS(true)
               ->files()
-              ->notName('/LICENSE|.*\\.md|.*\\.dist|Makefile|composer\\.json|composer\\.lock/')
+              ->notName('/LICENSE|.*\\.md|.*\\.dist|Makefile|composer\\.lock/')
               ->in('vendor')
               ->append(['composer.json']),
     ],
@@ -81,6 +81,7 @@ return [
         // 'PHPUnit\Framework\TestCase',   // A specific class
         // 'PHPUnit\Framework\*',          // The whole namespace
         // '*',                            // Everything
+        'Umich\GithubUpdater\*',
     ],
 
     // If `true` then the user defined constants belonging to the global namespace will not be prefixed.

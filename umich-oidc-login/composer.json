@@ -3,12 +3,18 @@
     "description": "WordPress plugin that restricts access to the whole site or only certain parts based on OpenID Connect (OIDC) login and group membership information.",
     "type": "library",
     "license": "GPL-3.0-or-later",
-    "version": "1.2.1-beta2",
+    "version": "1.3.0-beta3",
     "authors": [
         {
             "name": "Regents of the University of Michigan"
         }
     ],
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/its-webhosting/wordpress-github-updater"
+		}
+	],
     "scripts": {
 	    "lint": [
 		    "phpcs --standard=WordPress *.php includes"
@@ -17,7 +23,8 @@
     "require": {
         "php": ">=7.3",
         "paragonie/constant_time_encoding": "^2.7.0",
-        "jumbojett/openid-connect-php": "^1.0.2"
+        "jumbojett/openid-connect-php": "^1.0.2",
+		"umdigital/wordpress-github-updater": "dev-support-prereleases"
     },
     "config": {
         "allow-plugins": {

@@ -60,6 +60,7 @@ class Run {
 		'use_oidc_for_wp_users'             => 'no',
 		'shortcode_html_attributes_allowed' => false,
 		'autosave'                          => true,
+		'test_prereleases'                  => false,
 	);
 
 	/**
@@ -168,6 +169,12 @@ class Run {
 			unset( $this->options['link_accounts'] );
 		}
 
+		// If the new version of the plugin is a prerelease, turn on the option to upgrade to future prereleases.
+		if ( stristr( UMICH_OIDC_LOGIN_VERSION, 'beta' ) !== false
+			|| stristr( UMICH_OIDC_LOGIN_VERSION, 'rc' ) !== false ) {
+			$this->options['test_prereleases'] = true;
+		}
+
 		$this->internals['plugin_version'] = UMICH_OIDC_LOGIN_VERSION_INT;
 		\update_option( 'umich_oidc_internals', $this->internals );
 		\update_option( 'umich_oidc_settings', $this->options );  // save default values for any new options.
@@ -204,6 +211,13 @@ class Run {
 			$internals = array();
 		}
 		$this->internals = \array_merge( $internal_defaults, $internals );
+
+		new \Umich\GithubUpdater\Init( [
+			'repo'           => 'its-webhosting/umich-oidc-login',
+			'slug'           => UMICH_OIDC_LOGIN_BASE_NAME,
+			'match_releases' => $this->options['test_prereleases'] ? 'includeBeta' : 'stable',
+			'changelog'      => 'CHANGELOG.md',
+			] );
 
 		$this->do_plugin_upgrade_tasks();
 
