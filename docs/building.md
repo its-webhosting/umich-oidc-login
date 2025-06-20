@@ -79,7 +79,7 @@ cd ..
 
 Edit `composer.json`, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version.
 
-NOTE: specifying `"paragonie/constant_time_encoding": "^2.7.0",` forces PHP 7.3 compatibility for `phpseclib`. This dependency should be removed when we drop support for PHP 7.x.
+NOTE: specifying `"paragonie/constant_time_encoding": "^2.7.0",` forces PHP 7.3 compatibility for `phpseclib`. This dependency should be removed when we drop support for PHP 7.x.  As of June 2025, 2.7 was the latest minor release for 2.x.
 
 ### Update NodeJS dependencies
 

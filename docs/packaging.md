@@ -24,6 +24,12 @@ Edit `umich-oidc-login/package.json`
 * Update dependencies to newer versions, if needed.
 * Update the version number in `package.json` to be the new plugin version number.
 
+### GitHub Updater config file
+
+Edit `umich-oidc-login/wordpress.json`
+
+* Update `tested` to the version of WordPress used for development and testing.
+
 ### Main plugin file
 
 Edit `umich-oidc-login/umich-oidc-login.php`
@@ -31,13 +37,13 @@ Edit `umich-oidc-login/umich-oidc-login.php`
 * In the plugin header comment at the top of the file:
   * Update `Version:` to be the new plugin version number.
   * Update `Tested up to:` to the version of WordPress used for development and testing.
-* Update define for UMICH_OIDC_LOGIN_VERSION to the new plugin version number.
-* Update define for UMICH_OIDC_LOGIN_VERSION_INT to the integer representation of the new plugin version number.
+* Update define for `UMICH_OIDC_LOGIN_VERSION` to the new plugin version number.
+* Update define for `UMICH_OIDC_LOGIN_VERSION_INT` to the integer representation of the new plugin version number.
   * For alpha and beta releases, subtract 100 and then use the last two digits as a serial number for alpha/beta releases.  For example, version 1.2.0-alpha1 is written `1019900` (1.1.99.00).
 
-### README.txt
+### README.md
 
-Update `umich-oidc-login/README.txt` (note: this is the `.txt` file in the subdirectory, _not_ the `.md` file in the repository's main directory).
+Update `umich-oidc-login/README.md` (note: this is the file in the subdirectory, _not_ the one file in the repository's main directory).
 
 * In the plugin header:
 	* Update `Tested up to:` to the version of WordPress used for development and testing.
@@ -45,13 +51,17 @@ Update `umich-oidc-login/README.txt` (note: this is the `.txt` file in the subdi
 * Update the feature list, if needed.
 * Update the screenshot list, if needed.
 	* Put new or updated screenshots in the wordpress.org SVN repo `assets` directory.
-* Add a changelog entry for the new plugin version.
 * Add an upgrade notice for the new plug version:  Why a user should upgrade.  No more than 300 characters.
 
-Check the `README.txt` file for problems using both
+Check the `README.md` file for problems using both
 * https://wpreadme.com
 * https://wordpress.org/plugins/developers/readme-validator/
 
+### Changelog
+
+Update `umich-oidc-login/CHANGELOG.md`
+
+* Add a changelog entry for the new plugin version.
 
 ## Update plugin dependencies
 
@@ -72,10 +82,11 @@ Remove any previous build
 
 ```bash
 cd umich-oidc-login
-rm -rf build node_modules vendor \
+rm -rf build node_modules vendor composer.lock package-lock.json \
     includes/admin/wp-react-optionskit/build \
     includes/admin/wp-react-optionskit/node_modules \
-    includes/admin/wp-react-optionskit/vendor
+    includes/admin/wp-react-optionskit/vendor \
+    includes/admin/wp-react-optionskit/package-lock.json
 ```
 
 Build the plugin according to the [build instructions](building.md).

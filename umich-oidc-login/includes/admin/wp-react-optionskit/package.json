@@ -1,6 +1,6 @@
 {
   "name": "wp-react-optionskit-frontend",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "The React frontend to wp-react-optionskit",
   "author": "Regents of the University of Michigan",
   "license": "GPL-2.0-or-later",
@@ -27,7 +27,7 @@
     "formik": "^2.4.6",
     "lodash.debounce": "^4.0.8",
     "react-fast-compare": "^3.2.2",
-    "html-react-parser": "^5.2.3",
+    "html-react-parser": "^5.2.5",
     "react-grid-system": "^8.2.1",
     "react-select": "^5.10.1"
   },

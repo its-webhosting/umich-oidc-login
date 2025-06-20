@@ -1,6 +1,6 @@
 {
 	"name": "umich-oidc-login-gutenberg",
-	"version": "1.2.1",
+	"version": "1.3.0-beta3",
 	"description": "UMich OIDC Login Gutenberg blocks and Gutenberg components based access restriction metabox.",
 	"author": "Regents of the University of Michigan",
 	"license": "GPL-2.0-or-later",

@@ -2,11 +2,12 @@
 Contributors: markmont
 Tags: access-control,OIDC,content restriction,groups,login
 Requires at least: 6.0.0
-Tested up to: 6.3.1
-Stable tag: 1.2.0
+Tested up to: 6.8.0
+Stable tag: 1.3.0-beta3
 Requires PHP: 7.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
+Update URI: https://github.com/its-webhosting/umich-oidc-login
 
 Restrict access to the whole site or only certain parts based on OpenID Connect (OIDC) login and group membership information.
 
@@ -48,7 +49,22 @@ Search results from WordPress' built-in search will only show content that the s
 == Installation ==
 
 1. (Recommended but not required) Install the [WordPress Native PHP Sessions](https://wordpress.org/plugins/wp-native-php-sessions/) plugin from the WordPress.org plugin repository or by uploading the files to your web server. For details, see [How to Install a WordPress Plugin](https://www.wpbeginner.com/beginners-guide/step-by-step-guide-to-install-a-wordpress-plugin-for-beginners/). **UMich OIDC Login strongly recommends using the WordPress Native PHP Sessions plugin to prevent conflicts with other WordPress plugins that also use PHP sessions, and to ensure correct operation when the site resides on multiple web servers.**
-1. Install UMich OIDC Login from the WordPress.org plugin repository or by uploading the files to your web server.
+1. Install the UMich OIDC Login plugin from GitHub.  This plugin is not available through wordpress.org.  Use _one_ of the following methods of installing the plugin:
+    1. WP Admin Dashboard Method -- this requires that your site has write access to the plugins folder:
+        1. Download the umich-oidc-login.zip file for the latest package from https://github.com/its-webhosting/umich-oidc-login/releases/latest
+           Important: do not download the source code (the source code has to be built before it can be used on a site)
+        2. Go to the WordPress admin dashboard -> Plugins -> Add New -> Upload Plugin
+        3. Select the zip file you downloaded file and click Upload
+        4. Activate the plugin
+    1. Manual Method
+        1. Download the umich-oidc-login.zip file for the latest package from https://github.com/its-webhosting/umich-oidc-login/releases/latest
+           Important: do not download the source code (the source code has to be built before it can be used on a site)
+        2. Extract the contents of the zip file
+        3. Upload the umich-oidc-login folder to the wp-content/plugins/ folder in your site.  The final location should be wp-content/plugins/umch-oidc-login
+        4. Activate the plugin using the WordPress admin dashboard
+    1. WP CLI Method (if you have the `wp`, `jq`, and `curl` commands installed):
+        `plugin_url=$(curl -s "https://api.github.com/repos/its-webhosting/umich-oidc-login/releases/latest" | jq -r '.assets[0].browser_download_url')`
+        `wp plugin install "${plugin_url}" --activate`
 1. Activate both the WordPress Native PHP Sessions and the UMich OIDC Login plugins through the 'Plugins' menu in WordPress.
 1. Under the Settings menu in WordPress, navigate to "UMich OIDC Login" and then click on the "OIDC" tab.  Make a note of the Redirect URI value for use when registering an OIDC client for your WordPress site.
 1. Register an OIDC client for your WordPress site.  On the OIDC tab of the UMich OIDC Login settings page, fill in the information you got when registering your client.  At a minimum, this will be the Identity Provider URL, Client ID, and Client Secret.  Click the "Save Changes button".
@@ -58,6 +74,9 @@ Search results from WordPress' built-in search will only show content that the s
 Hello, [umich_oidc_userinfo type="given_name" default="stranger"]
 [umich_oidc_button]
 ```
+
+For more details, refer to [the documentation from the University of Michigan](https://teamdynamix.umich.edu/TDClient/30/Portal/KB/ArticleDet?ID=9181).
+
 
 == Frequently Asked Questions ==
 
@@ -98,47 +117,16 @@ Go to the GitHub repository for this plugin at https://github.com/its-webhosting
 
 == Changelog ==
 
-= 1.2.0 =
-September 11, 2023
-* Completely new and improved plugin settings pages that use Gutenberg components and React instead of Vue.js.  This provides some necessary groundwork for adding future features.
-    * NOTE: The "Groups for Authorization" setting is now on the OIDC tab (it used to be on the General tab).
-* Completely new page/post access restriction metabox.  The new metabox uses Gutenberg components but still works in the Classic Editor.
-* Now works for websites hosted on WP Engine.  In addition to WP Engine, the plugin has been tested on Pantheon, Amazon Lightsail, and University of Michigan web hosting services.  The plugin should work with websites hosted on most WordPress hosting providers; please [report](https://github.com/its-webhosting/umich-oidc-login/issues) any web hosting provider where the plugin does not work correctly.
-* Bug fixes:
-    * Fix a problem with the Revisions section being missing in the Gutenberg editor sidebar's Post tab.
-    * Fix a problem with the plugin breaking WordPress' `/login` page.
-    * Documentation said the shortcode for displaying data from OIDC user claims was `umich_oidc_userinfo`, but this didn't work since the shortcode was actually named `umich_oidc_user_info` in the plugin code.  The plugin now supports both of these names for the shortcode.
-    * The README file now says that group membership for Shibboleth IdPs is specified by the `edumember_ismemberof` OIDC claim (correct) rather than `eduperson_ismemberof` (wrong).
-* Internals:
-    * Added [documentation for how to develop, build, and package the plugin](https://github.com/its-webhosting/umich-oidc-login/).
-    * Added support for developing the plugin using Docker containers.
-    * Improved compatibility with PHP 8.
-    * Added testing with NGINX, and improved testing in general.  The plugin is now tested with both Apache and NGINX.
-    * Updated to the latest version of all plugin dependencies.
-
-= 1.1.2 =
-May 18, 2023
-* Fixed a bug that prevented groups that have apostrophes / single quotes in their names from working.
-
-= 1.1.1 =
-January 31, 2023
-* Fixed a bug with login/logout URLs being incorrect when WordPress is installed in a subdirectory.
-
-= 1.1.0 =
-January 8, 2023
-* Completely reimplemented the feature for using OIDC to log into the WordPress dashboard.
-    * Changed the setting values from no/yes to no/optional/yes. The new setting ("optional") allows users a choice of whether to log in using OIDC or their WordPress password. Choosing which way to log in looked like it was supported before when it was not, which was confusing.
-    * The "no" setting previously displayed a "Login in with Single Sign On" button that would only log users into the website but not the WordPress dashboard.  This was confusing, and so the button has been removed when OIDC login for WordPress is set to "no".
-    * If a user attempts to log in to the WordPress dashboard via OIDC but does not have a WordPress user account, they will now get an "Access Denied" error instead of silently being logged into the website but not logged in to WordPress.
-* Fixed a bug where unauthenticated users who tried to access a restricted page/post would sometimes get a "Page Not Found" error instead of being prompted to log in.
-* Fixed a bug where users were sometimes not sent to the correct page after authenticating.
-* Miscellaneous cleanup and improvements.
-
-= 1.0.0 =
-November 2, 2022
-* Initial release.
+For a list of all plugin releases and the changes in each release, see the file [CHANGELOG.md in the GitHub repo](https://github.com/its-webhosting/umich-oidc-login/blob/main/CHANGELOG.md)
 
 == Upgrade Notice ==
+
+= 1.3.0-beta3 =
+* [SECURITY] vulnerability fix. Please update to 1.2.1 or later as soon as possible.
+  * [BREAKING CHANGE]: If you use HTML attributes in button/link shortcodes, turn on Settings -> UMich OIDC Login -> Shortcodes -> Allow HTML attributes.
+* Fixes 5 non-security bugs.
+* Adds settings autosaving and updating to prerelease versions of the plugin.
+* See the [Changelog](https://github.com/its-webhosting/umich-oidc-login/blob/main/CHANGELOG.md) for details and other changes.
 
 = 1.2.0 =
 * New and improved settings page and access restriction metabox.
