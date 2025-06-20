@@ -95,7 +95,9 @@ const UmichOidcAccess = () => {
 		setIsAutosaving( true );
 		setSubmitCount( submitCount + 1 );
 		apiFetch( {
-			path: `/wp/v2/posts/${ settings.postId }`,
+			path: '/wp/v2/'
+				+ ( settings.postType === 'page' ? 'pages' : 'posts' ) + '/'
+				+ parseInt( settings.postId ).toString(),
 			method: 'POST',
 			data: { meta: { '_umich_oidc_access': value.map( ( x ) => x.value ).join( ',' ) } },
 		} ).then( ( res ) => {
