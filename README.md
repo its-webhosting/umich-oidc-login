@@ -71,7 +71,8 @@ UMich OIDC Login is a WordPress plugin that allows users to log in to a WordPres
 	1. **WP CLI Method:** (if you have the `wp`, `jq`, and `curl` commands installed):
    ```bash
 	   plugin_url=$(curl -s "https://api.github.com/repos/its-webhosting/umich-oidc-login/releases/latest" | jq -r '.assets[0].browser_download_url')
-	   wp plugin install "${plugin_url}" --activate```
+	   wp plugin install "${plugin_url}" --activate
+   ```
 1. Activate both the WordPress Native PHP Sessions and the UMich OIDC Login plugins through the 'Plugins' menu in WordPress.
 1. Under the Settings menu in WordPress, navigate to "UMich OIDC Login" and then click on the "OIDC" tab.  Make a note of the Redirect URI value for use when registering an OIDC client for your WordPress site.
 1. Register an OIDC client for your WordPress site.  On the OIDC tab of the UMich OIDC Login settings page, fill in the information you got when registering your client.  At a minimum, this will be the Identity Provider URL, Client ID, and Client Secret.  Click the "Save Changes button".
@@ -137,17 +138,23 @@ Entering the official group names allows content authors to select the groups fr
 
 Use [WP CLI](https://wp-cli.org) to turn off OIDC for WordPress users:
 
-`wp option patch delete umich_oidc_settings use_oidc_for_wp_users`
+```bash
+wp option patch delete umich_oidc_settings use_oidc_for_wp_users
+```
 
 You should then be able to log in to WordPress using your WordPress username and password for your website.
 
 Or, completely turn off the UMich OIDC Login plugin.  WARNING: deactivating the plugin will make any restricted content you have publicly viewable.
 
-`wp plugin deactivate umich-oidc-login`
+```bash
+wp plugin deactivate umich-oidc-login
+```
 
 If you don't remember your WordPress user account password, you can set a new one:
 
-`wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"`
+```bash
+wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
+```
 
 ### How can I report an issue, get help, request a feature, or help with plugin development?
 

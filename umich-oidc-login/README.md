@@ -57,7 +57,8 @@ Features:
 	1. **WP CLI Method:** (if you have the `wp`, `jq`, and `curl` commands installed):
    ```bash
        plugin_url=$(curl -s "https://api.github.com/repos/its-webhosting/umich-oidc-login/releases/latest" | jq -r '.assets[0].browser_download_url')
-       wp plugin install "${plugin_url}" --activate```
+       wp plugin install "${plugin_url}" --activate
+   ```
 1. Activate both the WordPress Native PHP Sessions and the UMich OIDC Login plugins through the 'Plugins' menu in WordPress.
 1. Under the Settings menu in WordPress, navigate to "UMich OIDC Login" and then click on the "OIDC" tab.  Make a note of the Redirect URI value for use when registering an OIDC client for your WordPress site.
 1. Register an OIDC client for your WordPress site.  On the OIDC tab of the UMich OIDC Login settings page, fill in the information you got when registering your client.  At a minimum, this will be the Identity Provider URL, Client ID, and Client Secret.  Click the "Save Changes button".
