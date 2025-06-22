@@ -105,7 +105,9 @@ git diff
 git status
 git add --all  # change to be any files modified above
 git commit -m "version X.Y.Z-a"  # change this to the new plugin version number
+git tag -a vX.Y.Z-a -m "vX.Y.Z-a"  # change these to the new plugin version number
 git push origin
+git push origin --tags
 ```
 
 ## Create zip file for the new release
@@ -153,8 +155,7 @@ Go to
 https://github.com/its-webhosting/umich-oidc-login/releases
 
 * Click "Draft a new release" button
-* Choose a tag -> Create new tag on publish: v1.2.0
-* Release title: 1.2.0
+* Release title: X.Y.Z-a  # (change to the new plugin version number)
 * For the release notes:
 
 ```markdown

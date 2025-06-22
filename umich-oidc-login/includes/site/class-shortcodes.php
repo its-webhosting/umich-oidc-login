@@ -183,7 +183,7 @@ class Shortcodes {
 	 *
 	 * @return string Shortcode output - requested HTML element.
 	 */
-	private function element( $element, $atts = array(), $content = null, $tag = '' ) {
+	private function element( $element, $atts = array(), $content = null, $tag = '', $safe = false ) {
 
 		$ctx       = $this->ctx;
 		$orig_atts = $atts;
@@ -225,7 +225,7 @@ class Shortcodes {
 		$url  = $oidc->get_oidc_url( $type, $return );
 
 		$attributes = '';
-		if ( true === $this->ctx->options['shortcode_html_attributes_allowed'] ) {
+		if ( $safe || true === $this->ctx->options['shortcode_html_attributes_allowed'] ) {
 			foreach ( \array_keys( $orig_atts ) as $a ) {
 				if ( ! \in_array( \strtolower( $a ), array( 'type', 'return', 'text', 'text_login', 'text_logout' ),
 					true ) ) {
@@ -247,7 +247,7 @@ class Shortcodes {
 			return '';
 		}
 
-		if ( '' === $attributes ) {
+		if ( $safe || '' === $attributes ) {
 			// As of UMICH OIDC Login 1.3.0, if there are no attributes, then the HTML cannot contain malicious content.
 			return $html;
 		}
@@ -545,7 +545,7 @@ END;
 		);
 
 		$content .= '<div style="padding: 24px; background: #fff; border: 1px solid #c3c4c7;">';
-		$content .= $this->button( $atts, '', 'umich_oidc_button' );
+		$content .= $this->element( 'button', $atts, '', 'umich_oidc_button', $safe = true );
 		$content .= '</div>';
 		$content .= '<div style="width: 100%; text-align: center; padding-top: 1em;">&mdash; <i>or, log in with a local WordPress account</i> &mdash;';
 
