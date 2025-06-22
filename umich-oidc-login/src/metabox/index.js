@@ -8,7 +8,7 @@
  */
 
 import { createRoot, render, createElement, useState, useEffect, useRef, useMemo } from '@wordpress/element';
-import {BaseControl, Icon, Notice, Spinner} from '@wordpress/components';
+import { BaseControl, Icon, Notice, Spinner, __experimentalStyleProvider as StyleProvider } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import * as icons from "@wordpress/icons";
 
@@ -177,7 +177,7 @@ const UmichOidcAccess = () => {
 			icon = icons.border;
 		} else if ( isAutosaving ) {
 			autosaveStatus = 'Saving changes...';
-			autosaveIcon = <Spinner className='optionskit-autosave-status-icon' />;
+			autosaveIcon = <Spinner style={{ verticalAlign: 'middle', position: 'relative', top: '-2px', right: 0 }} />;
 		} else if ( pendingChanges ) {
 			autosaveStatus = 'Unsaved changes.';
 			icon = icons.plusCircle;
@@ -194,7 +194,7 @@ const UmichOidcAccess = () => {
 
 		return (
 			<>
-				<div className='optionskit-autosave-status'>
+				<div className='umich-oidc-metabox-autosave-status' style={{ position: 'relative' }}>
 					{ autosaveIcon } { autosaveStatus }
 				</div>
 			</>
@@ -207,7 +207,7 @@ const UmichOidcAccess = () => {
 				id="umich-oidc-metabox-multiselect"
 				help={ helpText }
 				label={ labelText }
-				className="components-select-control optionskit-multiselect-field"
+				className="components-select-control umich-oidc-metabox-multiselect-field"
 				__nextHasNoMarginBottom
 			>
 				<Select
