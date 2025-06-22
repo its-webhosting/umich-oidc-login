@@ -212,12 +212,14 @@ class Run {
 		}
 		$this->internals = \array_merge( $internal_defaults, $internals );
 
-		new \Umich\GithubUpdater\Init( [
-			'repo'           => 'its-webhosting/umich-oidc-login',
-			'slug'           => UMICH_OIDC_LOGIN_BASE_NAME,
-			'match_releases' => $this->options['test_prereleases'] ? 'includeBeta' : 'stable',
-			'changelog'      => 'CHANGELOG.md',
-			] );
+		new \Umich\GithubUpdater\Init(
+			array(
+				'repo'           => 'its-webhosting/umich-oidc-login',
+				'slug'           => UMICH_OIDC_LOGIN_BASE_NAME,
+				'match_releases' => $this->options['test_prereleases'] ? 'includeBeta' : 'stable',
+				'changelog'      => 'CHANGELOG.md',
+			)
+		);
 
 		$this->do_plugin_upgrade_tasks();
 
@@ -246,6 +248,32 @@ class Run {
 			\add_action( 'wp_ajax_umich-oidc-logout', array( $this->oidc, 'logout_and_redirect' ) );
 			\add_action( 'wp_ajax_nopriv_umich-oidc-logout', array( $this->oidc, 'logout_and_redirect' ) );
 
+			// Plugins page links.
+			\add_filter(
+				'plugin_row_meta',
+				function ( $links, $plugin_file ) {
+					if ( UMICH_OIDC_LOGIN_BASE_NAME === $plugin_file ) {
+						$links[] = '<a href="mailto:webmaster@umich.edu" target="_blank" title="Support">Support</a>';
+					}
+					return $links;
+				},
+				10,
+				2
+			);
+			\add_filter(
+				'plugin_action_links_' . UMICH_OIDC_LOGIN_BASE_NAME,
+				function ( $links ) {
+					$links[] = '<a href="' . \admin_url( 'options-general.php?page=umich_oidc-settings' ) . '">Settings</a>';
+					return $links;
+				}
+			);
+			\add_filter(
+				'network_admin_plugin_action_links_' . UMICH_OIDC_LOGIN_BASE_NAME,
+				function ( $links ) {
+					$links[] = '<a href="' . \network_admin_url( 'settings.php?page=umich_oidc-settings' ) . '">Settings</a>';
+					return $links;
+				}
+			);
 		}
 
 		\add_filter( 'allowed_redirect_hosts', array( $this->oidc, 'allowed_redirect_hosts' ) );

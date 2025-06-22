@@ -109,7 +109,7 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 	array(
 		'id'    => 'autosave',
 		'name'  => 'Autosave plugin settings',
-		'label' => 'Autosaving',
+		'label' => 'Autosave',
 		'desc'  => '
 If enabled, changes to UMich OIDC Login plugin settings will be saved automatically as soon as they are made.
 This applies both to <code>Settings &mdash;&gt; UMich OIDC Login</code> pages as well as when creating or editing pages

@@ -6,6 +6,7 @@ June 23, 2025
 
 * Changes since the private release of 1.3.0-beta3:
 	* Updated both README files, screenshots.
+    * Added Settings and Support links for the plugin on the WordPress Plugins page.
     * Fixed "saving changes" spinner for access metabox.
     * Fixed location of GitHub updater files.
 	* Updated dependencies and tested up to WordPress 6.8.1.
