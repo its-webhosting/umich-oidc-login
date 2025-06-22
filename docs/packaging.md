@@ -8,7 +8,7 @@ The version numbers should be incremented (as appropriate) before the plugin is 
 
 Edit `umich-oidc-login/composer.json`
 
-* If code was changed or dependencies were updated, update the version number in `composer.json`.
+* Update the version number in `composer.json`.
 
 ### Settings page React app (wp-react-optionskit)
 
@@ -41,7 +41,7 @@ Edit `umich-oidc-login/umich-oidc-login.php`
 * Update define for `UMICH_OIDC_LOGIN_VERSION_INT` to the integer representation of the new plugin version number.
   * For alpha and beta releases, subtract 100 and then use the last two digits as a serial number for alpha/beta releases.  For example, version 1.2.0-alpha1 is written `1019900` (1.1.99.00).
 
-### README.md
+### Plugin README.md
 
 Update `umich-oidc-login/README.md` (note: this is the file in the subdirectory, _not_ the one file in the repository's main directory).
 
@@ -53,9 +53,14 @@ Update `umich-oidc-login/README.md` (note: this is the file in the subdirectory,
 	* Put new or updated screenshots in the wordpress.org SVN repo `assets` directory.
 * Add an upgrade notice for the new plug version:  Why a user should upgrade.  No more than 300 characters.
 
-Check the `README.md` file for problems using both
+Check the plugin `README.md` file for problems using both
 * https://wpreadme.com
 * https://wordpress.org/plugins/developers/readme-validator/
+
+### Repository README.md
+
+* Update the requirements section, if needed.
+* Update the screenshots, if needed.
 
 ### Changelog
 

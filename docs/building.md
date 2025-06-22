@@ -53,6 +53,8 @@ run-composer dump-autoload --working-dir build
 ## Build Gutenberg and React code
 
 ```bash
+rm -rf node_modules includes/admin/wp-react-optionskit/node_modules
+
 run-node npm install --include dev  # ensure @wordpress/scripts devDependency gets installed
 run-node npm run-script build:metabox
 

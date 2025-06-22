@@ -2,7 +2,7 @@
 
 
 ## 1.3.0-beta4
-June 23, 2025
+June 22, 2025
 
 * Changes since the private release of 1.3.0-beta3:
 	* Updated both README files, screenshots.
