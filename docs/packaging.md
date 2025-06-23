@@ -24,12 +24,6 @@ Edit `umich-oidc-login/package.json`
 * Update dependencies to newer versions, if needed.
 * Update the version number in `package.json` to be the new plugin version number.
 
-### GitHub Updater config file
-
-Edit `umich-oidc-login/wordpress.json`
-
-* Update `tested` to the version of WordPress used for development and testing.
-
 ### Main plugin file
 
 Edit `umich-oidc-login/umich-oidc-login.php`
@@ -43,7 +37,7 @@ Edit `umich-oidc-login/umich-oidc-login.php`
 
 ### Plugin README.md
 
-Update `umich-oidc-login/README.md` (note: this is the file in the subdirectory, _not_ the one file in the repository's main directory).
+Update `umich-oidc-login/README.txt` (note: this is the file in the subdirectory, _not_ the one file in the repository's main directory).
 
 * In the plugin header:
 	* Update `Tested up to:` to the version of WordPress used for development and testing.
@@ -53,20 +47,28 @@ Update `umich-oidc-login/README.md` (note: this is the file in the subdirectory,
 	* Put new or updated screenshots in the wordpress.org SVN repo `assets` directory.
 * Add an upgrade notice for the new plug version:  Why a user should upgrade.  No more than 300 characters.
 
-Check the plugin `README.md` file for problems using both
+Check the plugin `README.txt` file for problems using both
 * https://wpreadme.com
 * https://wordpress.org/plugins/developers/readme-validator/
 
 ### Repository README.md
+
+Update `README.md` in the root of the repository.
 
 * Update the requirements section, if needed.
 * Update the screenshots, if needed.
 
 ### Changelog
 
-Update `umich-oidc-login/CHANGELOG.md`
+Update `CHANGELOG.md`
 
 * Add a changelog entry for the new plugin version.
+
+### GitHub Updater config file
+
+Edit `wordpress.json`
+
+* Update `tested` to the version of WordPress used for development and testing.
 
 ## Update plugin dependencies
 

@@ -248,16 +248,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.44",
+            "version": "3.0.45",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "1d0b5e7e1434678411787c5a0535e68907cf82d9"
+                "reference": "bd81b90d5963c6b9d87de50357585375223f4dd8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/1d0b5e7e1434678411787c5a0535e68907cf82d9",
-                "reference": "1d0b5e7e1434678411787c5a0535e68907cf82d9",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/bd81b90d5963c6b9d87de50357585375223f4dd8",
+                "reference": "bd81b90d5963c6b9d87de50357585375223f4dd8",
                 "shasum": ""
             },
             "require": {
@@ -338,7 +338,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.44"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.45"
             },
             "funding": [
                 {
@@ -354,7 +354,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-15T09:59:26+00:00"
+            "time": "2025-06-22T22:54:43+00:00"
         },
         {
             "name": "umdigital/wordpress-github-updater",
@@ -362,12 +362,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/its-webhosting/wordpress-github-updater.git",
-                "reference": "3b8926b9f00e6c98c7aadcf9b47cd3fcab6a3537"
+                "reference": "052458147d46ae8eb7ba0b3ca678e62c91ef4cc5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/its-webhosting/wordpress-github-updater/zipball/3b8926b9f00e6c98c7aadcf9b47cd3fcab6a3537",
-                "reference": "3b8926b9f00e6c98c7aadcf9b47cd3fcab6a3537",
+                "url": "https://api.github.com/repos/its-webhosting/wordpress-github-updater/zipball/052458147d46ae8eb7ba0b3ca678e62c91ef4cc5",
+                "reference": "052458147d46ae8eb7ba0b3ca678e62c91ef4cc5",
                 "shasum": ""
             },
             "require": {
@@ -397,7 +397,7 @@
                 "issues": "https://github.com/umdigital/wordpress-github-updater/issues",
                 "source": "https://github.com/umdigital/wordpress-github-updater"
             },
-            "time": "2025-06-18T18:13:47+00:00"
+            "time": "2025-06-23T18:07:57+00:00"
         }
     ],
     "packages-dev": [
