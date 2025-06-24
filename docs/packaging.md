@@ -162,7 +162,7 @@ https://github.com/its-webhosting/umich-oidc-login/releases
 
 ```markdown
 ### Release notes
-* (paste the bullet points from the new Changelog entry from `README.txt`)
+* (paste the bullet points from the new Changelog entry from `CHANGELOG.md`)
 ```
 
 * Binaries: upload umich-oidc-login.zip that was prepared for wordpress.org

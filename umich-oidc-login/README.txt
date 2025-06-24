@@ -3,7 +3,7 @@ Contributors: markmont
 Tags: access-control,OIDC,content restriction,groups,login
 Requires at least: 6.0.0
 Tested up to: 6.8.1
-Stable tag: 1.3.0-beta4
+Stable tag: 1.3.0-beta5
 Requires PHP: 7.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -116,8 +116,8 @@ For a list of all plugin releases and the changes in each release, see the file 
 
 == Upgrade Notice ==
 
-= 1.3.0-beta4 =
-* [SECURITY] vulnerability fix. Please update to 1.2.1 or later as soon as possible.
+= 1.3.0 =
+* [SECURITY] vulnerability fix. Please update to 1.3.0 or later as soon as possible.
   * [BREAKING CHANGE]: If you use HTML attributes in button/link shortcodes, turn on Settings -> UMich OIDC Login -> Shortcodes -> Allow HTML attributes.
 * Fixes 5 non-security bugs.
 * Adds settings autosaving and updating to prerelease versions of the plugin.
