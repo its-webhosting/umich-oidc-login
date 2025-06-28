@@ -1,43 +1,7 @@
 # UMich OIDC Login Changelog
 
-## 1.3.0-beta5
-June 24, 2025
-
-* Changes since 1.3.0-beta4:
-	* Miscellaneous documentation fixes.  This release is primarily to test GitHub-based plugin updates.
-
-
-* **[SECURITY] CVE-2024-11753: UMich OIDC Login <= 1.2.0 - Authenticated (Contributor+) Stored Cross-Site Scripting**
-	* Fixes made:
-		* New setting: Shortcodes -> Allow HTML attributes (disabled by default).
-			* [BREAKING CHANGE]: If you use HTML attributes in button/link shortcodes, turn on Settings -> UMich OIDC Login -> Shortcodes -> Allow HTML attributes.
-		* OIDC button and link shortcodes with attributes in unpublished pages/posts were replaced with previews with a click-through warning.
-		* Earlier validation of `return` URLs in OIDC button and link shortcodes.
-	* CVSS Severity Score: 6.4 (Medium)
-	* CVSS Vector: CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:N
-	* Reporting Organization: Wordfence
-	* Vulnerability Researcher(s): [yudha](https://www.wordfence.com/threat-intel/vulnerabilities/researchers/yudha)
-	* Description: Stored Cross-Site Scripting vulnerability via the `umich_oidc_button` and `umich_oidc_link` shortcodes in all versions up to, and including, 1.2.0 due to insufficient input sanitization and output escaping on user supplied attributes. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.
-	* Impact: This vulnerability allows an attacker to inject arbitrary JavaScript into a webpage, potentially leading to session hijacking and other security risks.
-	* Acknowledgement: Thank you to yudha and Wordfence for finding, responsibly reporting, and working with the plugin authors on a fix for this vulnerability.  In particular, yudha's comprehensive and well-written report made the vulnerability, exploit, and impact simple to understand.
-* Non-security bug fixes:
-	* Fixed a problem where authenticated users have but later lose access to content.
-	* Fixed error "Sorry, you are not allowed to edit the `_umich_oidc_access` custom field." when
-		* creating new WordPress Patterns
-		* saving posts with Advanced Custom Fields plugin custom post types
-		* saving posts with Advanced Custom Fields plugin custom fields
-	* Fixed bug preventing scripted configuration of the plugin using WP CLI (default values for options were sometimes not saved during plugin installation or upgrades).
-* Features:
-	* Settings are now automatically saved by default. This affects both changes to the page/post UMich OIDC Access metabox as well as the plugin settings pages. Autosave can be turned off at Settings -> UMich OIDC Login -> General -> Autosave Plugin Settings.
-	* Website owners can opt-in to test prereleases of the plugin by turning on Settings -> UMich OIDC Login -> General -> Upgrading -> Test pre-releases.
-* Internals:
-	* Updated jumbojett/openid-connect-php to 1.0.2 from 0.9.10.
-	* Updated @wordpress and other NPM dependencies to lastest versions.
-	* Updated build tools and build documentation.
-	* Updated and tested up to WordPress 6.8.1.
-
 ## 1.3.0-beta4
-June 23, 2025
+June 27, 2025
 
 * Changes since the private/limited release of 1.2.1-beta2:
     * Improved the fix for the security vulnerability below.
