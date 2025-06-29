@@ -1,13 +1,7 @@
 # UMich OIDC Login Changelog
 
-## 1.3.0-beta5
-June 28, 2025
-
-* This release is to test the GitHub-based update system.  Only the version number and second-level and higher dependencies have changed between beta4 and beta5.
-
-
 ## 1.3.0-beta4
-June 27, 2025
+June 29, 2025
 
 * Changes since the private/limited release of 1.2.1-beta2:
     * Improved the fix for the security vulnerability below.

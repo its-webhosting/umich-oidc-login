@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7c45f6372aaddcdfb7725a54bbd6310b",
+    "content-hash": "f99762a3ef763d060ff7b866f9ce2d6e",
     "packages": [
         {
             "name": "composer/semver",
@@ -362,12 +362,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/its-webhosting/wordpress-github-updater.git",
-                "reference": "6c7dc7bb3d7a43933ad582b1d72f19f5e68d4b31"
+                "reference": "d1695af7b4fd1172ccc0917e7defe3b7bb00b78b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/its-webhosting/wordpress-github-updater/zipball/6c7dc7bb3d7a43933ad582b1d72f19f5e68d4b31",
-                "reference": "6c7dc7bb3d7a43933ad582b1d72f19f5e68d4b31",
+                "url": "https://api.github.com/repos/its-webhosting/wordpress-github-updater/zipball/d1695af7b4fd1172ccc0917e7defe3b7bb00b78b",
+                "reference": "d1695af7b4fd1172ccc0917e7defe3b7bb00b78b",
                 "shasum": ""
             },
             "require": {
@@ -397,7 +397,7 @@
                 "issues": "https://github.com/umdigital/wordpress-github-updater/issues",
                 "source": "https://github.com/umdigital/wordpress-github-updater"
             },
-            "time": "2025-06-27T19:46:55+00:00"
+            "time": "2025-06-29T13:01:18+00:00"
         }
     ],
     "packages-dev": [
