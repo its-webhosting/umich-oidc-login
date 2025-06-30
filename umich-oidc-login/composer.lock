@@ -362,12 +362,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/its-webhosting/wordpress-github-updater.git",
-                "reference": "d1695af7b4fd1172ccc0917e7defe3b7bb00b78b"
+                "reference": "207217058292e25188435e508d5b6d71aaef09f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/its-webhosting/wordpress-github-updater/zipball/d1695af7b4fd1172ccc0917e7defe3b7bb00b78b",
-                "reference": "d1695af7b4fd1172ccc0917e7defe3b7bb00b78b",
+                "url": "https://api.github.com/repos/its-webhosting/wordpress-github-updater/zipball/207217058292e25188435e508d5b6d71aaef09f1",
+                "reference": "207217058292e25188435e508d5b6d71aaef09f1",
                 "shasum": ""
             },
             "require": {
@@ -397,7 +397,7 @@
                 "issues": "https://github.com/umdigital/wordpress-github-updater/issues",
                 "source": "https://github.com/umdigital/wordpress-github-updater"
             },
-            "time": "2025-06-29T13:01:18+00:00"
+            "time": "2025-06-29T13:43:30+00:00"
         }
     ],
     "packages-dev": [
