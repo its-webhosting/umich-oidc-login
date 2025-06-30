@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f99762a3ef763d060ff7b866f9ce2d6e",
+    "content-hash": "7c45f6372aaddcdfb7725a54bbd6310b",
     "packages": [
         {
             "name": "composer/semver",
@@ -248,16 +248,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.45",
+            "version": "3.0.46",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "bd81b90d5963c6b9d87de50357585375223f4dd8"
+                "reference": "56483a7de62a6c2a6635e42e93b8a9e25d4f0ec6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/bd81b90d5963c6b9d87de50357585375223f4dd8",
-                "reference": "bd81b90d5963c6b9d87de50357585375223f4dd8",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/56483a7de62a6c2a6635e42e93b8a9e25d4f0ec6",
+                "reference": "56483a7de62a6c2a6635e42e93b8a9e25d4f0ec6",
                 "shasum": ""
             },
             "require": {
@@ -338,7 +338,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.45"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.46"
             },
             "funding": [
                 {
@@ -354,7 +354,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-22T22:54:43+00:00"
+            "time": "2025-06-26T16:29:55+00:00"
         },
         {
             "name": "umdigital/wordpress-github-updater",

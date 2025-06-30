@@ -1,5 +1,11 @@
 # UMich OIDC Login Changelog
 
+## 1.3.0-beta5
+June 30, 2025
+
+* The purpose of this release is to test GitHub-based updates.  No plugin code changes since 1.3.0-beta4, only updates to second-level and higher dependencies.
+
+
 ## 1.3.0-beta4
 June 30, 2025
 
