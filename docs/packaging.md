@@ -139,7 +139,7 @@ Compare the files in the old and new release.  Look for things that got added th
 
 ```bash
 ( cd old-release/umich-oidc-login ; find . -print ) | sort > old-release/file_list
-( cd umich-oidc-login ; find . -print ) | sort > file_list
+( cd old-release/umich-oidc-login ; find . -print ) | sort > old-release/file_list
 diff -u old-release/file_list file_list
 ```
 
