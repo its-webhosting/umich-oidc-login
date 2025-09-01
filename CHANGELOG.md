@@ -1,5 +1,13 @@
 # UMich OIDC Login Changelog
 
+## 1.3.0-beta6
+September 1, 2025
+
+* Changes since 1.3.0-beta5:
+    * Fixed issue with certain themes displaying HTML dialog elements by default, causing the shortcode protection dialog to appear at the bottom of pages when a WordPress user is logged in.
+    * Updated dependencies and tested up to WordPress 6.8.2.
+
+
 ## 1.3.0-beta5
 June 30, 2025
 

@@ -1,6 +1,6 @@
 {
     "requires"    : "6.0.0",
-    "tested"      : "6.8.1",
+    "tested"      : "6.8.2",
     "requires_php": "7.3.0",
     "banner:low"  : "/assets/images/banner-772x250.jpg",
     "banner:high" : "/assets/images/banner-1544x500.jpg"
