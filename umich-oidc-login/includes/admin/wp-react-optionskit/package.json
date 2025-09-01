@@ -25,11 +25,11 @@
     "@wordpress/element": "6.19.1",
     "@wordpress/icons": "10.19.1",
     "formik": "^2.4.6",
-    "html-react-parser": "^5.2.5",
+    "html-react-parser": "^5.2.6",
     "lodash.debounce": "^4.0.8",
     "react-fast-compare": "^3.2.2",
     "react-grid-system": "^8.2.1",
-    "react-select": "^5.10.1"
+    "react-select": "^5.10.2"
   },
   "devDependencies": {
     "@wordpress/scripts": "30.12.1"

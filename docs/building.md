@@ -76,7 +76,6 @@ When you need to update the plugin dependencies (for example, when releasing a n
 rm -rf scratch/composer-*-cache
 cd umich-oidc-login
 rm -rf composer.lock build vendor
-cd ..
 ```
 
 Edit `composer.json`, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version.
@@ -86,7 +85,6 @@ NOTE: specifying `"paragonie/constant_time_encoding": "^2.7.0",` forces PHP 7.3 
 ### Update NodeJS dependencies
 
 ```bash
-cd umich-oidc-login
 rm -rf build node_modules package-lock.json
 ```
 

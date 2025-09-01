@@ -124,7 +124,7 @@ popd
 
 ### Develop the plugin settings page
 
-This currently uses Node.js >= 18.12 installed on the local system, not from a Docker image.
+This currently uses Node.js >= 20 installed on the local system, not from a Docker image.
 
 ```bash
 TOP=$(pwd)
