@@ -5,7 +5,7 @@
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
  */
 
-import { useFormikContext, useField } from 'formik';
+import { useField } from 'formik';
 import { Container, Row, Col } from 'react-grid-system';
 import {
 	BaseControl,
@@ -36,7 +36,9 @@ function handleValidation( validate ) {
 		return validate;
 	}
 	if ( typeof validate === 'string' ) {
-		return ( v ) => { return executeFunctionByName( validate, window, v ); };
+		return ( v ) => {
+			return executeFunctionByName( validate, window, v );
+		};
 	}
 	return undefined;
 }
@@ -58,7 +60,11 @@ function OptionsKitTextInput( { description, validate, ...props } ) {
 				} }
 				__nextHasNoMarginBottom
 			/>
-			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
+			{ meta.error && meta.touched && (
+				<Notice status="error" isDismissible={ false }>
+					{ meta.error }
+				</Notice>
+			) }
 		</>
 	);
 }
@@ -85,7 +91,11 @@ function OptionsKitSelectInput( { description, options, validate, ...props } ) {
 				} }
 				__nextHasNoMarginBottom
 			/>
-			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
+			{ meta.error && meta.touched && (
+				<Notice status="error" isDismissible={ false }>
+					{ meta.error }
+				</Notice>
+			) }
 		</>
 	);
 }
@@ -165,7 +175,11 @@ function OptionsKitMultiSelectInput( {
 					onBlur={ field.onBlur }
 				/>
 			</BaseControl>
-			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
+			{ meta.error && meta.touched && (
+				<Notice status="error" isDismissible={ false }>
+					{ meta.error }
+				</Notice>
+			) }
 		</>
 	);
 }
@@ -193,7 +207,11 @@ function OptionsKitRadioInput( { description, options, validate, ...props } ) {
 				onBlur={ field.onBlur }
 				selected={ field.value }
 			/>
-			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
+			{ meta.error && meta.touched && (
+				<Notice status="error" isDismissible={ false }>
+					{ meta.error }
+				</Notice>
+			) }
 		</>
 	);
 }
@@ -217,7 +235,11 @@ function OptionsKitCheckboxInput( { description, validate, ...props } ) {
 				checked={ field.value }
 				__nextHasNoMarginBottom
 			/>
-			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
+			{ meta.error && meta.touched && (
+				<Notice status="error" isDismissible={ false }>
+					{ meta.error }
+				</Notice>
+			) }
 		</>
 	);
 }
@@ -241,7 +263,11 @@ function OptionsKitToggleInput( { description, validate, ...props } ) {
 				checked={ field.value }
 				__nextHasNoMarginBottom
 			/>
-			{ meta.error && meta.touched && ( <Notice status="error" isDismissible={ false }>{ meta.error }</Notice> ) }
+			{ meta.error && meta.touched && (
+				<Notice status="error" isDismissible={ false }>
+					{ meta.error }
+				</Notice>
+			) }
 		</>
 	);
 }
@@ -249,7 +275,6 @@ function OptionsKitToggleInput( { description, validate, ...props } ) {
 function SettingsField( { setting } ) {
 	let defaultValidation;
 	switch ( setting.type ) {
-
 		case 'text':
 			defaultValidation = ( v ) => {
 				if ( typeof v !== 'string' ) {
@@ -266,7 +291,11 @@ function SettingsField( { setting } ) {
 						id={ setting.id }
 						name={ setting.id }
 						description={ setting.desc }
-						validate={ setting.validate ? setting.validate : defaultValidation }
+						validate={
+							setting.validate
+								? setting.validate
+								: defaultValidation
+						}
 					/>
 				</>
 			);
@@ -286,20 +315,29 @@ function SettingsField( { setting } ) {
 						name={ setting.id }
 						description={ setting.desc }
 						options={ setting.options }
-						validate={ setting.validate ? setting.validate : defaultValidation }
+						validate={
+							setting.validate
+								? setting.validate
+								: defaultValidation
+						}
 					/>
 				</>
 			);
 
 		case 'multiselect':
 			defaultValidation = ( v ) => {
-				let valid = setting.options.map( ( item ) => { return item.value; } );
+				const valid = setting.options.map( ( item ) => {
+					return item.value;
+				} );
 				const invalid = v.filter( ( item ) => {
 					return ! valid.includes( item );
 				} );
 				if ( invalid.length > 0 ) {
-					return 'Internal error: invalid value(s): ' + invalid.join( ', ' );
-				};
+					return (
+						'Internal error: invalid value(s): ' +
+						invalid.join( ', ' )
+					);
+				}
 				return undefined;
 			};
 			return (
@@ -310,7 +348,11 @@ function SettingsField( { setting } ) {
 						description={ setting.desc }
 						options={ setting.options }
 						labels={ setting.labels }
-						validate={ setting.validate ? setting.validate : defaultValidation }
+						validate={
+							setting.validate
+								? setting.validate
+								: defaultValidation
+						}
 					/>
 				</>
 			);
@@ -330,7 +372,11 @@ function SettingsField( { setting } ) {
 						name={ setting.id }
 						description={ setting.desc }
 						options={ setting.options }
-						validate={ setting.validate ? setting.validate : defaultValidation }
+						validate={
+							setting.validate
+								? setting.validate
+								: defaultValidation
+						}
 					/>
 				</>
 			);
@@ -349,7 +395,11 @@ function SettingsField( { setting } ) {
 						name={ setting.id }
 						label={ setting.label }
 						description={ setting.desc }
-						validate={ setting.validate ? setting.validate : defaultValidation }
+						validate={
+							setting.validate
+								? setting.validate
+								: defaultValidation
+						}
 					/>
 				</>
 			);
@@ -368,11 +418,14 @@ function SettingsField( { setting } ) {
 						name={ setting.id }
 						label={ setting.label }
 						description={ setting.desc }
-						validate={ setting.validate ? setting.validate : defaultValidation }
+						validate={
+							setting.validate
+								? setting.validate
+								: defaultValidation
+						}
 					/>
 				</>
 			);
-
 
 		case 'html':
 			return <div id={ setting.id }>{ parse( setting.html ) }</div>;

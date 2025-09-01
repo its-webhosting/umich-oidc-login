@@ -7,8 +7,8 @@
 
 .umich-oidc-shortcode-preview {
 	font-family: monospace;
-	color: black;
-	background-color: #ffff99;
+	color: #000;
+	background-color: #ff9;
 }
 
 a.umich-oidc-shortcode-preview {
@@ -17,13 +17,13 @@ a.umich-oidc-shortcode-preview {
 }
 
 a.umich-oidc-shortcode-preview:hover {
-	background-color: lightpink;
+	background-color: #ffb6c1ff;
 }
 
 #umich-oidc-preview-dialog {
 	display: revert; /* some themes default to display: block */
 	width: 500px;
-	border-color: red;
+	border-color: #f00;
 	border-width: 5px;
 	font-size: smaller;
 	padding: 2em 3em;
@@ -67,16 +67,16 @@ a.umich-oidc-shortcode-preview:hover {
 		"Segoe UI Symbol",
 		"Noto Color Emoji",
 		"Android Emoji",
-		"EmojiSymbols",
-		"Twemoji",
-		"emojione",
-		"Symbola",
+		EmojiSymbols,
+		Twemoji,
+		emojione,
+		Symbola,
 		"Noto Sans Emoji",
 		sans-serif;
 }
 
-
 /********************************/
+
 /*
  * Copied from wp-includes/css/dist/components/style.css?ver=6.7.1
  * from start of the file to the end of buttons styles.
@@ -87,275 +87,425 @@ a.umich-oidc-shortcode-preview:hover {
  *   %s/components-/um-components-/g
  */
 :root {
-	--umich-oidc-theme-color:#3858e9;
-	--umich-oidc-theme-color--rgb:56, 88, 233;
-	--umich-oidc-theme-color-darker-10:#2145e6;
-	--umich-oidc-theme-color-darker-10--rgb:33, 69, 230;
-	--umich-oidc-theme-color-darker-20:#183ad6;
-	--umich-oidc-theme-color-darker-20--rgb:24, 58, 214;
-	--umich-oidc-border-width-focus:2px;
+	--umich-oidc-theme-color: #3858e9;
+	--umich-oidc-theme-color--rgb: 56, 88, 233;
+	--umich-oidc-theme-color-darker-10: #2145e6;
+	--umich-oidc-theme-color-darker-10--rgb: 33, 69, 230;
+	--umich-oidc-theme-color-darker-20: #183ad6;
+	--umich-oidc-theme-color-darker-20--rgb: 24, 58, 214;
+	--umich-oidc-border-width-focus: 2px;
 }
-@media (min-resolution:192dpi) {
+
+@media (min-resolution: 192dpi) {
+
 	:root {
-		--umich-oidc-border-width-focus:1.5px;
+		--umich-oidc-border-width-focus: 1.5px;
 	}
 }
 
-.um-components-button{
-	align-items:center;
-	-webkit-appearance:none;
-	background:none;
-	border:0;
-	border-radius:2px;
-	box-sizing:border-box;
-	color:var(--wp-um-components-color-foreground, #1e1e1e);
-	cursor:pointer;
-	display:inline-flex;
-	font-family:inherit;
-	font-size:13px;
-	font-weight:400;
-	height:36px;
-	margin:0;
-	padding:6px 12px;
-	text-decoration:none;
-	transition:box-shadow .1s linear;
+.um-components-button {
+	align-items: center;
+	-webkit-appearance: none;
+	background: none;
+	border: 0;
+	border-radius: 2px;
+	box-sizing: border-box;
+	color: var(--wp-um-components-color-foreground, #1e1e1e);
+	cursor: pointer;
+	display: inline-flex;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 400;
+	height: 36px;
+	margin: 0;
+	padding: 6px 12px;
+	text-decoration: none;
+	transition: box-shadow 0.1s linear;
 }
-@media (prefers-reduced-motion:reduce){
-	.um-components-button{
-		transition-delay:0s;
-		transition-duration:0s;
+
+@media (prefers-reduced-motion: reduce) {
+
+	.um-components-button {
+		transition-delay: 0s;
+		transition-duration: 0s;
 	}
 }
-.um-components-button.is-next-40px-default-size{
-	height:40px;
+
+.um-components-button.is-next-40px-default-size {
+	height: 40px;
 }
-.um-components-button:hover:not(:disabled,[aria-disabled=true]),.um-components-button[aria-expanded=true]{
-	color:var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+
+.um-components-button:disabled,
+.um-components-button[aria-disabled="true"] {
+	color: #949494;
+	cursor: default;
 }
-.um-components-button:focus:not(:disabled){
-	box-shadow:0 0 0 var(--umich-oidc-border-width-focus) var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-	outline:3px solid #0000;
+
+.um-components-button:hover:not(:disabled, [aria-disabled="true"]),
+.um-components-button[aria-expanded="true"] {
+	color: var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
 }
-.um-components-button.is-primary{
+
+.um-components-button:focus:not(:disabled) {
+	box-shadow:
+		0 0 0 var(--umich-oidc-border-width-focus)
+		var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+	outline: 3px solid #0000;
+}
+
+.um-components-button.is-primary {
 	background: var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-	color:var(--wp-um-components-color-accent-inverted, #fff);
-	outline:1px solid #0000;
-	text-decoration:none;
-	text-shadow:none;
-	white-space:nowrap;
-}
-.um-components-button.is-primary:hover:not(:disabled){
-	background:var(--wp-um-components-color-accent-darker-10, var(--umich-oidc-theme-color-darker-10, #2145e6));
-	color:var(--wp-um-components-color-accent-inverted, #fff);
-}
-.um-components-button.is-primary:active:not(:disabled){
-	background:var(--wp-um-components-color-accent-darker-20, var(--umich-oidc-theme-color-darker-20, #183ad6));
-	border-color:var(--wp-um-components-color-accent-darker-20, var(--umich-oidc-theme-color-darker-20, #183ad6));
-	color:var(--wp-um-components-color-accent-inverted, #fff);
-}
-.um-components-button.is-primary:focus:not(:disabled){
-	box-shadow: inset 0 0 0 1px var(--wp-um-components-color-background, #fff), 0 0 0 var(--umich-oidc-border-width-focus) var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-}
-.um-components-button.is-primary:disabled,.um-components-button.is-primary:disabled:active:enabled,.um-components-button.is-primary[aria-disabled=true],.um-components-button.is-primary[aria-disabled=true]:active:enabled,.um-components-button.is-primary[aria-disabled=true]:enabled{
-	background:var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-	border-color:var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-	color:#fff6;
-	outline:none;
-}
-.um-components-button.is-primary:disabled:active:enabled:focus:enabled,.um-components-button.is-primary:disabled:focus:enabled,.um-components-button.is-primary[aria-disabled=true]:active:enabled:focus:enabled,.um-components-button.is-primary[aria-disabled=true]:enabled:focus:enabled,.um-components-button.is-primary[aria-disabled=true]:focus:enabled{
-	box-shadow:inset 0 0 0 1px var(--wp-um-components-color-background, #fff), 0 0 0 var(--umich-oidc-border-width-focus) var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-}
-.um-components-button.is-primary.is-busy,.um-components-button.is-primary.is-busy:disabled,.um-components-button.is-primary.is-busy[aria-disabled=true]{
-	background-image:linear-gradient(-45deg, var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9)) 33%, var(--wp-um-components-color-accent-darker-20, var(--umich-oidc-theme-color-darker-20, #183ad6)) 33%, var(--wp-um-components-color-accent-darker-20, var(--umich-oidc-theme-color-darker-20, #183ad6)) 70%, var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9)) 70%);
-	background-size:100px 100%;
-	border-color:var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-	color:var(--wp-um-components-color-accent-inverted, #fff);
-}
-.um-components-button.is-secondary,.um-components-button.is-tertiary{
-	outline:1px solid #0000;
-}
-.um-components-button.is-secondary:active:not(:disabled),.um-components-button.is-tertiary:active:not(:disabled){
-	box-shadow:none;
-}
-.um-components-button.is-secondary:disabled,.um-components-button.is-secondary[aria-disabled=true],.um-components-button.is-secondary[aria-disabled=true]:hover,.um-components-button.is-tertiary:disabled,.um-components-button.is-tertiary[aria-disabled=true],.um-components-button.is-tertiary[aria-disabled=true]:hover{
-	background:#0000;
-	color:#949494;
-	transform:none;
-}
-.um-components-button.is-secondary{
-	background:#0000;
-	box-shadow:inset 0 0 0 1px var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-	color:var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-	outline:1px solid #0000;
-	white-space:nowrap;
-}
-.um-components-button.is-secondary:hover:not(:disabled,[aria-disabled=true]){
-	box-shadow:inset 0 0 0 1px var(--wp-um-components-color-accent-darker-10, var(--umich-oidc-theme-color-darker-10, #2145e6));
-}
-.um-components-button.is-secondary:disabled:not(:focus),.um-components-button.is-secondary[aria-disabled=true]:hover:not(:focus),.um-components-button.is-secondary[aria-disabled=true]:not(:focus){
-	box-shadow:inset 0 0 0 1px #ddd;
-}
-.um-components-button.is-tertiary{
-	background:#0000;
-	color:var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-	white-space:nowrap;
-}
-.um-components-button.is-tertiary:hover:not(:disabled,[aria-disabled=true]){
-	background:rgba(var(--umich-oidc-theme-color--rgb), .04);
-}
-.um-components-button.is-tertiary:active:not(:disabled,[aria-disabled=true]){
-	background:rgba(var(--umich-oidc-theme-color--rgb), .08);
-}
-p+.um-components-button.is-tertiary{
-	margin-left:-6px;
-}
-.um-components-button.is-tertiary:disabled:not(:focus),.um-components-button.is-tertiary[aria-disabled=true]:hover:not(:focus),.um-components-button.is-tertiary[aria-disabled=true]:not(:focus){
-	box-shadow:none;
-	outline:none;
-}
-.um-components-button.is-destructive{
-	--wp-um-components-color-accent:#cc1818;
-	--wp-um-components-color-accent-darker-10:#9e1313;
-	--wp-um-components-color-accent-darker-20:#710d0d;
-}
-.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(.is-tertiary):not(.is-link){
-	color:#cc1818;
-}
-.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(.is-tertiary):not(.is-link):hover:not(:disabled,[aria-disabled=true]){
-	color:#710d0d;
-}
-.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(.is-tertiary):not(.is-link):focus{
-	box-shadow:0 0 0 var(--umich-oidc-border-width-focus) #cc1818;
-}
-.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(.is-tertiary):not(.is-link):active:not(:disabled,[aria-disabled=true]){
-	background:#ccc;
-}
-.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(.is-tertiary):not(.is-link):disabled,.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(.is-tertiary):not(.is-link)[aria-disabled=true]{
-	color:#949494;
-}
-.um-components-button.is-destructive.is-tertiary:hover:not(:disabled,[aria-disabled=true]){
-	background:#cc18180a;
-}
-.um-components-button.is-destructive.is-tertiary:active:not(:disabled,[aria-disabled=true]){
-	background:#cc181814;
-}
-.um-components-button.is-link{
-	background:none;
-	border:0;
-	border-radius:0;
-	box-shadow:none;
-	color:var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-	height:auto;
-	margin:0;
-	outline:none;
-	padding:0;
-	text-align:left;
-	text-decoration:underline;
-	transition-duration:.05s;
-	transition-property:border, background, color;
-	transition-timing-function:ease-in-out;
-}
-@media (prefers-reduced-motion:reduce){
-	.um-components-button.is-link{
-		transition-delay:0s;
-		transition-duration:0s;
-	}
-}
-.um-components-button.is-link:focus{
-	border-radius:2px;
-}
-.um-components-button.is-link:disabled,.um-components-button.is-link[aria-disabled=true]{
-	color:#949494;
-}
-.um-components-button:not(:disabled,[aria-disabled=true]):active{
-	color:var(--wp-um-components-color-foreground, #1e1e1e);
-}
-.um-components-button:disabled,.um-components-button[aria-disabled=true]{
-	color:#949494;
-	cursor:default;
-}
-.um-components-button.is-busy,.um-components-button.is-secondary.is-busy,.um-components-button.is-secondary.is-busy:disabled,.um-components-button.is-secondary.is-busy[aria-disabled=true]{
-	animation:um-components-button__busy-animation 2.5s linear infinite;
-	background-image:linear-gradient(-45deg, #fafafa 33%, #e0e0e0 0, #e0e0e0 70%, #fafafa 0);
-	background-size:100px 100%;
-}
-@media (prefers-reduced-motion:reduce){
-	.um-components-button.is-busy,.um-components-button.is-secondary.is-busy,.um-components-button.is-secondary.is-busy:disabled,.um-components-button.is-secondary.is-busy[aria-disabled=true]{
-		animation-duration:0s;
-	}
-}
-.um-components-button.is-compact{
-	height:32px;
-}
-.um-components-button.is-compact.has-icon:not(.has-text){
-	min-width:32px;
-	padding:0;
-	width:32px;
-}
-.um-components-button.is-small{
-	font-size:11px;
-	height:24px;
-	line-height:22px;
-	padding:0 8px;
-}
-.um-components-button.is-small.has-icon:not(.has-text){
-	min-width:24px;
-	padding:0;
-	width:24px;
-}
-.um-components-button.has-icon{
-	justify-content:center;
-	min-width:36px;
-	padding:6px;
-}
-.um-components-button.has-icon.is-next-40px-default-size{
-	min-width:40px;
-}
-.um-components-button.has-icon .dashicon{
-	align-items:center;
-	box-sizing:initial;
-	display:inline-flex;
-	justify-content:center;
-	padding:2px;
-}
-.um-components-button.has-icon.has-text{
-	gap:4px;
-	justify-content:start;
-	padding-left:8px;
-	padding-right:12px;
-}
-.um-components-button.is-pressed,.um-components-button.is-pressed:hover{
-	color:var(--wp-um-components-color-foreground-inverted, #fff);
-}
-.um-components-button.is-pressed:hover:not(:disabled,[aria-disabled=true]),.um-components-button.is-pressed:not(:disabled,[aria-disabled=true]){
-	background:var(--wp-um-components-color-foreground, #1e1e1e);
-}
-.um-components-button.is-pressed:disabled,.um-components-button.is-pressed[aria-disabled=true]{
-	color:#949494;
-}
-.um-components-button.is-pressed:disabled:not(.is-primary):not(.is-secondary):not(.is-tertiary),.um-components-button.is-pressed[aria-disabled=true]:not(.is-primary):not(.is-secondary):not(.is-tertiary){
-	background:#949494;
-	color:var(--wp-um-components-color-foreground-inverted, #fff);
-}
-.um-components-button.is-pressed:focus:not(:disabled){
-	box-shadow:inset 0 0 0 1px var(--wp-um-components-color-background, #fff), 0 0 0 var(--umich-oidc-border-width-focus) var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
-	outline:2px solid #0000;
-}
-.um-components-button svg{
-	fill:currentColor;
-	outline:none;
-}
-@media (forced-colors:active){
-	.um-components-button svg{
-		fill:CanvasText;
-	}
-}
-.um-components-button .um-components-visually-hidden{
-	height:auto;
+	color: var(--wp-um-components-color-accent-inverted, #fff);
+	outline: 1px solid #0000;
+	text-decoration: none;
+	text-shadow: none;
+	white-space: nowrap;
 }
 
-@keyframes um-components-button__busy-animation{
-	0%{
-		background-position:200px 0;
+.um-components-button.is-primary:disabled {
+	background: var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+	border-color: var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+	color: #fff6;
+	outline: none;
+}
+
+.um-components-button.is-primary:hover:not(:disabled) {
+	background: var(--wp-um-components-color-accent-darker-10, var(--umich-oidc-theme-color-darker-10, #2145e6));
+	color: var(--wp-um-components-color-accent-inverted, #fff);
+}
+
+.um-components-button.is-primary:active:not(:disabled) {
+	background: var(--wp-um-components-color-accent-darker-20, var(--umich-oidc-theme-color-darker-20, #183ad6));
+	border-color: var(--wp-um-components-color-accent-darker-20, var(--umich-oidc-theme-color-darker-20, #183ad6));
+	color: var(--wp-um-components-color-accent-inverted, #fff);
+}
+
+.um-components-button.is-primary:focus:not(:disabled) {
+	box-shadow:
+		inset 0 0 0 1px var(--wp-um-components-color-background, #fff),
+		0 0 0 var(--umich-oidc-border-width-focus)
+		var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+}
+
+.um-components-button.is-primary:disabled:active:enabled,
+.um-components-button.is-primary[aria-disabled="true"],
+.um-components-button.is-primary[aria-disabled="true"]:enabled,
+.um-components-button.is-primary[aria-disabled="true"]:active:enabled {
+	background: var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+	border-color: var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+	color: #fff6;
+	outline: none;
+}
+
+.um-components-button.is-primary:disabled:focus:enabled,
+.um-components-button.is-primary:disabled:active:enabled:focus:enabled,
+.um-components-button.is-primary[aria-disabled="true"]:focus:enabled,
+.um-components-button.is-primary[aria-disabled="true"]:enabled:focus:enabled,
+.um-components-button.is-primary[aria-disabled="true"]:active:enabled:focus:enabled {
+	box-shadow:
+		inset 0 0 0 1px var(--wp-um-components-color-background, #fff),
+		0 0 0 var(--umich-oidc-border-width-focus)
+		var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+}
+
+.um-components-button.is-primary.is-busy,
+.um-components-button.is-primary.is-busy:disabled,
+.um-components-button.is-primary.is-busy[aria-disabled="true"] {
+	background-image:
+		linear-gradient(-45deg, var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9))
+		33%, var(--wp-um-components-color-accent-darker-20, var(--umich-oidc-theme-color-darker-20, #183ad6))
+		33%, var(--wp-um-components-color-accent-darker-20, var(--umich-oidc-theme-color-darker-20, #183ad6))
+		70%, var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9))
+		70%);
+	background-size: 100px 100%;
+	border-color: var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+	color: var(--wp-um-components-color-accent-inverted, #fff);
+}
+
+.um-components-button.is-secondary,
+.um-components-button.is-tertiary {
+	outline: 1px solid #0000;
+}
+
+.um-components-button.is-secondary {
+	background: #0000;
+	box-shadow:
+		inset 0 0 0 1px
+		var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+	color: var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+	outline: 1px solid #0000;
+	white-space: nowrap;
+}
+
+.um-components-button.is-tertiary {
+	background: #0000;
+	color: var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+	white-space: nowrap;
+}
+
+p + .um-components-button.is-tertiary {
+	margin-left: -6px;
+}
+
+.um-components-button.is-secondary:disabled,
+.um-components-button.is-secondary[aria-disabled="true"],
+.um-components-button.is-secondary[aria-disabled="true"]:hover,
+.um-components-button.is-tertiary:disabled,
+.um-components-button.is-tertiary[aria-disabled="true"],
+.um-components-button.is-tertiary[aria-disabled="true"]:hover {
+	background: #0000;
+	color: #949494;
+	transform: none;
+}
+
+.um-components-button.is-secondary:active:not(:disabled),
+.um-components-button.is-tertiary:active:not(:disabled) {
+	box-shadow: none;
+}
+
+.um-components-button.is-secondary:hover:not(
+:disabled,
+[aria-disabled="true"]
+) {
+	box-shadow:
+		inset 0 0 0 1px
+		var(--wp-um-components-color-accent-darker-10, var(--umich-oidc-theme-color-darker-10, #2145e6));
+}
+
+.um-components-button.is-secondary:disabled:not(:focus),
+.um-components-button.is-secondary[aria-disabled="true"]:not(:focus),
+.um-components-button.is-secondary[aria-disabled="true"]:hover:not(:focus) {
+	box-shadow: inset 0 0 0 1px #ddd;
+}
+
+.um-components-button.is-tertiary:hover:not(:disabled, [aria-disabled="true"]) {
+	background: rgba(var(--umich-oidc-theme-color--rgb), 0.04);
+}
+
+.um-components-button.is-tertiary:active:not(
+:disabled,
+[aria-disabled="true"]
+) {
+	background: rgba(var(--umich-oidc-theme-color--rgb), 0.08);
+}
+
+.um-components-button.is-tertiary:disabled:not(:focus),
+.um-components-button.is-tertiary[aria-disabled="true"]:not(:focus),
+.um-components-button.is-tertiary[aria-disabled="true"]:hover:not(:focus) {
+	box-shadow: none;
+	outline: none;
+}
+
+.um-components-button.is-destructive {
+	--wp-um-components-color-accent: #cc1818;
+	--wp-um-components-color-accent-darker-10: #9e1313;
+	--wp-um-components-color-accent-darker-20: #710d0d;
+}
+
+.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(
+.is-tertiary
+):not(.is-link) {
+	color: #cc1818;
+}
+
+.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(
+.is-tertiary
+):not(.is-link):focus {
+	box-shadow: 0 0 0 var(--umich-oidc-border-width-focus) #cc1818;
+}
+
+.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(
+.is-tertiary
+):not(.is-link):disabled,
+.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(
+.is-tertiary
+):not(.is-link)[aria-disabled="true"] {
+	color: #949494;
+}
+
+.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(
+.is-tertiary
+):not(.is-link):hover:not(:disabled, [aria-disabled="true"]) {
+	color: #710d0d;
+}
+
+.um-components-button.is-destructive:not(.is-primary):not(.is-secondary):not(
+.is-tertiary
+):not(.is-link):active:not(:disabled, [aria-disabled="true"]) {
+	background: #ccc;
+}
+
+.um-components-button.is-destructive.is-tertiary:hover:not(
+:disabled,
+[aria-disabled="true"]
+) {
+	background: #cc18180a;
+}
+
+.um-components-button.is-destructive.is-tertiary:active:not(
+:disabled,
+[aria-disabled="true"]
+) {
+	background: #cc181814;
+}
+
+.um-components-button.is-link {
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	color: var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+	height: auto;
+	margin: 0;
+	outline: none;
+	padding: 0;
+	text-align: left;
+	text-decoration: underline;
+	transition-duration: 0.05s;
+	transition-property: border, background, color;
+	transition-timing-function: ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.um-components-button.is-link {
+		transition-delay: 0s;
+		transition-duration: 0s;
+	}
+}
+
+.um-components-button.is-link:focus {
+	border-radius: 2px;
+}
+
+.um-components-button.is-link:disabled,
+.um-components-button.is-link[aria-disabled="true"] {
+	color: #949494;
+}
+
+.um-components-button:not(:disabled, [aria-disabled="true"]):active {
+	color: var(--wp-um-components-color-foreground, #1e1e1e);
+}
+
+.um-components-button.is-busy,
+.um-components-button.is-secondary.is-busy,
+.um-components-button.is-secondary.is-busy:disabled,
+.um-components-button.is-secondary.is-busy[aria-disabled="true"] {
+	animation: um-components-button__busy-animation 2.5s linear infinite;
+	background-image: linear-gradient(-45deg, #fafafa 33%, #e0e0e0 0, #e0e0e0 70%, #fafafa 0);
+	background-size: 100px 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.um-components-button.is-busy,
+	.um-components-button.is-secondary.is-busy,
+	.um-components-button.is-secondary.is-busy:disabled,
+	.um-components-button.is-secondary.is-busy[aria-disabled="true"] {
+		animation-duration: 0s;
+	}
+}
+
+.um-components-button.is-compact {
+	height: 32px;
+}
+
+.um-components-button.is-compact.has-icon:not(.has-text) {
+	min-width: 32px;
+	padding: 0;
+	width: 32px;
+}
+
+.um-components-button.is-small {
+	font-size: 11px;
+	height: 24px;
+	line-height: 22px;
+	padding: 0 8px;
+}
+
+.um-components-button.is-small.has-icon:not(.has-text) {
+	min-width: 24px;
+	padding: 0;
+	width: 24px;
+}
+
+.um-components-button.has-icon {
+	justify-content: center;
+	min-width: 36px;
+	padding: 6px;
+}
+
+.um-components-button.has-icon.is-next-40px-default-size {
+	min-width: 40px;
+}
+
+.um-components-button.has-icon .dashicon {
+	align-items: center;
+	box-sizing: initial;
+	display: inline-flex;
+	justify-content: center;
+	padding: 2px;
+}
+
+.um-components-button.has-icon.has-text {
+	gap: 4px;
+	justify-content: start;
+	padding-left: 8px;
+	padding-right: 12px;
+}
+
+.um-components-button.is-pressed,
+.um-components-button.is-pressed:hover {
+	color: var(--wp-um-components-color-foreground-inverted, #fff);
+}
+
+.um-components-button.is-pressed:disabled,
+.um-components-button.is-pressed[aria-disabled="true"] {
+	color: #949494;
+}
+
+.um-components-button.is-pressed:not(:disabled, [aria-disabled="true"]),
+.um-components-button.is-pressed:hover:not(:disabled, [aria-disabled="true"]) {
+	background: var(--wp-um-components-color-foreground, #1e1e1e);
+}
+
+.um-components-button.is-pressed:focus:not(:disabled) {
+	box-shadow:
+		inset 0 0 0 1px var(--wp-um-components-color-background, #fff),
+		0 0 0 var(--umich-oidc-border-width-focus)
+		var(--wp-um-components-color-accent, var(--umich-oidc-theme-color, #3858e9));
+	outline: 2px solid #0000;
+}
+
+.um-components-button.is-pressed:disabled:not(.is-primary):not(
+.is-secondary
+):not(.is-tertiary),
+.um-components-button.is-pressed[aria-disabled="true"]:not(.is-primary):not(
+.is-secondary
+):not(.is-tertiary) {
+	background: #949494;
+	color: var(--wp-um-components-color-foreground-inverted, #fff);
+}
+
+.um-components-button svg {
+	fill: currentcolor;
+	outline: none;
+}
+
+@media (forced-colors: active) {
+
+	.um-components-button svg {
+		fill: CanvasText;
+	}
+}
+
+.um-components-button .um-components-visually-hidden {
+	height: auto;
+}
+
+@keyframes um-components-button__busy-animation {
+
+	0% {
+		background-position: 200px 0;
 	}
 }

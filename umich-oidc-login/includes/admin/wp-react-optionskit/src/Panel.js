@@ -135,12 +135,19 @@ function submitOptionsData( values, actions ) {
 				};
 			} );
 			actions.setSubmitting( false );
-			if ( newValues.hasOwnProperty( 'autosave' ) && Boolean( newValues.autosave ) !== settings.autosave ) {
+			if (
+				newValues.hasOwnProperty( 'autosave' ) &&
+				Boolean( newValues.autosave ) !== settings.autosave
+			) {
 				window.location.reload();
 			}
 		} )
 		.catch( ( err ) => {
-			if ( err.status === 400 || err.status === 401 || err.status === 403) {
+			if (
+				err.status === 400 ||
+				err.status === 401 ||
+				err.status === 403
+			) {
 				// Session timed out or nonce expired. Force reauthentication.
 				window.location.reload();
 				return;
@@ -240,17 +247,16 @@ function OptionsKitNoticeList( {
 }
 
 function AutoSaveFields() {
-
 	const formik = useFormikContext();
 	const [ lastValues, setLastValues ] = React.useState( formik.values );
 
 	// From https://www.developerway.com/posts/debouncing-in-react
-	const useDebounce = (callback) => {
+	const useDebounce = ( callback ) => {
 		const ref = React.useRef();
 
 		React.useEffect( () => {
 			ref.current = callback;
-		}, [ callback ]);
+		}, [ callback ] );
 
 		const debouncedCallback = React.useMemo( () => {
 			const func = () => {
@@ -258,50 +264,82 @@ function AutoSaveFields() {
 			};
 
 			return debounce( func, 1500 );
-		}, []);
+		}, [] );
 
 		return debouncedCallback;
 	};
 
-	const debouncedSubmit = useDebounce(async () => {
-		if ( formik.isValid && ! formik.isValidating && ! formik.isSubmitting
-			&& ! isEqual( formik.values, lastValues ) ) {
+	const debouncedSubmit = useDebounce( async () => {
+		if (
+			formik.isValid &&
+			! formik.isValidating &&
+			! formik.isSubmitting &&
+			! isEqual( formik.values, lastValues )
+		) {
 			await formik.submitForm();
 			setLastValues( formik.values );
 		}
 	} );
 
 	React.useEffect( () => {
-			if ( formik.isValid && ! formik.isValidating && ! formik.isSubmitting
-				&& ! isEqual( formik.values, lastValues ) ) {
-				debouncedSubmit();
-			}
-		},
-		[ debouncedSubmit, formik.values, formik.isValidating, formik.isValid, formik.isSubmitting ]
-	);
+		if (
+			formik.isValid &&
+			! formik.isValidating &&
+			! formik.isSubmitting &&
+			! isEqual( formik.values, lastValues )
+		) {
+			debouncedSubmit();
+		}
+	}, [
+		debouncedSubmit,
+		formik.values,
+		formik.isValidating,
+		formik.isValid,
+		formik.isSubmitting,
+	] );
 
 	let autosaveStatus = 'Settings status unknown';
 	let autosaveIcon = <Icon icon={ icons.help } />;
 	if ( ! formik.dirty && formik.submitCount === 0 ) {
 		autosaveStatus = 'No changes made.';
-		autosaveIcon = <Icon icon={ icons.border } className='optionskit-autosave-status-icon' />;
+		autosaveIcon = (
+			<Icon
+				icon={ icons.border }
+				className="optionskit-autosave-status-icon"
+			/>
+		);
 	} else if ( formik.isSubmitting || formik.isValidating ) {
 		autosaveStatus = 'Saving changes...';
-		autosaveIcon = <Spinner className='optionskit-autosave-status-icon' />;
+		autosaveIcon = <Spinner className="optionskit-autosave-status-icon" />;
 	} else if ( formik.errors && Object.keys( formik.errors ).length > 0 ) {
 		autosaveStatus = 'Changes not saved due to errors.';
-		autosaveIcon = <Icon icon={ icons.info } className='optionskit-autosave-status-icon' />; // icons.error requires a later version of @wordpress/icons than 10.8.2.
+		autosaveIcon = (
+			<Icon
+				icon={ icons.info }
+				className="optionskit-autosave-status-icon"
+			/>
+		); // icons.error requires a later version of @wordpress/icons than 10.8.2.
 	} else if ( isEqual( formik.values, lastValues ) ) {
 		autosaveStatus = 'Changes saved.';
-		autosaveIcon = <Icon icon={ icons.published } className='optionskit-autosave-status-icon' />;
+		autosaveIcon = (
+			<Icon
+				icon={ icons.published }
+				className="optionskit-autosave-status-icon"
+			/>
+		);
 	} else {
 		autosaveStatus = 'Unsaved changes.';
-		autosaveIcon = <Icon icon={ icons.plusCircle } className='optionskit-autosave-status-icon' />;
+		autosaveIcon = (
+			<Icon
+				icon={ icons.plusCircle }
+				className="optionskit-autosave-status-icon"
+			/>
+		);
 	}
 
 	return (
 		<>
-			<div className='optionskit-autosave-status'>
+			<div className="optionskit-autosave-status">
 				{ autosaveIcon } { autosaveStatus }
 			</div>
 		</>
@@ -309,7 +347,6 @@ function AutoSaveFields() {
 }
 
 function OptionsKitNotices() {
-	const settings = window.optionsKitSettings;
 	const formik = useFormikContext();
 	const notices = formik.status.notices;
 
@@ -318,22 +355,28 @@ function OptionsKitNotices() {
 		formik.setStatus( { ...formik.status, notices: newNotices } );
 	};
 
-	let debugBar = false ? (
+	const debugBar = false ? (
 		<div>
 			{ formik.isValid ? 'valid' : 'INVALID' } &nbsp;|&nbsp;
-			{ formik.isValidating ? 'VALIDATING' : 'not validating' } &nbsp;|&nbsp;
-			{ formik.isSubmitting ? 'SUBMITTING' : 'not submitting' } &nbsp;|&nbsp;
+			{ formik.isValidating ? 'VALIDATING' : 'not validating' }{ ' ' }
+			&nbsp;|&nbsp;
+			{ formik.isSubmitting ? 'SUBMITTING' : 'not submitting' }{ ' ' }
+			&nbsp;|&nbsp;
 			{ formik.dirty ? 'DIRTY' : 'clean' } &nbsp;|&nbsp;
 			{ formik.touched ? 'TOUCHED' : 'untouched' }
 		</div>
-	) : '';
+	) : (
+		''
+	);
 
 	return (
 		<>
-			<OptionsKitNoticeList notices={ notices } onRemove={ removeNotice } />
+			<OptionsKitNoticeList
+				notices={ notices }
+				onRemove={ removeNotice }
+			/>
 			{ debugBar }
 		</>
-
 	);
 }
 
@@ -389,7 +432,7 @@ function Panel() {
 	} else {
 		saveArea = (
 			<div className="optionskit-save-area">
-				<FormSubmitButton label={settings.labels.save }/>
+				<FormSubmitButton label={ settings.labels.save } />
 			</div>
 		);
 	}

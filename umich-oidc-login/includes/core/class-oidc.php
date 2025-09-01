@@ -155,7 +155,7 @@ class OIDC {
 		) {
 			\add_filter(
 				'wp_doing_ajax',
-				function ( $value ) {
+				function () {
 					return false;
 				},
 				10000
@@ -424,7 +424,7 @@ class OIDC {
 		} else {
 			$verifier            = $this->create_verifier( $valid_return_url );
 			$return_query_string = '&umich-oidc-verifier=' . $verifier . '&umich-oidc-return='
-			                       . \rawurlencode( $valid_return_url );
+				. \rawurlencode( $valid_return_url );
 		}
 
 		return \esc_url_raw( \admin_url( 'admin-ajax.php?action=' . $action . $return_query_string ) );

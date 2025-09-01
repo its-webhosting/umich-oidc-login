@@ -24,9 +24,9 @@
 		"@wordpress/components": "29.5.3",
 		"@wordpress/element": "6.19.1",
 		"@wordpress/icons": "10.19.1",
-		"react-select": "^5.10.1",
+		"lodash.debounce": "^4.0.8",
 		"react-fast-compare": "^3.2.2",
-		"lodash.debounce": "^4.0.8"
+		"react-select": "^5.10.1"
 	},
 	"devDependencies": {
 		"@wordpress/scripts": "30.12.1"

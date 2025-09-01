@@ -5,16 +5,15 @@
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
  */
 
-var umichOidcSettings =  {
-
-	/** Check to see if the contents of the restrict_site form field are valid.
+var umichOidcSettings = {
+	/**
+	 * Check to see if the contents of the restrict_site form field are valid.
 	 *
-	 * @param array list values the user selected:
-	 *     [ '_everyone_', 'Example Group' ]
-	 * @return undefined|string undefined if values are OK, or a string containing an error message if they are invalid.
+	 * @param {Array} values - list values the user selected: [ '_everyone_', 'Example Group' ]
+	 * @return {undefined|string} - undefined if values are OK, or a string containing an error message if they are invalid.
 	 */
-	validateRestrictSite: function (values) {
-		if ( values.length === 0 )  {
+	validateRestrictSite( values ) {
+		if ( values.length === 0 ) {
 			return 'Must have at least one group';
 		}
 		if ( values.length > 1 ) {
@@ -28,12 +27,13 @@ var umichOidcSettings =  {
 		return undefined;
 	},
 
-	/** Ensure the contents of the field are a valid URL, URL path, or empty.
+	/**
+	 * Ensure the contents of the field are a valid URL, URL path, or empty.
 	 *
-	 * @param string optional URL or URL path.
-	 * @return undefined|string undefined if valid, or a string containing an error message.
+	 * @param {string} value - optional URL or URL path.
+	 * @return {undefined|string} - undefined if valid, or a string containing an error message.
 	 */
-	validateUrlOrPath: function (value) {
+	validateUrlOrPath( value ) {
 		if ( ! typeof value === 'string' ) {
 			return 'Internal error (not a string)';
 		}
@@ -41,7 +41,7 @@ var umichOidcSettings =  {
 		if ( value === '' ) {
 			return undefined;
 		}
-		if ( value.startsWith('/') ) {
+		if ( value.startsWith( '/' ) ) {
 			return undefined;
 		}
 		if ( value.match( /^https:\/\// ) ) {
@@ -50,12 +50,13 @@ var umichOidcSettings =  {
 		return 'Must be a URL starting with "https://" or "/"';
 	},
 
-	/** Ensure the contents of the field are a valid URL or empty.
+	/**
+	 * Ensure the contents of the field are a valid URL or empty.
 	 *
-	 * @param string optional URL or URL path.
-	 * @return undefined|string undefined if valid, or a string containing an error message.
+	 * @param {string} value - optional URL or URL path.
+	 * @return {undefined|string} - undefined if valid, or a string containing an error message.
 	 */
-	validateUrl: function (value) {
+	validateUrl( value ) {
 		if ( ! typeof value === 'string' ) {
 			return 'Internal error (not a string)';
 		}
@@ -68,6 +69,4 @@ var umichOidcSettings =  {
 		}
 		return 'Must be a URL starting with "https://"';
 	},
-
 };
-

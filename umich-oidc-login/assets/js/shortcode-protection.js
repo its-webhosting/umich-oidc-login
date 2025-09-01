@@ -5,96 +5,95 @@
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
  */
 
-var umichOidcShortcodeProtection =  {
-
-	/** Return information about the shortcode preview dialog box.
+const umichOidcShortcodeProtection = {
+	/**
+	 * Return information about the shortcode preview dialog box.
 	 *
-	 * @return {object} The dialog and shortcode elements, or null if not found.
+	 * @return {Object} - The dialog and shortcode elements, or null if not found.
 	 */
-	getDialogElements: function () {
-
+	getDialogElements() {
 		const dialog = document.getElementById( 'umich-oidc-preview-dialog' );
 		if ( ! dialog ) {
-			console.log('ERROR: UMich OIDC Login dialog box not found');
+			//console.log( 'ERROR: UMich OIDC Login dialog box not found' );
 			return null;
 		}
 
-		const shortcodeDiv = document.getElementById( 'umich-oidc-preview-dialog-shortcode' );
+		const shortcodeDiv = document.getElementById(
+			'umich-oidc-preview-dialog-shortcode'
+		);
 		if ( ! shortcodeDiv ) {
-			console.log('ERROR: unable to get shortcode dialog div');
+			//console.log( 'ERROR: unable to get shortcode dialog div' );
 			return null;
 		}
 
 		return { dialog, shortcodeDiv };
-
 	},
 
-	/** Return information about a shortcode.  Also validates the shortcode ID
+	/**
+	 * Return information about a shortcode.  Also validates the shortcode ID
 	 *
-	 * @param {string} id The ID of the shortcode to get information about.
-	 * @return {object} Shortcode data object, or null if not found or not valid.
+	 * @param {string} id - The ID of the shortcode to get information about.
+	 * @return {Object} - Shortcode data object, or null if not found or not valid.
 	 */
-	getShortcodeData: function (id) {
-
+	getShortcodeData( id ) {
 		if ( ! id ) {
-			console.log( 'ERROR: shortcode ID not present' );
+			//console.log( 'ERROR: shortcode ID not present' );
 			return null;
 		}
-		const shortcode_id = parseInt( id );
-		if ( isNaN( shortcode_id ) || shortcode_id < 1 ) {
-			console.log( 'ERROR: shortcode_id is not a positive integer:', shortcode_id );
+		const shortcodeId = parseInt( id );
+		if ( isNaN( shortcodeId ) || shortcodeId < 1 ) {
+			//console.log( 'ERROR: shortcodeId is not a positive integer:', shortcodeId );
 			return null;
 		}
 
-		const shortcodeData = window.umich_oidc_shortcode_preview[ shortcode_id ];
+		const shortcodeData =
+			window.umich_oidc_shortcode_preview[ shortcodeId ];
 		if ( ! shortcodeData ) {
-			console.log( 'ERROR: shortcode preview data not found for shortcode number', shortcode_id );
+			//console.log( 'ERROR: shortcode preview data not found for shortcode number', shortcodeId );
 			return null;
 		}
 		if ( ! shortcodeData.shortcode ) {
-			console.log( 'ERROR: shortcode preview text not found for shortcode number', shortcode_id );
+			//console.log( 'ERROR: shortcode preview text not found for shortcode number', shortcodeId );
 			return null;
 		}
 		if ( ! shortcodeData.html ) {
-			console.log( 'ERROR: shortcode HTML not found for shortcode number', shortcode_id );
+			//console.log( 'ERROR: shortcode HTML not found for shortcode number', shortcodeId );
 			return null;
 		}
-		shortcodeData.shortcode_id = shortcode_id;
+		shortcodeData.shortcode_id = shortcodeId;
 
 		return shortcodeData;
-
 	},
 
-	/** Replace the shortcode preview element with the shortcode HTML.
+	/**
+	 * Replace the shortcode preview element with the shortcode HTML.
 	 *
-	 * @param {object} target The shortcode preview element to replace with the shortcode HTML.
-	 * @param {object} shortcodeData The shortcode data object.
+	 * @param {Object} target        - The shortcode preview element to replace with the shortcode HTML.
+	 * @param {Object} shortcodeData - The shortcode data object.
 	 */
-	replacePreview: function (target, shortcodeData) {
-
+	replacePreview( target, shortcodeData ) {
 		const htmlString = atob( shortcodeData.html );
 		const range = document.createRange();
 		range.selectNode( target );
 		const fragment = range.createContextualFragment( htmlString );
 		target.replaceWith( fragment );
-
 	},
 
-	/** Ask the user if they want to render the potentially malicious shortcode output.
+	/**
+	 * Ask the user if they want to render the potentially malicious shortcode output.
 	 *
-	 * @param {Event} event The click event to open the preview dialog.
-	 * @return {boolean} Whether to propagate the event.
+	 * @param {Event} event - The click event to open the preview dialog.
+	 * @return {boolean} - Whether to propagate the event.
 	 */
-	shortcodePreviewDialog: function (event) {
-
-		const dialogElements  = umichOidcShortcodeProtection.getDialogElements();
+	shortcodePreviewDialog( event ) {
+		const dialogElements = umichOidcShortcodeProtection.getDialogElements();
 		if ( ! dialogElements ) {
 			return false;
 		}
 
 		const cancelButton = document.getElementById( 'umich-oidc-cancel' );
 		if ( ! cancelButton ) {
-			console.log( 'ERROR: unable to find shortcode dialog cancel button:' );
+			//console.log( 'ERROR: unable to find shortcode dialog cancel button:' );
 			return false;
 		}
 
@@ -106,23 +105,23 @@ var umichOidcShortcodeProtection =  {
 		}
 
 		// set the umich-oidc-preview-dialog-shortcode div to the unprocessed shortcode text
-		dialogElements.shortcodeDiv.dataset.shortcodeId = shortcodeData.shortcode_id;
+		dialogElements.shortcodeDiv.dataset.shortcodeId =
+			shortcodeData.shortcode_id;
 		dialogElements.shortcodeDiv.innerHTML = atob( shortcodeData.shortcode );
 		dialogElements.dialog.showModal();
 		cancelButton.focus();
 		event.preventDefault();
 		return false;
-
 	},
 
-	/** Handle a click event on the "Preview this shortcode" button.
+	/**
+	 * Handle a click event on the "Preview this shortcode" button.
 	 *
-	 * @param {Event} event The click event on the "Preview this shortcode" button.
-	 * @return {boolean} Whether to propagate the event.
+	 *  param {Event} event - The click event on the "Preview this shortcode" button.
+	 * @return {boolean} - Whether to propagate the event.
 	 */
-	shortcodePreviewThis: function (event) {
-
-		const dialogElements  = umichOidcShortcodeProtection.getDialogElements();
+	shortcodePreviewThis( /* event */ ) {
+		const dialogElements = umichOidcShortcodeProtection.getDialogElements();
 		if ( ! dialogElements ) {
 			return true;
 		}
@@ -133,11 +132,15 @@ var umichOidcShortcodeProtection =  {
 		if ( ! shortcodeData ) {
 			return true;
 		}
-		const shortcode_id = shortcodeData.shortcode_id;
+		const shortcodeId = shortcodeData.shortcode_id;
 
-		const target = document.querySelector('.umich-oidc-shortcode-preview[data-shortcode-id="' + shortcode_id + '"]');
+		const target = document.querySelector(
+			'.umich-oidc-shortcode-preview[data-shortcode-id="' +
+				shortcodeId +
+				'"]'
+		);
 		if ( ! target ) {
-			console.log( 'ERROR: shortcode target not found for shortcode number', shortcode_id );
+			//console.log( 'ERROR: shortcode target not found for shortcode number', shortcodeId );
 			return true;
 		}
 
@@ -147,49 +150,56 @@ var umichOidcShortcodeProtection =  {
 
 		dialogElements.dialog.close();
 		return false;
-
 	},
 
-	/** Handle a click event on the "Preview ALL shortcodes" button.
+	/**
+	 * Handle a click event on the "Preview ALL shortcodes" button.
 	 *
-	 * @param {Event} event The click event on the "Preview ALL shortcodes" button.
-	 * @return {boolean} Whether to propagate the event.
+	 *  param {Object} event - The click event on the "Preview ALL shortcodes" button.
+	 * @return {boolean} - Whether to propagate the event.
 	 */
-	shortcodePreviewAll: function (event) {
-
-		const dialogElements  = umichOidcShortcodeProtection.getDialogElements();
+	shortcodePreviewAll( /* event */ ) {
+		const dialogElements = umichOidcShortcodeProtection.getDialogElements();
 		if ( ! dialogElements ) {
 			return true;
 		}
 
-		shortcodePreviews = document.querySelectorAll('.umich-oidc-shortcode-preview[data-shortcode-id]');
-		shortcodePreviews.forEach( function( target ) {
-
-			const shortcodeData = umichOidcShortcodeProtection.getShortcodeData( target.dataset.shortcodeId );
+		const shortcodePreviews = document.querySelectorAll(
+			'.umich-oidc-shortcode-preview[data-shortcode-id]'
+		);
+		shortcodePreviews.forEach( function ( target ) {
+			const shortcodeData = umichOidcShortcodeProtection.getShortcodeData(
+				target.dataset.shortcodeId
+			);
 			if ( ! shortcodeData ) {
 				return;
 			}
 
-			umichOidcShortcodeProtection.replacePreview( target, shortcodeData );
-
+			umichOidcShortcodeProtection.replacePreview(
+				target,
+				shortcodeData
+			);
 		} );
 
 		dialogElements.shortcodeDiv.dataset.shortcodeId = '0';
 
 		dialogElements.dialog.close();
 		return false;
-	}
-
+	},
 };
 
-document.addEventListener( 'DOMContentLoaded', function() {
-
-	let shortcodePreviewLinks = document.querySelectorAll( 'a.umich-oidc-shortcode-preview' );
+document.addEventListener( 'DOMContentLoaded', function () {
+	const shortcodePreviewLinks = document.querySelectorAll(
+		'a.umich-oidc-shortcode-preview'
+	);
 	if ( ! shortcodePreviewLinks ) {
-		return;  // no shortcode previews are present on this page
+		return; // no shortcode previews are present on this page
 	}
-	shortcodePreviewLinks.forEach( function( link ) {
-		link.addEventListener( 'click', umichOidcShortcodeProtection.shortcodePreviewDialog );
+	shortcodePreviewLinks.forEach( function ( link ) {
+		link.addEventListener(
+			'click',
+			umichOidcShortcodeProtection.shortcodePreviewDialog
+		);
 	} );
 
 	const dialog = `
@@ -220,18 +230,26 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		  </form>
 		</dialog>
 	`;
-	document.body.insertAdjacentHTML('beforeend', dialog);
+	document.body.insertAdjacentHTML( 'beforeend', dialog );
 
-	let previewThisButton = document.getElementById( 'umich-oidc-preview-this' );
-	let previewAllButton = document.getElementById( 'umich-oidc-preview-all' );
+	const previewThisButton = document.getElementById(
+		'umich-oidc-preview-this'
+	);
+	const previewAllButton = document.getElementById(
+		'umich-oidc-preview-all'
+	);
 	// The default behavior of any button is to close the dialog, which is what we want the Cancel button to do.
 
 	if ( ! previewThisButton || ! previewAllButton ) {
-		console.log( 'ERROR: unable to set up shortcode preview event listeners:',
-			previewThisButton, previewAllButton );
+		//console.log( 'ERROR: unable to set up shortcode preview event listeners:', previewThisButton, previewAllButton );
 		return;
 	}
-	previewThisButton.addEventListener( 'click', umichOidcShortcodeProtection.shortcodePreviewThis );
-	previewAllButton.addEventListener( 'click', umichOidcShortcodeProtection.shortcodePreviewAll );
-
+	previewThisButton.addEventListener(
+		'click',
+		umichOidcShortcodeProtection.shortcodePreviewThis
+	);
+	previewAllButton.addEventListener(
+		'click',
+		umichOidcShortcodeProtection.shortcodePreviewAll
+	);
 } );

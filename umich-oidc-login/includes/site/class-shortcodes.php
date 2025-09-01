@@ -64,7 +64,6 @@ class Shortcodes {
 			);
 
 		}
-
 	}
 
 	/**
@@ -180,6 +179,7 @@ class Shortcodes {
 	 * @param string $atts Shortcode attributes.
 	 * @param string $content Shortcode content. Should always be empty since this shortcode should not be used as an enclosing shortcode.
 	 * @param string $tag Shortcode name.
+	 * @param bool   $safe Whether the shortcode is being used in a trusted context where HTML attributes are known to be safe.
 	 *
 	 * @return string Shortcode output - requested HTML element.
 	 */
@@ -227,10 +227,15 @@ class Shortcodes {
 		$attributes = '';
 		if ( $safe || true === $this->ctx->options['shortcode_html_attributes_allowed'] ) {
 			foreach ( \array_keys( $orig_atts ) as $a ) {
-				if ( ! \in_array( \strtolower( $a ), array( 'type', 'return', 'text', 'text_login', 'text_logout' ),
-					true ) ) {
-					$name       = \esc_html( $a );
-					$value      = \esc_html( $orig_atts[ $a ] );
+				if (
+					! \in_array(
+						\strtolower( $a ),
+						array( 'type', 'return', 'text', 'text_login', 'text_logout' ),
+						true
+					)
+				) {
+					$name        = \esc_html( $a );
+					$value       = \esc_html( $orig_atts[ $a ] );
 					$attributes .= " {$name}='{$value}'";
 				}
 			}
@@ -252,7 +257,8 @@ class Shortcodes {
 			return $html;
 		}
 
-		/* The shortcode could have malicious attributes, so only return the shortcode output if the post has
+		/*
+		 * The shortcode could have malicious attributes, so only return the shortcode output if the post has
 		 * been published.  This assumes the post has been reviewed for malicious content (not just OIDC button/link
 		 * shortcodes, but also HTML from users with the unfiltered_html capability) before being approved and
 		 * published.
@@ -276,9 +282,11 @@ class Shortcodes {
 				$shortcode = \esc_html( "[{$tag}{$attributes}]" );
 
 				// Display the raw shortcode but let the user click on it to see the rendered output.
-				$b64_shortcode = \base64_encode( $shortcode );
-				$b64_html = \base64_encode( $html );
-				$preview_html = <<<END
+				// phpcs:ignore -- base64_encode is fine here.
+				$b64_shortcode       = \base64_encode( $shortcode );
+				// phpcs:ignore -- base64_encode is fine here.
+				$b64_html            = \base64_encode( $html );
+				$preview_html        = <<<END
 <a href='#'
     class='umich-oidc-shortcode-preview'
     data-shortcode-id='{$this->shortcode_id}'
@@ -291,14 +299,14 @@ class Shortcodes {
 	};
 </script>
 END;
-				$this->shortcode_id++;
+				$this->shortcode_id += 1;
 				return $preview_html;
 			}
-			# The post isn't published and the user can't edit it, so just remove the shortcode from the page.
+			// The post isn't published and the user can't edit it, so just remove the shortcode from the page.
 			return '';
 		}
 
-		# The post is published, so show the shortcode output.
+		// The post is published, so show the shortcode output.
 		return $html;
 	}
 
@@ -423,7 +431,8 @@ END;
 			$content = '<p>' . $content . '</p>';
 		}
 
-		/* Despite https://developer.wordpress.org/plugins/shortcodes/enclosing-shortcodes/#processing-enclosed-content
+		/*
+		 * Despite https://developer.wordpress.org/plugins/shortcodes/enclosing-shortcodes/#processing-enclosed-content
 		 * saying "It is the responsibility of the handler function to secure the output," testing with WordPress 6.7.1
 		 * shows content saved by users who do not have the unfiltered_html capability does correctly get filtered.
 		 * And we want to leave the content unfiltered for users who do have that capability.
@@ -504,7 +513,8 @@ END;
 			$content = '<p>' . $content . '</p>';
 		}
 
-		/* Despite https://developer.wordpress.org/plugins/shortcodes/enclosing-shortcodes/#processing-enclosed-content
+		/*
+		 * Despite https://developer.wordpress.org/plugins/shortcodes/enclosing-shortcodes/#processing-enclosed-content
 		 * saying "It is the responsibility of the handler function to secure the output," testing with WordPress 6.7.1
 		 * shows content saved by users who do not have the unfiltered_html capability does correctly get filtered.
 		 * And we want to leave the content unfiltered for users who do have that capability.

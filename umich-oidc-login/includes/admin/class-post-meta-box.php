@@ -155,7 +155,7 @@ class Post_Meta_Box {
 	 *
 	 * @return bool     $allowed   Whether the user can add the object meta
 	 */
-	public function access_meta_auth( $allowed, $meta_key, $object_id /*, $user_id, $cap, $caps */ ) {
+	public function access_meta_auth( $allowed, $meta_key, $object_id ) {
 
 		if ( '_umich_oidc_access' !== $meta_key ) {
 			log_message( "WARNING: access_meta_auth called with wrong meta_key: $meta_key" );

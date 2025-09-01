@@ -58,10 +58,10 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 		'std'     => $option_defaults['login_action'],
 	),
 	array(
-		'id'   => 'login_return_url',
-		'name' => 'Login Destination URL',
-		'desc' => 'URL to send users to after they successfully log in. This is only used if the Post-Login Action is set to "URL" above.  Can be a full URL (starting with "https://") or a site URL path (such as "/some/page").',
-		'type' => 'text',
+		'id'       => 'login_return_url',
+		'name'     => 'Login Destination URL',
+		'desc'     => 'URL to send users to after they successfully log in. This is only used if the Post-Login Action is set to "URL" above.  Can be a full URL (starting with "https://") or a site URL path (such as "/some/page").',
+		'type'     => 'text',
 		'validate' => 'umichOidcSettings.validateUrlOrPath',
 	),
 	array(
@@ -78,10 +78,10 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 		'std'     => $option_defaults['logout_action'],
 	),
 	array(
-		'id'   => 'logout_return_url',
-		'name' => 'Logout Destination URL',
-		'desc' => 'URL to send users to after they log out. If blank, the user will be sent back to the site\'s main page. If this site is not accessible by everyone, it is a good idea to put the URL for a public web page (one that is accessible by everyone without login) here. Can be a full URL (starting with "https://") or a site URL path (such as "/some/page").',
-		'type' => 'text',
+		'id'       => 'logout_return_url',
+		'name'     => 'Logout Destination URL',
+		'desc'     => 'URL to send users to after they log out. If blank, the user will be sent back to the site\'s main page. If this site is not accessible by everyone, it is a good idea to put the URL for a public web page (one that is accessible by everyone without login) here. Can be a full URL (starting with "https://") or a site URL path (such as "/some/page").',
+		'type'     => 'text',
 		'validate' => 'umichOidcSettings.validateUrlOrPath',
 	),
 	array(

@@ -221,7 +221,6 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 
 		$registered_settings = $this->panel->settings;
 		$settings_received   = $request->get_params();
-		error_log( 'settings received: ' . print_r( $settings_received, true ) );
 		$data_to_save        = array();
 
 		if ( is_array( $registered_settings ) && ! empty( $registered_settings ) ) {
@@ -249,7 +248,6 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 				}
 			}
 		}
-		error_log( 'data to save: ' . print_r( $data_to_save, true ) );
 
 		if ( ! empty( $this->errors->get_error_codes() ) ) {
 			return new \WP_REST_Response( $this->errors, 422 );

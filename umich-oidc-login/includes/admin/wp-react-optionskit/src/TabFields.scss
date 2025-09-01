@@ -26,7 +26,7 @@
 	}
 
 	hr {
-		border: 2px solid #cccccc;
+		border: 2px solid #ccc;
 	}
 
 	// Prevent multiselect from being too big
@@ -45,6 +45,7 @@
 	input[type="checkbox"] {
 		margin-top: 4px;
 	}
+
 	.components-checkbox-control__label {
 		margin-top: 4px;
 	}
@@ -52,6 +53,7 @@
 	.components-form-toggle {
 		margin-top: 4px;
 	}
+
 	.components-toggle-control__label {
 		margin-top: 4px;
 	}

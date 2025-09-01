@@ -7,23 +7,30 @@
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
  */
 
-import { createRoot, render, createElement, useState, useEffect, useRef, useMemo } from '@wordpress/element';
-import { BaseControl, Icon, Notice, Spinner, __experimentalStyleProvider as StyleProvider } from '@wordpress/components';
+import {
+	createRoot,
+	render,
+	createElement,
+	useState,
+	useEffect,
+	useRef,
+	useMemo,
+} from '@wordpress/element';
+import { BaseControl, Icon, Notice, Spinner } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
-import * as icons from "@wordpress/icons";
+import * as icons from '@wordpress/icons';
 
 import Select from 'react-select';
-import debounce from "lodash.debounce";
-import isEqual from "react-fast-compare";
-
+import debounce from 'lodash.debounce';
+import isEqual from 'react-fast-compare';
 
 const UmichOidcAccess = () => {
 	const settings = window.umichOidcMetabox;
-	const selectRef = useRef(null);
+	const selectRef = useRef( null );
 	const [ accessValue, setAccessValue ] = useState( settings.selectedGroups );
 	const [ lastValue, setLastValue ] = useState( settings.selectedGroups );
 	const [ error, setError ] = useState( '' );
-	const [ isAutosaving, setIsAutosaving] = useState( false );
+	const [ isAutosaving, setIsAutosaving ] = useState( false );
 	const [ submitCount, setSubmitCount ] = useState( 0 );
 	const labelText = `Who can access this ${ settings.postType }?`;
 	const helpText = `Allow only members of these groups (plus administrators) to visit this ${ settings.postType }.`;
@@ -54,7 +61,7 @@ const UmichOidcAccess = () => {
 			...base,
 			color: '#fff',
 			backgroundColor: '#007cba',
-			whiteSpace: 'normal'
+			whiteSpace: 'normal',
 		} ),
 	};
 
@@ -65,17 +72,25 @@ const UmichOidcAccess = () => {
 		}
 		if ( v.length > 1 ) {
 			if ( v.find( ( { value } ) => value === '_everyone_' ) ) {
-				setError('"( Everyone )" cannot be used together with other groups.' );
+				setError(
+					'"( Everyone )" cannot be used together with other groups.'
+				);
 				return false;
 			}
 			if ( v.find( ( { value } ) => value === '_logged_in_' ) ) {
-				setError('"( Logged-in Users )" cannot be used together with other groups.' );
+				setError(
+					'"( Logged-in Users )" cannot be used together with other groups.'
+				);
 				return false;
 			}
 		}
 		// Check each value against settings.availableGroups.
 		for ( const item of v ) {
-			if ( ! settings.availableGroups.find( ( g ) => g.value === item.value ) ) {
+			if (
+				! settings.availableGroups.find(
+					( g ) => g.value === item.value
+				)
+			) {
 				setError( `Invalid group: ${ item.value }` );
 				return false;
 			}
@@ -95,55 +110,70 @@ const UmichOidcAccess = () => {
 		setIsAutosaving( true );
 		setSubmitCount( submitCount + 1 );
 		apiFetch( {
-			path: '/wp/v2/'
-				+ ( settings.postType === 'page' ? 'pages' : 'posts' ) + '/'
-				+ parseInt( settings.postId ).toString(),
+			path:
+				'/wp/v2/' +
+				( settings.postType === 'page' ? 'pages' : 'posts' ) +
+				'/' +
+				parseInt( settings.postId ).toString(),
 			method: 'POST',
-			data: { meta: { '_umich_oidc_access': value.map( ( x ) => x.value ).join( ',' ) } },
-		} ).then( ( res ) => {
-			// If returned value is not the same as value, use the returned value instead for both accessValue and lastValue.
-			let newValue = res.meta?._umich_oidc_access;
-			if ( newValue ) {
-				newValue = newValue.split( ',' ).map( ( x ) => {
-					return { value: x, label: settings.availableGroups.find( ( g ) => g.value === x )?.label || x };
-				} );
-			   if ( ! isEqual( newValue, value ) ) {
-				  console.log( 'Autosave returned different value', newValue );
-				  value = newValue;
-				  setError( 'Failed to save changes (server returned a different value).' );
-				  setAccessValue( value );
-				  selectRef.current?.setValue( value );
-			   }
-			}
-			setLastValue( value );
-		} ).catch( ( err ) => {
-			console.error( 'Autosave failed', err );
-			status = err.data?.status;
-			if ( status === 401 || status === 403 ) {
-				// Session timed out or nonce expired. Force reauthentication.
-				setError('Session expired. Please log in again.');
-			} else if ( err.message ) {
-				setError( err.message );
-			} else {
-				setError( 'Unknown error' );
-			}
-			setAccessValue( lastValue );
-		} ).finally( () => {
-			setIsAutosaving( false );
-		});
+			data: {
+				meta: {
+					_umich_oidc_access: value
+						.map( ( x ) => x.value )
+						.join( ',' ),
+				},
+			},
+		} )
+			.then( ( res ) => {
+				// If returned value is not the same as value, use the returned value instead for both accessValue and lastValue.
+				let newValue = res.meta?._umich_oidc_access;
+				if ( newValue ) {
+					newValue = newValue.split( ',' ).map( ( x ) => {
+						return {
+							value: x,
+							label:
+								settings.availableGroups.find(
+									( g ) => g.value === x
+								)?.label || x,
+						};
+					} );
+					if ( ! isEqual( newValue, value ) ) {
+						value = newValue;
+						setError(
+							'Failed to save changes (server returned a different value).'
+						);
+						setAccessValue( value );
+						selectRef.current?.setValue( value );
+					}
+				}
+				setLastValue( value );
+			} )
+			.catch( ( err ) => {
+				const status = err.data?.status;
+				if ( status === 401 || status === 403 ) {
+					// Session timed out or nonce expired. Force reauthentication.
+					setError( 'Session expired. Please log in again.' );
+				} else if ( err.message ) {
+					setError( err.message );
+				} else {
+					setError( 'Unknown error' );
+				}
+				setAccessValue( lastValue );
+			} )
+			.finally( () => {
+				setIsAutosaving( false );
+			} );
 	}
 
 	function AutoSaveFields() {
-
-		const useDebounce = (callback) => {
-
+		const useDebounce = ( callback ) => {
 			// From https://www.developerway.com/posts/debouncing-in-react
 
 			const ref = useRef();
 
 			useEffect( () => {
 				ref.current = callback;
-			}, [ callback ]);
+			}, [ callback ] );
 
 			const debouncedCallback = useMemo( () => {
 				const func = () => {
@@ -151,24 +181,32 @@ const UmichOidcAccess = () => {
 				};
 
 				return debounce( func, 1500 );
-			}, []);
+			}, [] );
 
 			return debouncedCallback;
 		};
 
-		const debouncedSubmit = useDebounce(async () => {
-			if (  ! isAutosaving && ! isEqual( accessValue, lastValue ) && error === '' ) {
+		const debouncedSubmit = useDebounce( async () => {
+			if (
+				! isAutosaving &&
+				! isEqual( accessValue, lastValue ) &&
+				error === ''
+			) {
 				await doAutoSave( accessValue );
 			}
 		} );
 
 		useEffect( () => {
-			if ( ! isAutosaving && ! isEqual(accessValue, lastValue) && error === '' ) {
+			if (
+				! isAutosaving &&
+				! isEqual( accessValue, lastValue ) &&
+				error === ''
+			) {
 				debouncedSubmit();
 			}
-		}, [ debouncedSubmit, accessValue, lastValue, isAutosaving, error ] );
+		}, [ debouncedSubmit ] );
 
-		let pendingChanges = ! isEqual( accessValue, lastValue )
+		const pendingChanges = ! isEqual( accessValue, lastValue );
 		let autosaveStatus = 'Settings status unknown';
 		let icon = icons.help;
 		let autosaveIcon = null;
@@ -177,7 +215,16 @@ const UmichOidcAccess = () => {
 			icon = icons.border;
 		} else if ( isAutosaving ) {
 			autosaveStatus = 'Saving changes...';
-			autosaveIcon = <Spinner style={{ verticalAlign: 'middle', position: 'relative', top: '-2px', right: 0 }} />;
+			autosaveIcon = (
+				<Spinner
+					style={ {
+						verticalAlign: 'middle',
+						position: 'relative',
+						top: '-2px',
+						right: 0,
+					} }
+				/>
+			);
 		} else if ( pendingChanges ) {
 			autosaveStatus = 'Unsaved changes.';
 			icon = icons.plusCircle;
@@ -189,12 +236,17 @@ const UmichOidcAccess = () => {
 			icon = icons.published;
 		}
 		if ( autosaveIcon === null ) {
-			autosaveIcon = <Icon icon={icon} style={{verticalAlign: 'middle'}}/>;
+			autosaveIcon = (
+				<Icon icon={ icon } style={ { verticalAlign: 'middle' } } />
+			);
 		}
 
 		return (
 			<>
-				<div className='umich-oidc-metabox-autosave-status' style={{ position: 'relative' }}>
+				<div
+					className="umich-oidc-metabox-autosave-status"
+					style={ { position: 'relative' } }
+				>
 					{ autosaveIcon } { autosaveStatus }
 				</div>
 			</>
@@ -228,9 +280,7 @@ const UmichOidcAccess = () => {
 					<b>{ error }</b>
 				</Notice>
 			) : null }
-			{ settings.autosave ? (
-				<AutoSaveFields />
-			) : null }
+			{ settings.autosave ? <AutoSaveFields /> : null }
 			<input
 				type="hidden"
 				name="_umich_oidc_access"

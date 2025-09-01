@@ -26,10 +26,10 @@ You may need to provide this information to your OIDC Identity Provider (IdP) in
 		",
 	),
 	array(
-		'id'   => 'provider_url',
-		'name' => 'Identity Provider URL',
-		'desc' => 'Base URL of the OIDC Identity Provider (IdP) that users will use to log in to WordPress.<br /><b>Example:</b> <code>https://sign-in.example.com</code>',
-		'type' => 'text',
+		'id'       => 'provider_url',
+		'name'     => 'Identity Provider URL',
+		'desc'     => 'Base URL of the OIDC Identity Provider (IdP) that users will use to log in to WordPress.<br /><b>Example:</b> <code>https://sign-in.example.com</code>',
+		'type'     => 'text',
 		'validate' => 'umichOidcSettings.validateUrl',
 	),
 	array(
@@ -131,7 +131,7 @@ You may need to provide this information to your OIDC Identity Provider (IdP) in
 		'required' => true,
 	),
 	array(
-		'id'        => 'claim_for_groups',
+		'id'       => 'claim_for_groups',
 		'name'     => 'groups',
 		'desc'     => 'Name of OIDC userinfo claim for the groups the user belongs to.<br /><b>Example:</b><code>edumember_ismemberof</code>',
 		'type'     => 'text',

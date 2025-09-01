@@ -135,14 +135,17 @@ class Restrict_Access {
 		$options = $ctx->options;
 
 		if ( self::DENIED_NOT_LOGGED_IN === $type ) {
-
-			/* Special case: Some hosting providers, especially those that use Varnish, strip cookies from
+			/*
+			 * Special case: Some hosting providers, especially those that use Varnish, strip cookies from
 			 * requests for static assets in order to improve cache hit rates.  Avoid redirecting the user
 			 * when the request is for /favicon.ico which WordPress will handle and generate if the file
 			 * doesn't exist in the filesystem as that can cause an authenticated user to be continuously
 			 * reauthenticated.  Instead, return a 401.
 			 */
-			if ( '/favicon.ico' === $_SERVER['REQUEST_URI'] || is_favicon() ) {
+			if (
+				( isset( $_SERVER['REQUEST_URI'] ) && '/favicon.ico' === $_SERVER['REQUEST_URI'] )
+				|| is_favicon()
+			) {
 				log_message( 'unauthenticated favicon.ico request, returning 401' );
 				\wp_die( 'Authentication required', 'Authentication required', array( 'response' => 401 ) );
 			}
@@ -435,25 +438,25 @@ class Restrict_Access {
 	 *
 	 * @param object $response The WP_REST_Response object.
 	 * @param object $post The WP_Post object.
-	 * @param object $request The WP_REST_Request object.
+	 *  param object $request The WP_REST_Request object.
 	 *
 	 * @return object The original response, if the current user has access to the post; otherwise, a permission denied response.
 	 */
-	public function rest_prepare_post( $response, $post, $request ) {
+	public function rest_prepare_post( $response, $post ) {
 		$id = isset( $post->ID ) ? $post->ID : 0;
 		return $this->rest_access( $id, $response );
 	}
 
 	/**
-	 * Restrict access to revistions via the REST API.
+	 * Restrict access to revisions via the REST API.
 	 *
 	 * @param object $response The WP_REST_Response object.
 	 * @param object $post The WP_Post object.
-	 * @param object $request The WP_REST_Request object.
+	 *  param object $request The WP_REST_Request object.
 	 *
 	 * @return object The original response, if the current user has access to the post; otherwise, a permission denied response.
 	 */
-	public function rest_prepare_revision( $response, $post, $request ) {
+	public function rest_prepare_revision( $response, $post ) {
 		$id = isset( $post->post_parent ) ? $post->post_parent : 0;
 		return $this->rest_access( $id, $response );
 	}
@@ -463,11 +466,11 @@ class Restrict_Access {
 	 *
 	 * @param object $response The WP_REST_Response object.
 	 * @param object $comment The WP_Comment object.
-	 * @param object $request The WP_REST_Request object.
+	 *  param object $request The WP_REST_Request object.
 	 *
 	 * @return object The original response, if the current user has access to the comment's post; otherwise, a permission denied response.
 	 */
-	public function rest_prepare_comment( $response, $comment, $request ) {
+	public function rest_prepare_comment( $response, $comment ) {
 		$id = isset( $comment->comment_post_ID ) ? $comment->comment_post_ID : 0;
 		return $this->rest_access( $id, $response );
 	}
@@ -543,11 +546,11 @@ class Restrict_Access {
 	 *
 	 * @param array $_post  An array of modified post data.
 	 * @param array $post   An array of post data.
-	 * @param array $fields An array of post fields.
+	 *  param array $fields An array of post fields.
 	 *
 	 * @return array The filtered $_post
 	 */
-	public function xmlrpc_prepare_post( $_post, $post, $fields ) {
+	public function xmlrpc_prepare_post( $_post, $post ) {
 
 		// The page/post XMLRPC methods require login.
 		$result = $this->check_site_access();
