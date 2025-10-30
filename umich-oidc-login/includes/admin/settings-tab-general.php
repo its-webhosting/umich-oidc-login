@@ -134,7 +134,7 @@ releases and pre-releases are available by going to the <a href="https://github.
 UMich OIDC Login GitHub repository</a>, logging in, and turning on Watch -> Custom -> Releases.
 <br /><br />
 <b>NOTE:</b> If you manually install a pre-release version of the plugin, this setting will get turned on automatically
-so you will also get future pre-releasses.  If that\'s not what you want, turn this setting off after manually
+so you will also get future pre-releases.  If that\'s not what you want, turn this setting off after manually
 installing the pre-release.
 ',
 		'type'  => 'toggle',
