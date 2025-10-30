@@ -92,6 +92,23 @@ class Post_Meta_Box {
 			: $post_type;
 		$access                  = $ctx->settings_page->post_access_groups( $post->ID );
 
+		$rest_namespace = 'wp/v2';
+		$rest_base      = $post_type;
+		if ( 'page' === $post_type ) {
+			$rest_base = 'pages';
+		} elseif ( 'post' === $post_type ) {
+			$rest_base = 'posts';
+		}
+		if ( $post_type_object ) {
+			if ( $post_type_object->rest_namespace ) {
+				$rest_namespace = $post_type_object->rest_namespace;
+			}
+			if ( $post_type_object->rest_base ) {
+				$rest_base = $post_type_object->rest_base;
+			}
+		}
+		$rest_endpoint = '/' . $rest_namespace . '/' . $rest_base . '/' . $post->ID;
+
 		$selected = array();
 		foreach ( $access as $group ) {
 			if ( '_everyone_' === $group ) {
@@ -113,12 +130,11 @@ class Post_Meta_Box {
 		}
 
 		$settings      = array(
-			'postId'               => (int) $post->ID,
-			'postType'             => \esc_html( $post_type ),
 			'postTypeNameSingular' => \esc_html( $post_type_name_singular ),
 			'availableGroups'      => $ctx->settings_page->available_groups(),
 			'selectedGroups'       => $selected,
 			'autosave'             => $ctx->options['autosave'],
+			'restEndpoint'         => $rest_endpoint,
 		);
 		$settings_json = \wp_json_encode( $settings );
 		log_message( "UMich OIDC access meta box settings: $settings_json" );

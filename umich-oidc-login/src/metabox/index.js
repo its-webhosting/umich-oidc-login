@@ -110,11 +110,7 @@ const UmichOidcAccess = () => {
 		setIsAutosaving( true );
 		setSubmitCount( submitCount + 1 );
 		apiFetch( {
-			path:
-				'/wp/v2/' +
-				( /^[A-Za-z0-9_-]+$/.settings.postType ? settings.postType : 'posts' ) +
-				'/' +
-				parseInt( settings.postId ).toString(),
+			path: settings.restEndpoint,
 			method: 'POST',
 			data: {
 				meta: {
