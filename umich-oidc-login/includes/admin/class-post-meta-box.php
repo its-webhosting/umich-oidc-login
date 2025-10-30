@@ -85,8 +85,12 @@ class Post_Meta_Box {
 		$ctx = $this->ctx;
 
 		\wp_nonce_field( 'umich_oidc_access_meta', 'umich_oidc_meta_nonce' );
-		$post_type = \get_post_type( $post->ID );
-		$access    = $ctx->settings_page->post_access_groups( $post->ID );
+		$post_type               = \get_post_type( $post->ID );
+		$post_type_object        = \get_post_type_object( $post_type );
+		$post_type_name_singular = ! empty( $post_type_object->labels->singular_name )
+			? $post_type_object->labels->singular_name
+			: $post_type;
+		$access                  = $ctx->settings_page->post_access_groups( $post->ID );
 
 		$selected = array();
 		foreach ( $access as $group ) {
@@ -109,11 +113,12 @@ class Post_Meta_Box {
 		}
 
 		$settings      = array(
-			'postId'          => (int) $post->ID,
-			'postType'        => \esc_html( $post_type ),
-			'availableGroups' => $ctx->settings_page->available_groups(),
-			'selectedGroups'  => $selected,
-			'autosave'        => $ctx->options['autosave'],
+			'postId'               => (int) $post->ID,
+			'postType'             => \esc_html( $post_type ),
+			'postTypeNameSingular' => \esc_html( $post_type_name_singular ),
+			'availableGroups'      => $ctx->settings_page->available_groups(),
+			'selectedGroups'       => $selected,
+			'autosave'             => $ctx->options['autosave'],
 		);
 		$settings_json = \wp_json_encode( $settings );
 		log_message( "UMich OIDC access meta box settings: $settings_json" );

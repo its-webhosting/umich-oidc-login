@@ -32,8 +32,8 @@ const UmichOidcAccess = () => {
 	const [ error, setError ] = useState( '' );
 	const [ isAutosaving, setIsAutosaving ] = useState( false );
 	const [ submitCount, setSubmitCount ] = useState( 0 );
-	const labelText = `Who can access this ${ settings.postType }?`;
-	const helpText = `Allow only members of these groups (plus administrators) to visit this ${ settings.postType }.`;
+	const labelText = `Who can access this ${ settings.postTypeNameSingular }?`;
+	const helpText = `Allow only members of these groups (plus administrators) to visit this ${ settings.postTypeNameSingular }.`;
 	const styles = {
 		control: ( base ) => ( {
 			...base,
@@ -112,7 +112,7 @@ const UmichOidcAccess = () => {
 		apiFetch( {
 			path:
 				'/wp/v2/' +
-				( settings.postType === 'page' ? 'pages' : 'posts' ) +
+				( /^[A-Za-z0-9_-]+$/.settings.postType ? settings.postType : 'posts' ) +
 				'/' +
 				parseInt( settings.postId ).toString(),
 			method: 'POST',
