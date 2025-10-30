@@ -275,6 +275,9 @@ class Restrict_Access {
 			return;
 		}
 
+		if ( ! \is_singular() ) {
+			log_message( 'NOT SINGULAR' );
+		}
 		$post_id = \get_queried_object_id();
 		log_message( "restrict site single post id = {$post_id}" );
 		if ( $post_id <= 0 ) {
@@ -330,6 +333,7 @@ class Restrict_Access {
 	 */
 	public function the_content( $content ) {
 
+		log_message( 'restricting the_content' );
 		$post = \get_post();
 		if ( \is_null( $post ) || ! isset( $post->ID ) ) {
 			return $content;
@@ -366,13 +370,30 @@ class Restrict_Access {
 	 * @return array The filtered list of posts that the current user has access to.
 	 */
 	public function restrict_list( $posts ) {
-		$allowed = array();
+		$allowed        = array();
+		$redirect_count = 0;
 		foreach ( $posts as $post ) {
 			$access = $this->ctx->settings_page->post_access_groups( $post->ID );
 			$result = $this->check_access( $access );
-			if ( self::ALLOWED === $result ) {
-				$allowed[] = $post;
+			switch ( $result ) {
+				case self::ALLOWED:
+					$allowed[] = $post;
+					log_message( "restrict_list - post {$post->ID} allowed" );
+					break;
+				case self::DENIED_NOT_LOGGED_IN:
+					log_message( "restrict_list - post {$post->ID} denied - not logged in" );
+					++$redirect_count;
+					break;
+				case self::DENIED_NOT_IN_GROUPS:
+					log_message( "restrict_list - post {$post->ID} denied - not in groups" );
+					break;
+				default:
+					log_message( "ERROR: restrict_list - post {$post->ID} denied: unexpected access check result" );
+					break;
 			}
+		}
+		if ( $redirect_count > 0 && count( $allowed ) === 0 ) {
+			$this->denial_redirect( self::DENIED_NOT_LOGGED_IN );
 		}
 		return $allowed;
 	}
@@ -409,6 +430,7 @@ class Restrict_Access {
 	 */
 	private function rest_access( $id, $response ) {
 
+		log_message( 'restricting rest_access' );
 		$result = $this->check_site_access();
 		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
 			return $this->rest_error( 'rest_user_cannot_view', 'Authentication required', 401 );
@@ -494,7 +516,9 @@ class Restrict_Access {
 	 */
 	public function found_posts( $found_posts, $query ) {
 
+		log_message( 'restricting found_posts' );
 		if ( 'ids' !== $query->query_vars['fields'] || empty( $query->query_vars['post_type'] ) ) {
+			log_message( 'restricting found_posts: no ids or post types' );
 			return $found_posts;
 		}
 
@@ -502,19 +526,23 @@ class Restrict_Access {
 		if ( self::ALLOWED !== $result ) {
 			$query->posts      = array();
 			$query->post_count = 0;
+			log_message( 'restricting found_posts: site access denied' );
 			return 0;
 		}
 
 		if ( null === $query->posts ) {
+			log_message( 'restricting found_posts: query posts is null' );
 			return $found_posts;
 		}
 		if ( \is_integer( $query->posts ) ) {
 			$access = $this->ctx->settings_page->post_access_groups( $query->posts );
 			$result = $this->check_access( $access );
 			if ( self::ALLOWED === $result ) {
+				log_message( 'restricting found_posts: integer post allowed' );
 				return $found_posts;
 			}
 			$query->posts = null;
+			log_message( 'restricting found_posts: integer post denied' );
 			return 0;
 		}
 
@@ -533,6 +561,7 @@ class Restrict_Access {
 		}
 		$query->posts      = $posts;
 		$query->post_count = count( $posts );
+		log_message( "restricting found_posts: returning {$found_posts} posts" );
 		return $found_posts;
 	}
 
@@ -551,6 +580,7 @@ class Restrict_Access {
 	 * @return array The filtered $_post
 	 */
 	public function xmlrpc_prepare_post( $_post, $post ) {
+		log_message( 'restricting xmlrpc_prepare_post' );
 
 		// The page/post XMLRPC methods require login.
 		$result = $this->check_site_access();
@@ -609,6 +639,7 @@ class Restrict_Access {
 	 * @return array The filtered $_comment
 	 */
 	public function xmlrpc_prepare_comment( $_comment, $comment ) {
+		log_message( 'restricting xmlrpc_prepare_comment' );
 
 		// The comment XMLRPC methods require login.
 		$result = $this->check_site_access();
@@ -634,6 +665,7 @@ class Restrict_Access {
 	 * @return void
 	 */
 	public function xmlrpc_call_access( $post_id, $server ) {
+		log_message( 'restricting xmlrpc_call_access' );
 
 		// Calls to $server->error() terminate the script.
 
