@@ -80,7 +80,7 @@ rm -rf composer.lock build vendor
 
 Edit `composer.json`, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version.
 
-NOTE: specifying `"paragonie/constant_time_encoding": "^2.7.0",` forces PHP 7.3 compatibility for `phpseclib`. This dependency should be removed when we drop support for PHP 7.x.  As of June 2025, 2.7 was the latest minor release for 2.x.
+NOTE: specifying `"paragonie/constant_time_encoding": "^2.8.2",` forces PHP 7.3 compatibility for `phpseclib`. This dependency should be removed when we drop support for PHP 7.x.  As of October 2025, 2.8.2 was the latest minor release for 2.x.
 
 ### Update NodeJS dependencies
 
@@ -92,7 +92,7 @@ Edit `../tools/run-node` and update the image version to be the major version nu
 
 Edit `package.json`:
 * For all `@wordpress/*` packages, change the version of the package to the _exact_ version (no caret) listed in `package.json` in the branch for the latest release of [wordpress/wordpress-develop](https://github.com/WordPress/wordpress-develop/tree/trunk).
-* For all other packages, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version, usually using the caret notation.
+* For all other packages, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version.  Don't use the caret notation due to npmjs.com supply chain concerns.
 
 ```bash
 pushd includes/admin/wp-react-optionskit
@@ -101,7 +101,7 @@ rm -rf build node_modules package-lock.json
 
 Edit `package.json`:
 * For all `@wordpress/*` packages, change the version of the package to the _exact_ version (no caret) listed in the [Changelog for the latest release of WordPress](https://wordpress.org/documentation/article/wordpress-versions/).
-* For all other packages, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version, usually using the caret notation.
+* For all other packages, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version. Don't use the caret notation due to npmjs.com supply chain concerns.
 
 
 ### Now rebuild everything
