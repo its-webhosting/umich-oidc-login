@@ -1,5 +1,17 @@
 # UMich OIDC Login Changelog
 
+## 1.3.0-beta7
+October 31, 2025
+
+* Changes since 1.3.0-beta6:
+    * Fixed issue that resulted in non-logged-in visitors getting a "Not found" (404) error page when trying to access an Advanced Custom Fields custom post instead of being redirected to log in.
+    * Fixed issue that prevented autosaving changes to the UMich OIDC access settings metabox when updating a custom post type.
+    * Improved label and help text for the UMich OIDC access settings metabox for custom post types (use the post type singular name label instead of the post type name).
+    * Updated dependencies and tested up to WordPress 6.8.3.
+        * Pinned all NodeJS dependencies to specific versions, eliminating the use of carat notation.  This will hopefully help a little bit with npmjs.com supply chain concerns.
+        * Added .npmrc files to hopefully help a little bit with npmjs.com supply chain issues.
+
+
 ## 1.3.0-beta6
 September 1, 2025
 

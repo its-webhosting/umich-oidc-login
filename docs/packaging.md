@@ -103,7 +103,7 @@ Test the plugin locally to be sure everything works.
 ## Update upstream git repository
 
 ```bash
-git diff
+git diff -- ':(exclude,glob)**/composer.lock' ':(exclude,glob)**/package-lock.json'
 git status
 git add --all  # change to be any files modified above
 git commit -m "version X.Y.Z-a"  # change this to the new plugin version number
