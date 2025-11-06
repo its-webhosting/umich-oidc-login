@@ -10,7 +10,7 @@
  * Plugin Name:       UMich OIDC Login
  * Plugin URI:        https://github.com/its-webhosting/umich-oidc-login/
  * Description:       Restrict access to the whole site or only certain parts based on OpenID Connect (OIDC) login and group membership information.
- * Version:           1.3.0-beta7
+ * Version:           1.3.0-beta8
  * Author:            Regents of the University of Michigan
  * Requires at least: 6.0.0
  * Requires PHP:      7.3
@@ -40,8 +40,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Only use this file if there is no conflict.
 if ( ! function_exists( 'umich_oidc_login_run' ) ) {
 
-	define( 'UMICH_OIDC_LOGIN_VERSION', '1.3.0-beta7' ); // X.Y.Z-a.
-	define( 'UMICH_OIDC_LOGIN_VERSION_INT', 1029907 ); // XXYYZZaa.
+	define( 'UMICH_OIDC_LOGIN_VERSION', '1.3.0-beta8' ); // X.Y.Z-a.
+	define( 'UMICH_OIDC_LOGIN_VERSION_INT', 1029908 ); // XXYYZZaa.
 
 	define( 'UMICH_OIDC_LOGIN_BASE_NAME', plugin_basename( __FILE__ ) );
 	define( 'UMICH_OIDC_LOGIN_DIR', plugin_dir_path( __FILE__ ) );

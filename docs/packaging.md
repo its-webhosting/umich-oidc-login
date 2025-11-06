@@ -35,7 +35,7 @@ Edit `umich-oidc-login/umich-oidc-login.php`
 * Update define for `UMICH_OIDC_LOGIN_VERSION_INT` to the integer representation of the new plugin version number.
   * For alpha and beta releases, subtract 100 and then use the last two digits as a serial number for alpha/beta releases.  For example, version 1.2.0-alpha1 is written `1019900` (1.1.99.00).
 
-### Plugin README.md
+### Plugin README.txt
 
 Update `umich-oidc-login/README.txt` (note: this is the file in the subdirectory, _not_ the one file in the repository's main directory).
 

@@ -1,5 +1,12 @@
 # UMich OIDC Login Changelog
 
+## 1.3.0-beta8
+November 6, 2025
+
+* Changes since 1.3.0-beta7:
+    * Fixed issue where users attempting to access content that requires login could see an error message or blank page due to a redirect being attempted after the page headers were already sent.  This issue was caused by a bug introduced in the Advanced Custom Fields redirect fix in beta7.
+
+
 ## 1.3.0-beta7
 October 31, 2025
 
