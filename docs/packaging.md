@@ -131,6 +131,7 @@ rm -rf umich-oidc-login/vendor  # un-namespaced composer packages
 rm umich-oidc-login/scoper.inc.php  # don't want this being run by a web server; only needed when building
 rm -rf umich-oidc-login/node_modules  # only needed when building
 rm -rf umich-oidc-login/includes/admin/wp-react-optionskit/node_modules  # only needed when building
+rm -f umich-oidc-login/.prettier* umich-oidc-login/includes/admin/wp-react-optionskit/.prettier*
 ```
 
 We're not deleting `composer.json`, `composer.lock`, `package.json` and `package-lock.json` in order to be clear about what code we're shipping.
@@ -169,6 +170,8 @@ https://github.com/its-webhosting/umich-oidc-login/releases
 * Publish release
 
 ## Publish the release in the WordPress plugin directory
+
+We're not doing this now due to restrictions about what plugins there can do (for example, around a separate channel for testing prereleases) plus other requirements we're not always staffed to meet.
 
 * SVN Resources:
   * https://developer.wordpress.org/plugins/wordpress-org/how-to-use-subversion/
