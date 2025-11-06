@@ -152,12 +152,25 @@ zip -r umich-oidc-login.zip umich-oidc-login
 
 Test the zip file on one or more other WordPress websites.
 
+### Commands to test on Pantheon site its-wws-test1:
+```bash
+terminus connection:set its-wws-test1.dev sftp
+scp -P 2222 umich-oidc-login.zip $(terminus conn:info its-wws-test1.dev --field=sftp_username)@$(terminus conn:info its-wws-test1.dev --field=sftp_host):/tmp/
+terminus wp its-wws-test1.dev -- plugin install --force --activate /tmp/umich-oidc-login.zip
+# --- test in Dev ---
+terminus env:commit its-wws-test1.dev --message="upgrade umich-oidc-login plugin"
+terminus env:deploy its-wws-test1.test
+terminus env:deploy its-wws-test1.live
+# --- test in Live ---
+```
+
 ## Publish the release on GitHub
 
 Go to
 https://github.com/its-webhosting/umich-oidc-login/releases
 
 * Click "Draft a new release" button
+* Select tag
 * Release title: X.Y.Z-a  # (change to the new plugin version number)
 * For the release notes:
 
