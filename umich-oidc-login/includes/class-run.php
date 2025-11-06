@@ -323,6 +323,7 @@ class Run {
 		\add_filter( 'xmlrpc_prepare_page', array( $this->restrict_access, 'xmlrpc_prepare_post' ), 0, 3 );
 		\add_filter( 'xmlrpc_prepare_comment', array( $this->restrict_access, 'xmlrpc_prepare_comment' ), 0, 2 );
 		\add_action( 'xmlrpc_call', array( $this->restrict_access, 'xmlrpc_call' ), 0, 3 );
+		\add_filter( 'pre_handle_404', array( $this->restrict_access, 'handle_404' ), 10000, 2 );
 
 		// Metabox to restrict access to pages and posts.
 		// Works in both Gutenberg and the Classic Editor.

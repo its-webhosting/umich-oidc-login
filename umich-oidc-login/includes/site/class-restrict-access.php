@@ -43,6 +43,13 @@ class Restrict_Access {
 	private $site_access_result = self::NOT_INITIALIZED;
 
 	/**
+	 * Save whether access was denied due to not being logged in when checking a list of posts.
+	 *
+	 * @var      integer  $list_access_redirect  self::DENIED_NOT_LOGGED_IN if we should redirect.
+	 */
+	private $list_access_redirect = self::NOT_INITIALIZED;
+
+	/**
 	 * Create and initialize the Restrict_Access object.
 	 *
 	 * @param object $ctx Context for this WordPress request / this run of the plugin.
@@ -255,8 +262,8 @@ class Restrict_Access {
 	 * Called by the template_redirect action -- if the current request is
 	 * for a single post, we check the access here (rather than later in
 	 * the_content) so that we can redirect the user instead of having to
-	 * display an access denied method within site page.  This way, the
-	 * user won't see the site header, footer, sidebar and so on.
+	 * display an access-denied message within the site page.  This way,
+	 * the user won't see the site header, footer, sidebar and so on.
 	 *
 	 * @return void
 	 */
@@ -313,10 +320,10 @@ class Restrict_Access {
 		$result = $this->check_access( $access );
 		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
 			$url = $ctx->oidc->get_oidc_url( 'login', '' );
-			return "You need to <a href='{$url}'>log in</a> to view this content.";
+			return "(You need to <a href='{$url}'>log in</a> to view this content.)";
 		}
 		if ( self::DENIED_NOT_IN_GROUPS === $result ) {
-			return 'You do not have access to this content.';
+			return '(You do not have access to this content.)';
 		}
 
 		// Return and allow access.
@@ -339,11 +346,16 @@ class Restrict_Access {
 			return $content;
 		}
 
-		$access = $this->ctx->settings_page->post_access_groups( $post->ID );
+		$ctx    = $this->ctx;
+		$access = $ctx->settings_page->post_access_groups( $post->ID );
 		$result = $this->check_access( $access );
-		if ( self::ALLOWED !== $result ) {
-			// TODO: let the user set this message or return ''.
-			$content = "(You don't have access to this content.)";
+		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
+			$url = $ctx->oidc->get_oidc_url( 'login', '' );
+			return "(You need to <a href='{$url}'>log in</a> to view this content.)";
+		}
+		if ( self::DENIED_NOT_IN_GROUPS === $result ) {
+			// TODO: let the user set this message or have nothing displayed at all by returning ''.
+			return '(You do not have access to this content.)';
 		}
 
 		// Return and allow access.
@@ -392,12 +404,28 @@ class Restrict_Access {
 					break;
 			}
 		}
-		if ( $redirect_count > 0 && count( $allowed ) === 0 ) {
-			$this->denial_redirect( self::DENIED_NOT_LOGGED_IN );
+		if ( $redirect_count > 0 && count( $allowed ) === 0 && self::NOT_INITIALIZED === $this->list_access_redirect ) {
+			$this->list_access_redirect = self::DENIED_NOT_LOGGED_IN;
 		}
 		return $allowed;
 	}
 
+	/**
+	 * Intercept 404 errors and redirect the user to log in if the post
+	 * actually exists but the user is not seeing it because they are
+	 * not logged in.
+	 *
+	 * @param bool $preempt   Whether to short-circuit default header status handling. Default false.
+	 *  param \WP_Query $wp_query  WordPress Query object.
+	 *
+	 * @return bool Whether to short-circuit default header status handling. Default false.
+	 */
+	public function handle_404( $preempt /*, $wp_query */ ) {
+		if ( self::DENIED_NOT_LOGGED_IN === $this->list_access_redirect && ! is_favicon() ) {
+			$this->denial_redirect( self::DENIED_NOT_LOGGED_IN );
+		}
+		return $preempt;
+	}
 
 	/**
 	 * Generate a REST response for an error.
