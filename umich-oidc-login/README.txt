@@ -43,16 +43,16 @@ Features:
 1. (Recommended but not required) Install the [WordPress Native PHP Sessions](https://wordpress.org/plugins/wp-native-php-sessions/) plugin from the WordPress.org plugin repository or by uploading the files to your web server. For details, see [How to Install a WordPress Plugin](https://www.wpbeginner.com/beginners-guide/step-by-step-guide-to-install-a-wordpress-plugin-for-beginners/). **UMich OIDC Login strongly recommends using the WordPress Native PHP Sessions plugin to prevent conflicts with other WordPress plugins that also use PHP sessions, and to ensure correct operation when the site resides on multiple web servers.**
 1. Install the UMich OIDC Login plugin from GitHub.  This plugin is not available through wordpress.org.  Use _one_ of the following methods of installing the plugin:
 	1. **WP Admin Dashboard Method:**  This requires that your site has write access to the plugins folder:
-		1. Download the umich-oidc-login.zip file for the latest package from https://github.com/its-webhosting/umich-oidc-login/releases/latest
-		   Important: do not download the source code (the source code has to be built before it can be used on a site)
+		1. Download the `umich-oidc-login.zip` file using the link https://github.com/its-webhosting/umich-oidc-login/releases/latest/download/umich-oidc-login.zip
+		   Important: if you download the plugin via the [releases page](https://github.com/its-webhosting/umich-oidc-login/releases/latest), make sure you _do not_ download the source code.  The source code has to be built before it can be used on a site.
 		2. Go to the WordPress admin dashboard -> Plugins -> Add New -> Upload Plugin
-		3. Select the zip file you downloaded file and click Upload
+		3. Select the zip file you downloaded and click Upload
 		4. Activate the plugin
 	1. **Manual Method:**
-		1. Download the umich-oidc-login.zip file for the latest package from https://github.com/its-webhosting/umich-oidc-login/releases/latest
-		   Important: do not download the source code (the source code has to be built before it can be used on a site)
-		2. Extract the contents of the zip file
-		3. Upload the umich-oidc-login folder to the wp-content/plugins/ folder in your site.  The final location should be wp-content/plugins/umch-oidc-login
+		1. Download the `umich-oidc-login.zip` file fusing the link https://github.com/its-webhosting/umich-oidc-login/releases/latest/download/umich-oidc-login.zip
+           Important: if you download the plugin via the [releases page](https://github.com/its-webhosting/umich-oidc-login/releases/latest), make sure you _do not_ download the source code. The source code has to be built before it can be used on a site.
+		2. Extract the contents of the zip file onto your computer
+		3. Use SFTP or a similar method tp load the `umich-oidc-login` folder from your computer to the `wp-content/plugins/` folder in your site.  The final location should be `wp-content/plugins/umch-oidc-login`
 		4. Activate the plugin using the WordPress admin dashboard
 	1. **WP CLI Method:** (if you have the `wp` command installed):
    ```bash
