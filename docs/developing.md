@@ -61,6 +61,8 @@ echo "DB_ROOT_PASSWORD='$(openssl rand -base64 24 | cut -c 1-32)'" >> .env
 
 docker compose up
 
+# Important: If you leave the username as "admin", choose an email
+# address that is not also used for SSO for a different username.
 run-wp core install \
     --url=https://wp.internal \
     --title="Internal" \
