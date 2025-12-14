@@ -6,9 +6,13 @@
  */
 
 import React from 'react'; // eslint-disable-line import/no-extraneous-dependencies
+import ReactDOM from 'react-dom'; // eslint-disable-line import/no-extraneous-dependencies
 import { Formik, Form, useFormikContext } from 'formik';
+import debounce from 'lodash.debounce';
+import isEqual from 'react-fast-compare';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Notice, TabPanel } from '@wordpress/components';
+import { Button, Notice, TabPanel, Icon, Spinner } from '@wordpress/components';
+import * as icons from '@wordpress/icons';
 import TabFields from './TabFields';
 import './Panel.scss';
 
@@ -60,45 +64,24 @@ function OptionsKitTabPanel() {
 		if ( '' !== newTabName && ! ( newTabName in settings.tabs ) ) {
 			return;
 		}
-		setTabState( ( state ) => ( {
-			activeTabName: newTabName,
-			activeFieldName: newFieldName,
-			serialNumber: state.serialNumber + 1,
-		} ) );
+		ReactDOM.flushSync( () => {
+			const element = document.getElementById( newFieldName );
+			if ( element ) {
+				element.scrollIntoView( { behavior: 'smooth' } );
+			}
+			setTabState( {
+				...tabState,
+				activeTabName: newTabName,
+				activeFieldName: newFieldName,
+				serialNumber: tabState.serialNumber + 1,
+			} );
+		} );
 	}
 
 	React.useEffect( () => {
 		window.addEventListener( 'popstate', onPopstateEvent );
 		return () => {
 			window.removeEventListener( 'popstate', onPopstateEvent );
-		};
-	}, [] );
-
-	const observer = React.useRef( null );
-	React.useEffect( () => {
-		if ( ! observer.current && tabState.activeFieldName ) {
-			observer.current = new MutationObserver( () => { // eslint-disable-line
-				const element = document.getElementById(
-					tabState.activeFieldName
-				);
-				if ( element ) {
-					observer.current.disconnect();
-					observer.current = null;
-					element.scrollIntoView( { behavior: 'smooth' } );
-				}
-			} );
-			const target = document.getElementById( 'optionskit-navigation' );
-			observer.current.observe( target, {
-				childList: true,
-				subtree: true,
-			} );
-		}
-
-		return () => {
-			if ( observer.current ) {
-				observer.current.disconnect();
-				observer.current = null;
-			}
 		};
 	}, [ tabState ] );
 
@@ -147,14 +130,28 @@ function submitOptionsData( values, actions ) {
 						notices: res.notices,
 						formErrorMessage,
 						formErrorType: 'success',
-						showFormError: true,
+						showFormError: ! settings.autosave,
 					},
 				};
 			} );
-			window.scrollTo( { top: 0, behavior: 'smooth' } );
 			actions.setSubmitting( false );
+			if (
+				newValues.hasOwnProperty( 'autosave' ) &&
+				Boolean( newValues.autosave ) !== settings.autosave
+			) {
+				window.location.reload();
+			}
 		} )
 		.catch( ( err ) => {
+			if (
+				err.status === 400 ||
+				err.status === 401 ||
+				err.status === 403
+			) {
+				// Session timed out or nonce expired. Force reauthentication.
+				window.location.reload();
+				return;
+			}
 			let formErrorMessage = settings.labels.error;
 			const settingInfo = {};
 			for ( const tab in settings.settings ) {
@@ -184,7 +181,6 @@ function submitOptionsData( values, actions ) {
 					},
 				};
 			} );
-			window.scrollTo( { top: 0, behavior: 'smooth' } );
 			actions.setSubmitting( false );
 		} );
 }
@@ -250,6 +246,106 @@ function OptionsKitNoticeList( {
 	);
 }
 
+function AutoSaveFields() {
+	const formik = useFormikContext();
+	const [ lastValues, setLastValues ] = React.useState( formik.values );
+
+	// From https://www.developerway.com/posts/debouncing-in-react
+	const useDebounce = ( callback ) => {
+		const ref = React.useRef();
+
+		React.useEffect( () => {
+			ref.current = callback;
+		}, [ callback ] );
+
+		const debouncedCallback = React.useMemo( () => {
+			const func = () => {
+				ref.current?.();
+			};
+
+			return debounce( func, 1500 );
+		}, [] );
+
+		return debouncedCallback;
+	};
+
+	const debouncedSubmit = useDebounce( async () => {
+		if (
+			formik.isValid &&
+			! formik.isValidating &&
+			! formik.isSubmitting &&
+			! isEqual( formik.values, lastValues )
+		) {
+			await formik.submitForm();
+			setLastValues( formik.values );
+		}
+	} );
+
+	React.useEffect( () => {
+		if (
+			formik.isValid &&
+			! formik.isValidating &&
+			! formik.isSubmitting &&
+			! isEqual( formik.values, lastValues )
+		) {
+			debouncedSubmit();
+		}
+	}, [
+		debouncedSubmit,
+		formik.values,
+		formik.isValidating,
+		formik.isValid,
+		formik.isSubmitting,
+	] );
+
+	let autosaveStatus = 'Settings status unknown';
+	let autosaveIcon = <Icon icon={ icons.help } />;
+	if ( ! formik.dirty && formik.submitCount === 0 ) {
+		autosaveStatus = 'No changes made.';
+		autosaveIcon = (
+			<Icon
+				icon={ icons.border }
+				className="optionskit-autosave-status-icon"
+			/>
+		);
+	} else if ( formik.isSubmitting || formik.isValidating ) {
+		autosaveStatus = 'Saving changes...';
+		autosaveIcon = <Spinner className="optionskit-autosave-status-icon" />;
+	} else if ( formik.errors && Object.keys( formik.errors ).length > 0 ) {
+		autosaveStatus = 'Changes not saved due to errors.';
+		autosaveIcon = (
+			<Icon
+				icon={ icons.info }
+				className="optionskit-autosave-status-icon"
+			/>
+		); // icons.error requires a later version of @wordpress/icons than 10.8.2.
+	} else if ( isEqual( formik.values, lastValues ) ) {
+		autosaveStatus = 'Changes saved.';
+		autosaveIcon = (
+			<Icon
+				icon={ icons.published }
+				className="optionskit-autosave-status-icon"
+			/>
+		);
+	} else {
+		autosaveStatus = 'Unsaved changes.';
+		autosaveIcon = (
+			<Icon
+				icon={ icons.plusCircle }
+				className="optionskit-autosave-status-icon"
+			/>
+		);
+	}
+
+	return (
+		<>
+			<div className="optionskit-autosave-status">
+				{ autosaveIcon } { autosaveStatus }
+			</div>
+		</>
+	);
+}
+
 function OptionsKitNotices() {
 	const formik = useFormikContext();
 	const notices = formik.status.notices;
@@ -259,8 +355,28 @@ function OptionsKitNotices() {
 		formik.setStatus( { ...formik.status, notices: newNotices } );
 	};
 
+	const debugBar = false ? (
+		<div>
+			{ formik.isValid ? 'valid' : 'INVALID' } &nbsp;|&nbsp;
+			{ formik.isValidating ? 'VALIDATING' : 'not validating' }{ ' ' }
+			&nbsp;|&nbsp;
+			{ formik.isSubmitting ? 'SUBMITTING' : 'not submitting' }{ ' ' }
+			&nbsp;|&nbsp;
+			{ formik.dirty ? 'DIRTY' : 'clean' } &nbsp;|&nbsp;
+			{ formik.touched ? 'TOUCHED' : 'untouched' }
+		</div>
+	) : (
+		''
+	);
+
 	return (
-		<OptionsKitNoticeList notices={ notices } onRemove={ removeNotice } />
+		<>
+			<OptionsKitNoticeList
+				notices={ notices }
+				onRemove={ removeNotice }
+			/>
+			{ debugBar }
+		</>
 	);
 }
 
@@ -306,6 +422,21 @@ function Panel() {
 		actionButtons = <ul className="optionskit-title-links">{ buttons }</ul>;
 	}
 
+	let saveArea;
+	if ( settings.autosave ) {
+		saveArea = (
+			<div className="optionskit-save-area">
+				<AutoSaveFields />
+			</div>
+		);
+	} else {
+		saveArea = (
+			<div className="optionskit-save-area">
+				<FormSubmitButton label={ settings.labels.save } />
+			</div>
+		);
+	}
+
 	return (
 		<section id="optionskit-panel" className="optionskit-panel wrap">
 			<Formik
@@ -325,9 +456,7 @@ function Panel() {
 							{ settings.page_title }
 						</h1>
 						{ actionButtons }
-						<div className="optionskit-save-area">
-							<FormSubmitButton label={ settings.labels.save } />
-						</div>
+						{ saveArea }
 						<div className="optionskit-page-notice">
 							<FormErrorNotice />
 							<OptionsKitNotices />
@@ -338,9 +467,6 @@ function Panel() {
 						<div id="optionskit-navigation">
 							<OptionsKitTabPanel />
 						</div>
-					</div>
-					<div className="optionskit-bottom-save-area">
-						<FormSubmitButton label={ settings.labels.save } />
 					</div>
 				</Form>
 			</Formik>

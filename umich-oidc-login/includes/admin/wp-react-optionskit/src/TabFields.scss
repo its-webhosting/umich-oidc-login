@@ -7,7 +7,7 @@
 
 .optionskit-form .form-table {
 
-	padding: 2em 0 1em 0;
+	padding: 1em 0 15em 0;
 	line-height: 1.5;
 
 	.optionskit-field-row {
@@ -25,8 +25,8 @@
 		margin: 5px 0;
 	}
 
-	.components-radio-control__option {
-		margin-bottom: 0.5em;
+	hr {
+		border: 2px solid #ccc;
 	}
 
 	// Prevent multiselect from being too big
@@ -34,9 +34,38 @@
 		min-height: 1px;
 	}
 
+	.components-radio-control__option {
+		align-items: start;
+	}
+
+	input[type="radio"] {
+		margin-top: 0;
+	}
+
+	input[type="checkbox"] {
+		margin-top: 4px;
+	}
+
+	.components-checkbox-control__label {
+		margin-top: 4px;
+	}
+
+	.components-form-toggle {
+		margin-top: 4px;
+	}
+
+	.components-toggle-control__label {
+		margin-top: 4px;
+	}
+
 }
 
 .optionskit-form-wrapper {
+
+	height: 100%;
+	position: fixed;
+	overflow-y: auto;
+	margin-top: 1em;
 
 	.description {
 		font-style: normal;

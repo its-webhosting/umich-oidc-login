@@ -34,6 +34,14 @@ class Post_Meta_Box {
 	private $ctx;
 
 	/**
+	 * Post ID for this WordPress request / this run of the plugin.
+	 * Only set when updating the meta box value; otherwise 0.
+	 *
+	 * @var      int    $post_id    ID of the post or page object.
+	 */
+	private $post_id = 0;
+
+	/**
 	 * Create and initialize the Restrict_Access object.
 	 *
 	 * @param  object $ctx  Context for this WordPress request / this run of the plugin.
@@ -77,8 +85,29 @@ class Post_Meta_Box {
 		$ctx = $this->ctx;
 
 		\wp_nonce_field( 'umich_oidc_access_meta', 'umich_oidc_meta_nonce' );
-		$post_type = \get_post_type( $post->ID );
-		$access    = $ctx->settings_page->post_access_groups( $post->ID );
+		$post_type               = \get_post_type( $post->ID );
+		$post_type_object        = \get_post_type_object( $post_type );
+		$post_type_name_singular = ! empty( $post_type_object->labels->singular_name )
+			? $post_type_object->labels->singular_name
+			: $post_type;
+		$access                  = $ctx->settings_page->post_access_groups( $post->ID );
+
+		$rest_namespace = 'wp/v2';
+		$rest_base      = $post_type;
+		if ( 'page' === $post_type ) {
+			$rest_base = 'pages';
+		} elseif ( 'post' === $post_type ) {
+			$rest_base = 'posts';
+		}
+		if ( $post_type_object ) {
+			if ( $post_type_object->rest_namespace ) {
+				$rest_namespace = $post_type_object->rest_namespace;
+			}
+			if ( $post_type_object->rest_base ) {
+				$rest_base = $post_type_object->rest_base;
+			}
+		}
+		$rest_endpoint = '/' . $rest_namespace . '/' . $rest_base . '/' . $post->ID;
 
 		$selected = array();
 		foreach ( $access as $group ) {
@@ -101,15 +130,17 @@ class Post_Meta_Box {
 		}
 
 		$settings      = array(
-			'postType'        => \esc_html( $post_type ),
-			'availableGroups' => $ctx->settings_page->available_groups(),
-			'selectedGroups'  => $selected,
+			'postTypeNameSingular' => \esc_html( $post_type_name_singular ),
+			'availableGroups'      => $ctx->settings_page->available_groups(),
+			'selectedGroups'       => $selected,
+			'autosave'             => $ctx->options['autosave'],
+			'restEndpoint'         => $rest_endpoint,
 		);
 		$settings_json = \wp_json_encode( $settings );
-		log_message( "UMich OIDC access meta box settings: {$settings_json}" );
+		log_message( "UMich OIDC access meta box settings: $settings_json" );
 
 		?>
-		<script>
+		<script type="text/javascript">
 			window.umichOidcMetabox =
 				<?php
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's JSON we just generated that should already have proper escaping.
@@ -126,59 +157,192 @@ class Post_Meta_Box {
 	 * @return void
 	 */
 	public function access_meta_box() {
-
-		$ctx = $this->ctx;
-
-		\add_meta_box( 'umich_oidc_access_meta', 'UMich OIDC access', array( $this, 'access_meta_callback' ), array( 'post', 'page' ), 'side', 'high' );
+		\add_meta_box( 'umich_oidc_access_meta', 'UMich OIDC access', array( $this, 'access_meta_callback' ), null, 'side', 'high' );
 	}
 
 	/**
-	 * Create the Access meta box.
+	 * Determine if the user can update the meta box value.
+	 * This is called by the WP_REST_Meta_Fields API.
 	 *
-	 * @param int $post_id ID of the post being saved.
+	 * See the hook definitions at https://developer.wordpress.org/reference/functions/map_meta_cap/
+	 * and the invocation in wp-includes/capabilities.php
+	 *
+	 * @param bool   $allowed   Whether the user can add the object meta. Default false.
+	 * @param string $meta_key  The meta key.
+	 * @param int    $object_id Object ID.
+	 *  param int       $user_id   User ID.
+	 *  param string    $cap       Capability name.
+	 *  param string[]  $caps      Array of the user's capabilities.
+	 *
+	 * @return bool     $allowed   Whether the user can add the object meta
+	 */
+	public function access_meta_auth( $allowed, $meta_key, $object_id ) {
+
+		if ( '_umich_oidc_access' !== $meta_key ) {
+			log_message( "WARNING: access_meta_auth called with wrong meta_key: $meta_key" );
+			return $allowed;
+		}
+
+		$parent_id     = \wp_is_post_revision( $object_id );
+		$post_id       = $parent_id ? $parent_id : $object_id;
+		$this->post_id = $post_id;
+		$post_type     = \get_post_type( $post_id );
+		log_message( "access_meta_auth called for $post_type $post_id (orig: $object_id)" );
+
+		if ( 'page' === $post_type && ! \current_user_can( 'edit_page', $post_id ) ) {
+			log_message( 'access_meta_auth denied: not allowed to edit_page' );
+			return false;
+		}
+		if ( ! \current_user_can( 'edit_post', $post_id ) ) {
+			log_message( 'access_meta_auth denied: not allowed to edit_post' );
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Callback for the REST API request before callbacks.
+	 *
+	 * This is used to set the post ID for the meta box when the REST API
+	 * is used to update the meta box value.
+	 *
+	 * @param \WP_REST_Response $response The response object.
+	 * @param \WP_REST_Server   $handler  The handler object.
+	 * @param \WP_REST_Request  $request  The request object.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function rest_request_before_callbacks( $response, $handler, $request ) {
+		$params = $request->get_params();
+		if ( isset( $params['meta'] ) && isset( $params['meta']['_umich_oidc_access'] ) && isset( $params['id'] ) ) {
+			$this->post_id = (int) $params['id'];
+		}
+		return $response;
+	}
+
+
+	/**
+	 * Sanitize AND VALIDATE the meta box access list.
+	 * This is called by the WP_REST_Meta_Fields API.
+	 *
+	 * See the hook definitions at https://developer.wordpress.org/reference/functions/map_meta_cap/
+	 * and the invocation in ./wp-includes/meta.php
+	 *
+	 * We can't do validation separately if we're using register_meta() / register_post_meta() to handle both the
+	 * metabox and REST API support, so we do it here.  See
+	 * https://stackoverflow.com/questions/65217925/is-there-custom-validation-of-meta-values-in-wordpress-rest-api
+	 *
+	 * If validation fails, return the current value to prevent the new value from being saved.
+	 *
+	 * @param mixed  $meta_value Metadata value to sanitize.
+	 * @param string $meta_key Metadata key.
+	 *  param string $object_type Type of object metadata is for. Accepts 'post', 'comment', 'term', 'user',
+	 *                               or any other object type with an associated meta table.
+	 *
+	 * @return string     Sanitized and validated metadata value.
+	 */
+	public function access_meta_sanitize_and_validate( $meta_value, $meta_key /*, $object_type */ ) {
+
+		$ctx = $this->ctx;
+
+		log_message( "access_meta_sanitize_and_validate called with $meta_key : $meta_value" );
+		if ( '_umich_oidc_access' !== $meta_key ) {
+			return $meta_value;
+		}
+
+		if ( 0 === (int) $this->post_id ) {
+			$this->post_id = \get_queried_object_id();
+			if ( 0 === (int) $this->post_id ) {
+				log_message( 'ERROR: access_meta_sanitize_and_validate: postID is still 0 in access_meta_sanitize' );
+				return $meta_value; // should never happen, but the user is authenticated and could also do this manually.
+			}
+		}
+		log_message( "post ID is $this->post_id" );
+
+		$available_groups = $ctx->settings_page->available_groups();
+		$current_groups   = \implode( ',', $ctx->settings_page->post_access_groups( $this->post_id ) );
+		log_message( "current access: $current_groups" );
+
+		$meta_value = \sanitize_text_field( \wp_unslash( $meta_value ) );
+		$groups     = ( '' !== $meta_value )
+			? \array_map( '\trim', \explode( ',', $meta_value ) )
+			: array();
+
+		$n = \count( $groups );
+		if ( 0 === $n ) {
+			log_message( 'ERROR: access_meta_sanitize_and_validate: Must select at least one group.' );
+			return $current_groups;
+		}
+		if ( $n > 1 ) {
+			if ( \in_array( '_everyone_', $groups, true ) ) {
+				log_message( 'ERROR: access_meta_sanitize_and_validate: "( Everyone )" cannot be used together with other groups.' );
+				return $current_groups;
+			}
+			if ( \in_array( '_logged_in_', $groups, true ) ) {
+				log_message( 'ERROR: access_meta_sanitize_and_validate: "( Logged-in Users )" cannot be used together with other groups.' );
+				return $current_groups;
+			}
+		}
+
+		$legal_vallues = array_map(
+			function ( $v ) {
+				return $v['value'];
+			},
+			$available_groups
+		);
+		foreach ( $groups as $group ) {
+			if ( ! \in_array( $group, $legal_vallues, true ) ) {
+				log_message( 'ERROR: Unknown group: access_meta_sanitize_and_validate: ' . esc_html( $group ) );
+				return $current_groups;
+			}
+		}
+
+		return \implode( ',', $groups );
+	}
+
+	/**
+	 * Save the Access meta box value.
+	 *
+	 * @param int      $post_id ID of the post, page, or other thing being saved.
+	 * @param \WP_Post $post Post object.
 	 *
 	 * @return void
 	 */
-	public function access_meta_box_save( $post_id ) {
+	public function access_meta_save( $post_id, $post ) {
 
-		if ( ! \current_user_can( 'edit_post', $post_id ) ) {
+		// Skip calls to save_post() that are not for us.
+		if ( ! isset( $_REQUEST['umich_oidc_meta_nonce'] ) || ! isset( $_REQUEST['_umich_oidc_access'] ) ) {
+			return;
+		}
+		log_message( "access_meta_save called for $post_id" );
+
+		if ( ! \wp_verify_nonce( \sanitize_text_field( \wp_unslash( $_REQUEST['umich_oidc_meta_nonce'] ) ), 'umich_oidc_access_meta' ) ) {
+			log_message( "ERROR: bad nonce when saving post $post_id" );
 			return;
 		}
 
-		if ( ! isset( $_REQUEST['umich_oidc_meta_nonce'] ) || ! \wp_verify_nonce( \sanitize_text_field( \wp_unslash( $_REQUEST['umich_oidc_meta_nonce'] ) ), 'umich_oidc_access_meta' ) ) {
-			log_message( 'ERROR: bad nonce when saving post' );
+		if ( \is_multisite() && \ms_is_switched() ) {
+			log_message( "skipping meta box save for post $post_id: multisite switch_to_blog() is active" );
 			return;
 		}
 
-		$access = '';
-		if ( isset( $_REQUEST['_umich_oidc_access'] ) ) {
-			$access = \sanitize_text_field( \wp_unslash( $_REQUEST['_umich_oidc_access'] ) );
+		if ( ! $this->access_meta_auth( false, '_umich_oidc_access', $post_id ) ) {
+			log_message( "ERROR: access denied when saving post $post_id" );
+			return;
 		}
 
-		/*
-		 * If a special group ( _everyone_ or _logged_in_ ) is
-		 * used in conjunction with other groups, drop the special
-		 * group from the list, leaving only the more restrictive
-		 * permissions.
-		 */
-		$access = ( '' !== $access ) ? \array_map( '\trim', \explode( ',', $access ) ) : array();
-		if ( \count( $access ) > 1 ) {
-			$access = \array_filter(
-				$access,
-				function ( $g ) {
-					return '_everyone_' !== $g;
-				}
-			);
-		}
-		if ( \count( $access ) > 1 ) {
-			$access = \array_filter(
-				$access,
-				function ( $g ) {
-					return '_logged_in' !== $g;
-				}
-			);
-		}
+		$parent_id     = \wp_is_post_revision( $post );
+		$post_id       = $parent_id ? $parent_id : $post_id;
+		$this->post_id = $post_id;
+		$access        = $this->access_meta_sanitize_and_validate(
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- this call IS to sanitize it.
+			$_REQUEST['_umich_oidc_access'],
+			'_umich_oidc_access'
+		);
 
-		\update_post_meta( $post_id, '_umich_oidc_access', \implode( ',', $access ) );
+		log_message( "saving access for post $post_id: $access" );
+		$result = \update_post_meta( $post_id, '_umich_oidc_access', $access );
+		log_message( "update_metadata result: $result" );
 	}
 }

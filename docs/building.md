@@ -25,7 +25,7 @@ The official Docker image for Composer supports only PHP 8.  Build our own image
 ```bash
 pushd scratch
 git clone https://github.com/composer/docker.git composer-docker
-cd composer-docker/2.5
+cd composer-docker/latest
 sed -i .old 's/^FROM php:8-alpine/FROM php:7.3-alpine/' Dockerfile
 docker build -t composer:php7.3 .
 popd
@@ -41,6 +41,9 @@ If PHP-Scoper says the build directory exists and asks if you want to proceed, a
 
 ```bash
 pushd umich-oidc-login
+
+rm -rf vendor build
+
 run-composer global require --dev humbug/php-scoper:0.15.0
 run-composer install
 run-composer global exec -- php-scoper add-prefix
@@ -50,11 +53,13 @@ run-composer dump-autoload --working-dir build
 ## Build Gutenberg and React code
 
 ```bash
-run-node npm install --production=false  # ensure @wordpress/scripts devDependency gets installed
+rm -rf node_modules includes/admin/wp-react-optionskit/node_modules
+
+run-node npm install --include dev  # ensure @wordpress/scripts devDependency gets installed
 run-node npm run-script build:metabox
 
-cd includes/admin/wp-react-optionskit/
-run-node npm install --production=false  # ensure @wordpress/scripts devDependency gets installed
+pushd includes/admin/wp-react-optionskit/
+run-node npm install --include dev  # ensure @wordpress/scripts devDependency gets installed
 run-node npm run-script build
 popd
 ```
@@ -71,21 +76,23 @@ When you need to update the plugin dependencies (for example, when releasing a n
 rm -rf scratch/composer-*-cache
 cd umich-oidc-login
 rm -rf composer.lock build vendor
-cd ..
 ```
 
 Edit `composer.json`, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version.
 
+NOTE: specifying `"paragonie/constant_time_encoding": "^2.8.2",` forces PHP 7.3 compatibility for `phpseclib`. This dependency should be removed when we drop support for PHP 7.x.  As of October 2025, 2.8.2 was the latest minor release for 2.x.
+
 ### Update NodeJS dependencies
 
 ```bash
-cd umich-oidc-login
 rm -rf build node_modules package-lock.json
 ```
 
+Edit `../tools/run-node` and update the image version to be the major version number listed in `package.json` in the branch for the latest release of [wordpress/wordpress-develop](https://github.com/WordPress/wordpress-develop/tree/trunk).
+
 Edit `package.json`:
-* For all `@wordpress/*` packages, change the version of the package to the _exact_ version (no caret) listed in the [Changelog for the latest release of WordPress](https://wordpress.org/documentation/article/wordpress-versions/).
-* For all other packages, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version, usually using the caret notation.
+* For all `@wordpress/*` packages, change the version of the package to the _exact_ version (no caret) listed in `package.json` in the branch for the latest release of [wordpress/wordpress-develop](https://github.com/WordPress/wordpress-develop/tree/trunk).
+* For all other packages, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version.  Don't use the caret notation due to npmjs.com supply chain concerns.
 
 ```bash
 pushd includes/admin/wp-react-optionskit
@@ -94,7 +101,7 @@ rm -rf build node_modules package-lock.json
 
 Edit `package.json`:
 * For all `@wordpress/*` packages, change the version of the package to the _exact_ version (no caret) listed in the [Changelog for the latest release of WordPress](https://wordpress.org/documentation/article/wordpress-versions/).
-* For all other packages, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version, usually using the caret notation.
+* For all other packages, manually look up the newest version of each package, check the changelog for each package, and edit the file to have the desired version. Don't use the caret notation due to npmjs.com supply chain concerns.
 
 
 ### Now rebuild everything

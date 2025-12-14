@@ -7,19 +7,33 @@
  * @license    https://www.gnu.org/licenses/gpl-3.0.html GPLv3 or later
  */
 
-const { createRoot, render, createElement, useState } = wp.element;
-const { BaseControl, Notice } = wp.components;
+import {
+	createRoot,
+	render,
+	createElement,
+	useState,
+	useEffect,
+	useRef,
+	useMemo,
+} from '@wordpress/element';
+import { BaseControl, Icon, Notice, Spinner } from '@wordpress/components';
+import apiFetch from '@wordpress/api-fetch';
+import * as icons from '@wordpress/icons';
 
 import Select from 'react-select';
+import debounce from 'lodash.debounce';
+import isEqual from 'react-fast-compare';
 
 const UmichOidcAccess = () => {
 	const settings = window.umichOidcMetabox;
-	const [ accessValue, setAccessValue ] = useState(
-		settings.selectedGroups.map( ( x ) => x.value ).join( ',' )
-	);
-	const [ message, setMessage ] = useState( '' );
-	const labelText = `Who can access this ${ settings.postType }?`;
-	const helpText = `Allow only members of these groups (plus administrators) to visit this ${ settings.postType }.`;
+	const selectRef = useRef( null );
+	const [ accessValue, setAccessValue ] = useState( settings.selectedGroups );
+	const [ lastValue, setLastValue ] = useState( settings.selectedGroups );
+	const [ error, setError ] = useState( '' );
+	const [ isAutosaving, setIsAutosaving ] = useState( false );
+	const [ submitCount, setSubmitCount ] = useState( 0 );
+	const labelText = `Who can access this ${ settings.postTypeNameSingular }?`;
+	const helpText = `Allow only members of these groups (plus administrators) to visit this ${ settings.postTypeNameSingular }.`;
 	const styles = {
 		control: ( base ) => ( {
 			...base,
@@ -47,29 +61,41 @@ const UmichOidcAccess = () => {
 			...base,
 			color: '#fff',
 			backgroundColor: '#007cba',
+			whiteSpace: 'normal',
 		} ),
 	};
 
 	function isValid( v ) {
 		if ( v.length === 0 ) {
-			setMessage( 'Must have at least one group' );
+			setError( 'Must have at least one group' );
 			return false;
 		}
 		if ( v.length > 1 ) {
 			if ( v.find( ( { value } ) => value === '_everyone_' ) ) {
-				setMessage(
+				setError(
 					'"( Everyone )" cannot be used together with other groups.'
 				);
 				return false;
 			}
 			if ( v.find( ( { value } ) => value === '_logged_in_' ) ) {
-				setMessage(
+				setError(
 					'"( Logged-in Users )" cannot be used together with other groups.'
 				);
 				return false;
 			}
 		}
-		setMessage( '' );
+		// Check each value against settings.availableGroups.
+		for ( const item of v ) {
+			if (
+				! settings.availableGroups.find(
+					( g ) => g.value === item.value
+				)
+			) {
+				setError( `Invalid group: ${ item.value }` );
+				return false;
+			}
+		}
+		setError( '' );
 		return true;
 	}
 
@@ -77,7 +103,150 @@ const UmichOidcAccess = () => {
 		if ( ! isValid( v ) ) {
 			v = settings.selectedGroups;
 		}
-		setAccessValue( v.map( ( x ) => x.value ).join( ',' ) );
+		setAccessValue( v );
+	}
+
+	async function doAutoSave( value ) {
+		setIsAutosaving( true );
+		setSubmitCount( submitCount + 1 );
+		apiFetch( {
+			path: settings.restEndpoint,
+			method: 'POST',
+			data: {
+				meta: {
+					_umich_oidc_access: value
+						.map( ( x ) => x.value )
+						.join( ',' ),
+				},
+			},
+		} )
+			.then( ( res ) => {
+				// If returned value is not the same as value, use the returned value instead for both accessValue and lastValue.
+				let newValue = res.meta?._umich_oidc_access;
+				if ( newValue ) {
+					newValue = newValue.split( ',' ).map( ( x ) => {
+						return {
+							value: x,
+							label:
+								settings.availableGroups.find(
+									( g ) => g.value === x
+								)?.label || x,
+						};
+					} );
+					if ( ! isEqual( newValue, value ) ) {
+						value = newValue;
+						setError(
+							'Failed to save changes (server returned a different value).'
+						);
+						setAccessValue( value );
+						selectRef.current?.setValue( value );
+					}
+				}
+				setLastValue( value );
+			} )
+			.catch( ( err ) => {
+				const status = err.data?.status;
+				if ( status === 401 || status === 403 ) {
+					// Session timed out or nonce expired. Force reauthentication.
+					setError( 'Session expired. Please log in again.' );
+				} else if ( err.message ) {
+					setError( err.message );
+				} else {
+					setError( 'Unknown error' );
+				}
+				setAccessValue( lastValue );
+			} )
+			.finally( () => {
+				setIsAutosaving( false );
+			} );
+	}
+
+	function AutoSaveFields() {
+		const useDebounce = ( callback ) => {
+			// From https://www.developerway.com/posts/debouncing-in-react
+
+			const ref = useRef();
+
+			useEffect( () => {
+				ref.current = callback;
+			}, [ callback ] );
+
+			const debouncedCallback = useMemo( () => {
+				const func = () => {
+					ref.current?.();
+				};
+
+				return debounce( func, 1500 );
+			}, [] );
+
+			return debouncedCallback;
+		};
+
+		const debouncedSubmit = useDebounce( async () => {
+			if (
+				! isAutosaving &&
+				! isEqual( accessValue, lastValue ) &&
+				error === ''
+			) {
+				await doAutoSave( accessValue );
+			}
+		} );
+
+		useEffect( () => {
+			if (
+				! isAutosaving &&
+				! isEqual( accessValue, lastValue ) &&
+				error === ''
+			) {
+				debouncedSubmit();
+			}
+		}, [ debouncedSubmit ] );
+
+		const pendingChanges = ! isEqual( accessValue, lastValue );
+		let autosaveStatus = 'Settings status unknown';
+		let icon = icons.help;
+		let autosaveIcon = null;
+		if ( ! pendingChanges && submitCount === 0 ) {
+			autosaveStatus = 'No changes made.';
+			icon = icons.border;
+		} else if ( isAutosaving ) {
+			autosaveStatus = 'Saving changes...';
+			autosaveIcon = (
+				<Spinner
+					style={ {
+						verticalAlign: 'middle',
+						position: 'relative',
+						top: '-2px',
+						right: 0,
+					} }
+				/>
+			);
+		} else if ( pendingChanges ) {
+			autosaveStatus = 'Unsaved changes.';
+			icon = icons.plusCircle;
+		} else if ( error !== '' ) {
+			autosaveStatus = 'Changes not saved due to errors.';
+			icon = icons.info; // icons.error requires a later version of @wordpress/icons than 10.8.2.
+		} else {
+			autosaveStatus = 'Changes saved.';
+			icon = icons.published;
+		}
+		if ( autosaveIcon === null ) {
+			autosaveIcon = (
+				<Icon icon={ icon } style={ { verticalAlign: 'middle' } } />
+			);
+		}
+
+		return (
+			<>
+				<div
+					className="umich-oidc-metabox-autosave-status"
+					style={ { position: 'relative' } }
+				>
+					{ autosaveIcon } { autosaveStatus }
+				</div>
+			</>
+		);
 	}
 
 	return (
@@ -86,10 +255,12 @@ const UmichOidcAccess = () => {
 				id="umich-oidc-metabox-multiselect"
 				help={ helpText }
 				label={ labelText }
-				className="components-select-control optionskit-multiselect-field"
+				className="components-select-control umich-oidc-metabox-multiselect-field"
+				__nextHasNoMarginBottom
 			>
 				<Select
-					defaultValue={ settings.selectedGroups }
+					ref={ selectRef }
+					defaultValue={ accessValue }
 					isMulti
 					name="_umich_oidc_access_select"
 					placeholder="Select one or more groups..."
@@ -100,16 +271,17 @@ const UmichOidcAccess = () => {
 					classNamePrefix="select"
 				/>
 			</BaseControl>
-			{ message ? (
+			{ error ? (
 				<Notice status="error" isDismissible={ false }>
-					<b>{ message }</b>
+					<b>{ error }</b>
 				</Notice>
 			) : null }
+			{ settings.autosave ? <AutoSaveFields /> : null }
 			<input
 				type="hidden"
 				name="_umich_oidc_access"
 				id="_umich_oidc_access"
-				value={ accessValue }
+				value={ accessValue.map( ( x ) => x.value ).join( ',' ) }
 			/>
 		</>
 	);

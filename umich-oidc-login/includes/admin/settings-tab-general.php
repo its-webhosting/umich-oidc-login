@@ -66,10 +66,11 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 		'std'     => $option_defaults['login_action'],
 	),
 	array(
-		'id'   => 'login_return_url',
-		'name' => 'Login Destination URL',
-		'desc' => 'URL to send users to after they successfullly log in. This is only used if the Post-Login Action is set to "URL" above.  Can be a full URL (starting with "https://") or a site URL path (such as "/some/page").',
-		'type' => 'text',
+		'id'       => 'login_return_url',
+		'name'     => 'Login Destination URL',
+		'desc'     => 'URL to send users to after they successfully log in. This is only used if the Post-Login Action is set to "URL" above.  Can be a full URL (starting with "https://") or a site URL path (such as "/some/page").',
+		'type'     => 'text',
+		'validate' => 'umichOidcSettings.validateUrlOrPath',
 	),
 	array(
 		'id'      => 'logout_action',
@@ -85,10 +86,11 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 		'std'     => $option_defaults['logout_action'],
 	),
 	array(
-		'id'   => 'logout_return_url',
-		'name' => 'Logout Destination URL',
-		'desc' => 'URL to send users to after they log out. If blank, the user will be sent back to the site\'s main page. If this site is not accessible by everyone, it is a good idea to put the URL for a public web page (one that is accessible by everyone without login) here. Can be a full URL (starting with "https://") or a site URL path (such as "/some/page").',
-		'type' => 'text',
+		'id'       => 'logout_return_url',
+		'name'     => 'Logout Destination URL',
+		'desc'     => 'URL to send users to after they log out. If blank, the user will be sent back to the site\'s main page. If this site is not accessible by everyone, it is a good idea to put the URL for a public web page (one that is accessible by everyone without login) here. Can be a full URL (starting with "https://") or a site URL path (such as "/some/page").',
+		'type'     => 'text',
+		'validate' => 'umichOidcSettings.validateUrlOrPath',
 	),
 	array(
 		'id'       => 'restrict_site',
@@ -111,5 +113,39 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 			'86400' => '24 hours',
 		),
 		'std'     => $option_defaults['session_length'],
+	),
+	array(
+		'id'    => 'autosave',
+		'name'  => 'Autosave plugin settings',
+		'label' => 'Autosave',
+		'desc'  => '
+If enabled, changes to UMich OIDC Login plugin settings will be saved automatically as soon as they are made.
+This applies both to <code>Settings &mdash;&gt; UMich OIDC Login</code> pages as well as when creating or editing pages
+and posts.
+<br /><br />
+If disabled, you will need to click the "Save Changes" button on the plugin settings page or the "Save" button
+for a page or post in order to save UMich OIDC Login changes you have made.
+',
+		'type'  => 'toggle',
+		'std'   => $option_defaults['autosave'],
+	),
+	array(
+		'id'    => 'test_prereleases',
+		'name'  => 'Upgrading',
+		'label' => 'Test pre-releases',
+		'desc'  => '
+Enable this option to opt-in to testing new beta and release candidate versions of the UMich OIDC Login plugin ahead
+of official releases.  By turning this setting on for development, testing, or staging websites, you can help ensure any
+problems get addressed before production (live) websites get the new version of this plugin.  Pre-releases are usually
+available for <i>one week</i> in advance of official releases unless a problem is found.  You can get notified when new
+releases and pre-releases are available by going to the <a href="https://github.com/its-webhosting/umich-oidc-login/">
+UMich OIDC Login GitHub repository</a>, logging in, and turning on Watch -> Custom -> Releases.
+<br /><br />
+<b>NOTE:</b> If you manually install a pre-release version of the plugin, this setting will get turned on automatically
+so you will also get future pre-releases.  If that\'s not what you want, turn this setting off after manually
+installing the pre-release.
+',
+		'type'  => 'toggle',
+		'std'   => $option_defaults['test_prereleases'],
 	),
 );

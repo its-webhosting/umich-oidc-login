@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * @author     Alessandro Tesoro, Regents of the University of Michigan
- * @version    0.8.0
+ * @version    0.8.2
  * @copyright  (c) 2018 Alessandro Tesoro
  * @license    http://www.gnu.org/licenses/gpl-2.0.txt GNU LESSER GENERAL PUBLIC LICENSE
  * @package    wp-optionskit
@@ -185,29 +185,38 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 	 * @param string $input   The input to sanitize.
 	 * @param object $errors  WP_Error object for errors that are found.
 	 * @param array  $setting The wp-react-optionskit setting array for this field.
-	 * @return bool
+	 * @return bool|null
 	 */
 	public function sanitize_checkbox_field( $input, $errors, $setting ) {
 
-		$pass = false;
-
-		if ( 'true' === $input ) {
-			$pass = true;
+		if ( is_bool( $input ) ) {
+			return $input;
 		}
 
-		return $pass;
+		if ( is_numeric( $input ) ) {
+			if ( 1 === intval( $input ) ) {
+				return true;
+			}
+			if ( 0 === intval( $input ) ) {
+				return false;
+			}
+		}
+
+		$field_id = $setting['id'];
+		$errors->add( $field_id, 'Invalid checkbox value.' );
+		return null;
 	}
 
 	/**
 	 * Save options to the database. Sanitize them first.
 	 *
 	 * @param \WP_REST_Request $request The REST request containing options to save.
-	 * @return WP_REST_Response|WP_Error
+	 * @return \WP_REST_Response
 	 */
 	public function save_options( \WP_REST_Request $request ) {
 
 		if ( ! wp_verify_nonce( $request['verifynonce'], 'wprok_verifynonce' ) ) {
-			return false;
+			return new \WP_REST_Response( 'Invalid nonce.', 403 );
 		}
 
 		$registered_settings = $this->panel->settings;
@@ -217,8 +226,8 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 		if ( is_array( $registered_settings ) && ! empty( $registered_settings ) ) {
 			foreach ( $registered_settings as $setting_section ) {
 				foreach ( $setting_section as $setting ) {
-					// Skip if no setting type.
-					if ( ! $setting['type'] ) {
+					// Skip things that aren't really settings.
+					if ( ! $setting['type'] || 'html' === $setting['type'] ) {
 						continue;
 					}
 
@@ -232,12 +241,8 @@ class WPROK_Rest_Server extends \WP_REST_Controller {
 					$output       = apply_filters( $this->panel->func . '_settings_sanitize_' . $setting_type, $settings_received[ $setting['id'] ], $this->errors, $setting );
 					$output       = apply_filters( $this->panel->func . '_settings_sanitize_' . $setting['id'], $output, $this->errors, $setting );
 
-					if ( 'checkbox' === $setting_type && false === $output ) {
-						continue;
-					}
-
 					// Add the option to the list of ones that we need to save.
-					if ( ! empty( $output ) && ! is_wp_error( $output ) ) {
+					if ( ! is_wp_error( $output ) ) {
 						$data_to_save[ $setting['id'] ] = $output;
 					}
 				}

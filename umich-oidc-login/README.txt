@@ -2,53 +2,62 @@
 Contributors: markmont
 Tags: access-control,OIDC,content restriction,groups,login
 Requires at least: 6.0.0
-Tested up to: 6.3.1
-Stable tag: 1.2.0
+Tested up to: 6.8.3
+Stable tag: 1.3.0
 Requires PHP: 7.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
+Update URI: https://github.com/its-webhosting/umich-oidc-login
 
 Restrict access to the whole site or only certain parts based on OpenID Connect (OIDC) login and group membership information.
 
 == Description ==
 
-This plugin is for a very specific use case:  Your WordPress website is part of an organization that uses OpenID Connect (OIDC) for web single-sign-on as well as for group-based authorization.  In that case, this plugin will let you restrict access to parts of your WordPress website based on OIDC login and group membership information.
-
-This plugin has been tested with:
-
-* [Shibboleth](https://www.shibboleth.net/) OIDC using the `edumember_ismemberof` attribute for LDAP group membership.
+UMich OIDC Login is a WordPress plugin that allows users to log in to a WordPress website and/or the site's WordPress administration dashboard using OpenID Connect (OIDC).  Users' group membership information sent via OIDC can be used to restrict who can access various parts of the website (including the whole website).
 
 Features:
 
-* Allow site visitors to log in via OIDC without needing a WordPress user account.
-* Optionally allow WordPress users to log in via OIDC instead of using their WordPress password.
-* Optionally restrict access to the entire site to logged-in users or only members of specific groups.
-* Optionally restrict access to specific pages and posts to logged-in users or only members of specific groups.
-* Show parts of pages/posts/widgets only to logged-in users or members of specific groups.
+* Allows site visitors to log in via OIDC without needing a WordPress user account.
+* Allows or requires WordPress users to log in via OIDC instead of using their WordPress password.
+* Can restrict access based on whether the user is logged in via OIDC, and whether they logged-in user is a member of one or more groups
+	* Can restrict access to the entire site.
+	* Can restrict access to specific pages and posts.
+	* Can show content within a page/post/widget only to users meeting certain criteria.
 * Access restrictions apply to site visitors, feeds, the REST API, and XMLRPC.
+* Search results from WordPress' built-in search only shows content that the searching user has access to.
+	* **WARNING:** Third-party WordPress search plugins may show content that the user does not have access to, leaking private information.  Please test search plugins for this before enabling them.
 * Shortcodes (Gutenberg blocks planned for a future release)
-    * `umich_oidc_button` - Generate a login or logout button.
-    * `umich_oidc_link` - Generate a login or logout link.
-    * `umich_oidc_logged_in` - Show content only if the visitor is logged in.
-    * `umich_oidc_member` - Show content only if the visitor is a member of one or more groups.
-    * `umich_oidc_not_logged_in` - Show content only if the visitor is NOT logged in.
-    * `umich_oidc_not_member` - Show content only if the visitor NOT a member of the specified groups.
-    * `umich_oidc_url` - Generate a login or logout URL.
-    * `umich_oidc_userinfo` - Display information about the currently-logged-in OIDC user.
-
-== Restricting private content in search results ==
-
-You can prevent content from showing up in web search engine results by restricting access to particular pages/posts.
-
-Search results from WordPress' built-in search will only show content that the searching user has access to.
-
-**WARNING:** WordPress search plugins may show content that the user does not have access to, leaking private information.  Please test search plugins before enabling them.  If a search plugin provides an appropriate WordPress hook for limiting search results, contact us, and we may be able to add support for it to UMich OIDC Login.
-
+	* `umich_oidc_button` - Generate a login or logout button.
+	* `umich_oidc_link` - Generate a login or logout link.
+	* `umich_oidc_logged_in` - Show content only if the visitor is logged in.
+	* `umich_oidc_member` - Show content only if the visitor is a member of one or more groups.
+	* `umich_oidc_not_logged_in` - Show content only if the visitor is NOT logged in.
+	* `umich_oidc_not_member` - Show content only if the visitor NOT a member of the specified groups.
+	* `umich_oidc_url` - Generate a login or logout URL.
+	* `umich_oidc_userinfo` - Display information about the currently-logged-in OIDC user.
+* Supported / tested OIDC providers:
+	* [Shibboleth](https://www.shibboleth.net/) OIDC using the `edumember_ismemberof` attribute for LDAP group membership.
 
 == Installation ==
 
 1. (Recommended but not required) Install the [WordPress Native PHP Sessions](https://wordpress.org/plugins/wp-native-php-sessions/) plugin from the WordPress.org plugin repository or by uploading the files to your web server. For details, see [How to Install a WordPress Plugin](https://www.wpbeginner.com/beginners-guide/step-by-step-guide-to-install-a-wordpress-plugin-for-beginners/). **UMich OIDC Login strongly recommends using the WordPress Native PHP Sessions plugin to prevent conflicts with other WordPress plugins that also use PHP sessions, and to ensure correct operation when the site resides on multiple web servers.**
-1. Install UMich OIDC Login from the WordPress.org plugin repository or by uploading the files to your web server.
+1. Install the UMich OIDC Login plugin from GitHub.  This plugin is not available through wordpress.org.  Use _one_ of the following methods of installing the plugin:
+	1. **WP Admin Dashboard Method:**  This requires that your site has write access to the plugins folder:
+		1. Download the `umich-oidc-login.zip` file using the link https://github.com/its-webhosting/umich-oidc-login/releases/latest/download/umich-oidc-login.zip
+		   Important: if you download the plugin via the [releases page](https://github.com/its-webhosting/umich-oidc-login/releases/latest), make sure you _do not_ download the source code.  The source code has to be built before it can be used on a site.
+		2. Go to the WordPress admin dashboard -> Plugins -> Add New -> Upload Plugin
+		3. Select the zip file you downloaded and click Upload
+		4. Activate the plugin
+	1. **Manual Method:**
+		1. Download the `umich-oidc-login.zip` file fusing the link https://github.com/its-webhosting/umich-oidc-login/releases/latest/download/umich-oidc-login.zip
+           Important: if you download the plugin via the [releases page](https://github.com/its-webhosting/umich-oidc-login/releases/latest), make sure you _do not_ download the source code. The source code has to be built before it can be used on a site.
+		2. Extract the contents of the zip file onto your computer
+		3. Use SFTP or a similar method tp load the `umich-oidc-login` folder from your computer to the `wp-content/plugins/` folder in your site.  The final location should be `wp-content/plugins/umch-oidc-login`
+		4. Activate the plugin using the WordPress admin dashboard
+	1. **WP CLI Method:** (if you have the `wp` command installed):
+   ```bash
+       wp plugin install https://github.com/its-webhosting/umich-oidc-login/releases/latest/download/umich-oidc-login.zip --activate
+   ```
 1. Activate both the WordPress Native PHP Sessions and the UMich OIDC Login plugins through the 'Plugins' menu in WordPress.
 1. Under the Settings menu in WordPress, navigate to "UMich OIDC Login" and then click on the "OIDC" tab.  Make a note of the Redirect URI value for use when registering an OIDC client for your WordPress site.
 1. Register an OIDC client for your WordPress site.  On the OIDC tab of the UMich OIDC Login settings page, fill in the information you got when registering your client.  At a minimum, this will be the Identity Provider URL, Client ID, and Client Secret.  Click the "Save Changes button".
@@ -59,11 +68,15 @@ Hello, [umich_oidc_userinfo type="given_name" default="stranger"]
 [umich_oidc_button]
 ```
 
+For more details, refer to [the documentation from the University of Michigan](https://teamdynamix.umich.edu/TDClient/30/Portal/KB/ArticleDet?ID=9181).
+
+
 == Frequently Asked Questions ==
 
-= Why do I have to specify all groups on the settings page? =
+= Why do I have to enter all the groups the site uses on the settings page? =
 
-Currently, UMich OIDC Login is designed to work with OIDC Identity Providers that restrict the groups for which membership information can be released to websites.  Only the official names of groups can be used; aliases will not work.  By entering the allowed groups on the settings page, the group names only have to be correct in a single place and access to individual pages/posts can be controlled by selecting group(s) from a dropdown list.
+For privacy reasons, UMich OIDC Login is currently designed to work with OIDC Identity Providers that restrict which groups can be used for to share membership information with websites.  Only the official names of groups can be used; aliases will not work.
+Entering the official group names allows content authors to select the groups from a dropdown list, making things easier and preveting many errors.
 
 = Help! OIDC stopped working and now I can't log in to my WordPress dashboard! =
 
@@ -81,14 +94,14 @@ If you don't remember your WordPress user account password, you can set a new on
 
 `wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"`
 
-= How can I report an issue to the plugin developers, or help with plugin development? =
+= How can I report an issue, get help, request a feature, or help with plugin development?
 
-Go to the GitHub repository for this plugin at https://github.com/its-webhosting/umich-oidc-login
+[Open a GitHub issue](https://github.com/its-webhosting/umich-oidc-login/issues) or email [webmaster@umich.edu](mailto:webmaster@umich.edu)
 
 == Screenshots ==
 
-1. Allows visitors to log in via OIDC without needing a WordPress user account.  WordPress can get information about logged-in visitors from the OIDC Identity Provider.
-2. WordPress users can log in using either OIDC or their WordPress username and password.
+1. Visitors can log in via OIDC without needing a WordPress user account.  UMich OIDC Login gets information about logged-in visitors from the OIDC Identity Provider.
+2. The plugin can be configured to let WordPress users log in to WordPress using either OIDC or their WordPress username and password. The plugin can also be configured to use _only_ OIDC for logging in to WordPress.
 3. Control what happens when visitors/users log in and log out.
 4. Use group information obtained through OIDC to control access to the website.
 5. Use group information obtained through OIDC to control access to individual posts and pages.
@@ -98,47 +111,16 @@ Go to the GitHub repository for this plugin at https://github.com/its-webhosting
 
 == Changelog ==
 
-= 1.2.0 =
-September 11, 2023
-* Completely new and improved plugin settings pages that use Gutenberg components and React instead of Vue.js.  This provides some necessary groundwork for adding future features.
-    * NOTE: The "Groups for Authorization" setting is now on the OIDC tab (it used to be on the General tab).
-* Completely new page/post access restriction metabox.  The new metabox uses Gutenberg components but still works in the Classic Editor.
-* Now works for websites hosted on WP Engine.  In addition to WP Engine, the plugin has been tested on Pantheon, Amazon Lightsail, and University of Michigan web hosting services.  The plugin should work with websites hosted on most WordPress hosting providers; please [report](https://github.com/its-webhosting/umich-oidc-login/issues) any web hosting provider where the plugin does not work correctly.
-* Bug fixes:
-    * Fix a problem with the Revisions section being missing in the Gutenberg editor sidebar's Post tab.
-    * Fix a problem with the plugin breaking WordPress' `/login` page.
-    * Documentation said the shortcode for displaying data from OIDC user claims was `umich_oidc_userinfo`, but this didn't work since the shortcode was actually named `umich_oidc_user_info` in the plugin code.  The plugin now supports both of these names for the shortcode.
-    * The README file now says that group membership for Shibboleth IdPs is specified by the `edumember_ismemberof` OIDC claim (correct) rather than `eduperson_ismemberof` (wrong).
-* Internals:
-    * Added [documentation for how to develop, build, and package the plugin](https://github.com/its-webhosting/umich-oidc-login/).
-    * Added support for developing the plugin using Docker containers.
-    * Improved compatibility with PHP 8.
-    * Added testing with NGINX, and improved testing in general.  The plugin is now tested with both Apache and NGINX.
-    * Updated to the latest version of all plugin dependencies.
-
-= 1.1.2 =
-May 18, 2023
-* Fixed a bug that prevented groups that have apostrophes / single quotes in their names from working.
-
-= 1.1.1 =
-January 31, 2023
-* Fixed a bug with login/logout URLs being incorrect when WordPress is installed in a subdirectory.
-
-= 1.1.0 =
-January 8, 2023
-* Completely reimplemented the feature for using OIDC to log into the WordPress dashboard.
-    * Changed the setting values from no/yes to no/optional/yes. The new setting ("optional") allows users a choice of whether to log in using OIDC or their WordPress password. Choosing which way to log in looked like it was supported before when it was not, which was confusing.
-    * The "no" setting previously displayed a "Login in with Single Sign On" button that would only log users into the website but not the WordPress dashboard.  This was confusing, and so the button has been removed when OIDC login for WordPress is set to "no".
-    * If a user attempts to log in to the WordPress dashboard via OIDC but does not have a WordPress user account, they will now get an "Access Denied" error instead of silently being logged into the website but not logged in to WordPress.
-* Fixed a bug where unauthenticated users who tried to access a restricted page/post would sometimes get a "Page Not Found" error instead of being prompted to log in.
-* Fixed a bug where users were sometimes not sent to the correct page after authenticating.
-* Miscellaneous cleanup and improvements.
-
-= 1.0.0 =
-November 2, 2022
-* Initial release.
+For a list of all plugin releases and the changes in each release, see the file [CHANGELOG.md in the GitHub repo](https://github.com/its-webhosting/umich-oidc-login/blob/main/CHANGELOG.md)
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+* [SECURITY] vulnerability fix. Please update to 1.3.0 or later as soon as possible.
+  * [BREAKING CHANGE]: If you use HTML attributes in button/link shortcodes, turn on Settings -> UMich OIDC Login -> Shortcodes -> Allow HTML attributes.
+* Fixes 7 non-security bugs.
+* Adds settings autosaving and updating to prerelease versions of the plugin.
+* See the [Changelog](https://github.com/its-webhosting/umich-oidc-login/blob/main/CHANGELOG.md) for details and other changes.
 
 = 1.2.0 =
 * New and improved settings page and access restriction metabox.

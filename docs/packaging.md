@@ -1,14 +1,14 @@
 # Packaging and publishing the UMich OIDC Login plugin
 
-## Update plugin dependencies
-
-Perform the steps in the ["Update plugin dependencies" section of the build instructions.](building.md#update-plugin-dependencies)
-
-This is important to address any security issues as well as to prevent getting so far out of date that it becomes very difficult to update.
-
 ## Increment version numbers
 
 The version numbers should be incremented (as appropriate) before the plugin is rebuilt.
+
+### composer.json
+
+Edit `umich-oidc-login/composer.json`
+
+* Update the version number in `composer.json`.
 
 ### Settings page React app (wp-react-optionskit)
 
@@ -31,14 +31,13 @@ Edit `umich-oidc-login/umich-oidc-login.php`
 * In the plugin header comment at the top of the file:
   * Update `Version:` to be the new plugin version number.
   * Update `Tested up to:` to the version of WordPress used for development and testing.
-* Update define for UMICH_OIDC_LOGIN_VERSION to the new plugin version number.
-* Update define for UMICH_OIDC_LOGIN_VERSION_INT to the integer representation of the new plugin version number.
+* Update define for `UMICH_OIDC_LOGIN_VERSION` to the new plugin version number.
+* Update define for `UMICH_OIDC_LOGIN_VERSION_INT` to the integer representation of the new plugin version number.
   * For alpha and beta releases, subtract 100 and then use the last two digits as a serial number for alpha/beta releases.  For example, version 1.2.0-alpha1 is written `1019900` (1.1.99.00).
 
+### Plugin README.txt
 
-### README.txt
-
-Update `umich-oidc-login/README.txt` (note: this is the `.txt` file in the subdirectory, _not_ the `.md` file in the repository's main directory).
+Update `umich-oidc-login/README.txt` (note: this is the file in the subdirectory, _not_ the one file in the repository's main directory).
 
 * In the plugin header:
 	* Update `Tested up to:` to the version of WordPress used for development and testing.
@@ -46,12 +45,36 @@ Update `umich-oidc-login/README.txt` (note: this is the `.txt` file in the subdi
 * Update the feature list, if needed.
 * Update the screenshot list, if needed.
 	* Put new or updated screenshots in the wordpress.org SVN repo `assets` directory.
-* Add a changelog entry for the new plugin version.
 * Add an upgrade notice for the new plug version:  Why a user should upgrade.  No more than 300 characters.
 
-Check the `README.txt` file for problems using both
+Check the plugin `README.txt` file for problems using both
 * https://wpreadme.com
 * https://wordpress.org/plugins/developers/readme-validator/
+
+### Repository README.md
+
+Update `README.md` in the root of the repository.
+
+* Update the requirements section, if needed.
+* Update the screenshots, if needed.
+
+### Changelog
+
+Update `CHANGELOG.md`
+
+* Add a changelog entry for the new plugin version.
+
+### GitHub Updater config file
+
+Edit `wordpress.json`
+
+* Update `tested` to the version of WordPress used for development and testing.
+
+## Update plugin dependencies
+
+Perform the steps in the ["Update plugin dependencies" section of the build instructions.](building.md#update-plugin-dependencies)
+
+This is important to address any security issues as well as to prevent getting so far out of date that it becomes very difficult to update.
 
 
 ## Rebuild the plugin
@@ -66,10 +89,11 @@ Remove any previous build
 
 ```bash
 cd umich-oidc-login
-rm -rf build node_modules vendor \
+rm -rf build node_modules vendor composer.lock package-lock.json \
     includes/admin/wp-react-optionskit/build \
     includes/admin/wp-react-optionskit/node_modules \
-    includes/admin/wp-react-optionskit/vendor
+    includes/admin/wp-react-optionskit/vendor \
+    includes/admin/wp-react-optionskit/package-lock.json
 ```
 
 Build the plugin according to the [build instructions](building.md).
@@ -79,11 +103,13 @@ Test the plugin locally to be sure everything works.
 ## Update upstream git repository
 
 ```bash
-git diff
+git diff -- ':(exclude,glob)**/composer.lock' ':(exclude,glob)**/package-lock.json'
 git status
 git add --all  # change to be any files modified above
 git commit -m "version X.Y.Z-a"  # change this to the new plugin version number
+git tag -a vX.Y.Z-a -m "vX.Y.Z-a"  # change these to the new plugin version number
 git push origin
+git push origin --tags
 ```
 
 ## Create zip file for the new release
@@ -105,6 +131,7 @@ rm -rf umich-oidc-login/vendor  # un-namespaced composer packages
 rm umich-oidc-login/scoper.inc.php  # don't want this being run by a web server; only needed when building
 rm -rf umich-oidc-login/node_modules  # only needed when building
 rm -rf umich-oidc-login/includes/admin/wp-react-optionskit/node_modules  # only needed when building
+rm -f umich-oidc-login/.prettier* umich-oidc-login/includes/admin/wp-react-optionskit/.prettier*
 ```
 
 We're not deleting `composer.json`, `composer.lock`, `package.json` and `package-lock.json` in order to be clear about what code we're shipping.
@@ -125,25 +152,39 @@ zip -r umich-oidc-login.zip umich-oidc-login
 
 Test the zip file on one or more other WordPress websites.
 
+### Commands to test on Pantheon site its-wws-test1:
+```bash
+terminus connection:set its-wws-test1.dev sftp
+scp -P 2222 umich-oidc-login.zip $(terminus conn:info its-wws-test1.dev --field=sftp_username)@$(terminus conn:info its-wws-test1.dev --field=sftp_host):/tmp/
+terminus wp its-wws-test1.dev -- plugin install --force --activate /tmp/umich-oidc-login.zip
+# --- test in Dev ---
+terminus env:commit its-wws-test1.dev --message="upgrade umich-oidc-login plugin"
+terminus env:deploy its-wws-test1.test
+terminus env:deploy its-wws-test1.live
+# --- test in Live ---
+```
+
 ## Publish the release on GitHub
 
 Go to
 https://github.com/its-webhosting/umich-oidc-login/releases
 
 * Click "Draft a new release" button
-* Choose a tag -> Create new tag on publish: v1.2.0
-* Release title: 1.2.0
+* Select tag
+* Release title: X.Y.Z-a  # (change to the new plugin version number)
 * For the release notes:
 
 ```markdown
 ### Release notes
-* (paste the bullet points from the new Changelog entry from `README.txt`)
+* (paste the bullet points from the new Changelog entry from `CHANGELOG.md`)
 ```
 
 * Binaries: upload umich-oidc-login.zip that was prepared for wordpress.org
 * Publish release
 
 ## Publish the release in the WordPress plugin directory
+
+We're not doing this now due to restrictions about what plugins there can do (for example, around a separate channel for testing prereleases) plus other requirements we're not always staffed to meet.
 
 * SVN Resources:
   * https://developer.wordpress.org/plugins/wordpress-org/how-to-use-subversion/

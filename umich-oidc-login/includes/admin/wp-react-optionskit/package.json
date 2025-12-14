@@ -1,6 +1,6 @@
 {
   "name": "wp-react-optionskit-frontend",
-  "version": "0.8.0",
+  "version": "0.8.5",
   "description": "The React frontend to wp-react-optionskit",
   "author": "Regents of the University of Michigan",
   "license": "GPL-2.0-or-later",
@@ -20,16 +20,19 @@
   },
   "main": "src/index.js",
   "dependencies": {
-    "@wordpress/api-fetch": "6.32.1",
-    "@wordpress/components": "25.1.10",
-    "@wordpress/element": "5.12.1",
-    "formik": "^2.4.4",
-    "html-react-parser": "^4.2.2",
-    "react-grid-system": "^8.1.9",
-    "react-select": "^5.7.4"
+    "@wordpress/api-fetch": "7.33.1",
+    "@wordpress/components": "30.6.1",
+    "@wordpress/element": "6.33.1",
+    "@wordpress/icons": "11.0.1",
+    "formik": "2.4.9",
+    "html-react-parser": "5.2.10",
+    "lodash.debounce": "4.0.8",
+    "react-fast-compare": "3.2.2",
+    "react-grid-system": "8.2.1",
+    "react-select": "5.10.2"
   },
   "devDependencies": {
-    "@wordpress/scripts": "26.6.3"
+    "@wordpress/scripts": "30.26.1"
   },
   "scripts": {
     "build": "wp-scripts build",

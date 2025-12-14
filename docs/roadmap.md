@@ -14,6 +14,21 @@ To work on something,
 
 ## Items
 
+### Multisite support for plugin
+* Status: **Pull Request waiting to be merged.**
+* Priority: High
+* Size: Large
+* Reason: Critical need from large University of Michigan units (LSA, Engineering) that heavily use WordPress Multisite.
+* Details:
+	* Ensure works for both subdomain and subdirectory Multisite installations.
+	* WP Native Sessions plugin
+		* Does it work as a network-activated plugin?
+		* If the UMich OIDC Login plugin is network-activated, warn if the sessions plugin is also not network-activated.
+		* Make sure site admins cannot see sessions of users for other site.  Generate a site-specific cookie prefix if needed.
+	* Add wp-react-optionskit support for a Multisite network settings page.
+	* Figure out how network settings will interact with site settings.
+	* Ensure works on: Pantheon, WP Engine, AFS Web Hosting
+
 ### Add a "Copy" (to clipboard) button to the `Redirect URI` field
 * Priority: Low
 * Size: Small
@@ -56,33 +71,6 @@ To work on something,
       * WordPress: https://github.com/wordpress/wordpress-develop/
   * Create documentation on how a website administrator can set up and use Keycloak with a production website, and link to that from the plugin README.
 
-### In-plugin support for a beta update channel with automatic updates
-* Priority: Low
-* Size: Small
-* Reason: Better testing of beta releases and fewer problems in production releases by letting website administrators to opt in to automatically get beta releases.  This will be particularly valuable in advance of landing major new features, such as WordPress Multisite support.
-* Details:
-  * Research and test how it will work.
-    * WordPress Plugin Directory guidelines prohibit getting the beta updates from our own server; they have to come from the directory.
-      * We should be able to tag a beta release in SVN but _not_ update the `Stable tag` field in `README.md`.
-      * How will the plugin know that a beta release is available?
-        * BuddyPress and WooCommerce supposedly pull their beta versions from wordpress.org, check their code to see how they do this.
-    * Add setting to enable beta updates.
-    * Add documentation on packaging/publishing beta releases.
-
-### Multisite support for plugin
-* Priority: High
-* Size: Large
-* Reason: Critical need from large University of Michigan units (LSA, Engineering) that heavily use WordPress Multisite.
-* Details:
-  * Ensure works for both subdomain and subdirectory Multisite installations.
-  * WP Native Sessions plugin
-    * Does it work as a network-activated plugin?
-    * If the UMich OIDC Login plugin is network-activated, warn if the sessions plugin is also not network-activated.
-    * Make sure site admins cannot see sessions of users for other site.  Generate a site-specific cookie prefix if needed.
-  * Add wp-react-optionskit support for a Multisite network settings page.
-  * Figure out how network settings will interact with site settings.
-  * Ensure works on: Pantheon, WP Engine, AFS Web Hosting
-
 ### Automatically create WordPress accounts for OIDC users who are members of certain groups.
 * Priority: High
 * Size: Medium
@@ -118,6 +106,7 @@ To work on something,
         * `/private/reports/` - only members of group B
         * `/private/committees/` - only members of groups A or B
   * Protected files need to be opened and streamed to the browser by PHP only after checking access requirements, rather than being served by the web server.
+  * Make sure this also fully works for WordPress attachments.
   * Ensure works with WP Engine
   * Ensure works with Pantheon
     * Pantheon does not allow .htaccess files.

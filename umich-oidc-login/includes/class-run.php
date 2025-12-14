@@ -43,21 +43,24 @@ class Run {
 	 * @var      array    $option_defaults    Option default values.
 	 */
 	public $option_defaults = array(
-		'claim_for_email'       => 'email',
-		'claim_for_family_name' => 'family_name',
-		'claim_for_full_name'   => 'name',
-		'claim_for_given_name'  => 'given_name',
-		'claim_for_groups'      => 'edumember_ismemberof',
-		'claim_for_username'    => 'preferred_username',
-		'client_auth_method'    => 'client_secret_post',
-		'login_action'          => 'setting',
-		'login_return_url'      => '',
-		'logout_action'         => 'smart',
-		'logout_return_url'     => '',
-		'restrict_site'         => array( '_everyone_' ),
-		'session_length'        => 86400,
-		'scopes'                => 'openid email profile edumember',
-		'use_oidc_for_wp_users' => 'no',
+		'claim_for_email'                   => 'email',
+		'claim_for_family_name'             => 'family_name',
+		'claim_for_full_name'               => 'name',
+		'claim_for_given_name'              => 'given_name',
+		'claim_for_groups'                  => 'edumember_ismemberof',
+		'claim_for_username'                => 'preferred_username',
+		'client_auth_method'                => 'client_secret_post',
+		'login_action'                      => 'setting',
+		'login_return_url'                  => '',
+		'logout_action'                     => 'smart',
+		'logout_return_url'                 => '',
+		'restrict_site'                     => array( '_everyone_' ),
+		'session_length'                    => 86400,
+		'scopes'                            => 'openid email profile edumember',
+		'use_oidc_for_wp_users'             => 'no',
+		'shortcode_html_attributes_allowed' => false,
+		'autosave'                          => true,
+		'test_prereleases'                  => false,
 	);
 
 	/**
@@ -164,10 +167,17 @@ class Run {
 				$this->options['use_oidc_for_wp_users'] = 'yes';
 			}
 			unset( $this->options['link_accounts'] );
-			\update_option( 'umich_oidc_settings', $this->options );
 		}
+
+		// If the new version of the plugin is a prerelease, turn on the option to upgrade to future prereleases.
+		if ( stristr( UMICH_OIDC_LOGIN_VERSION, 'beta' ) !== false
+			|| stristr( UMICH_OIDC_LOGIN_VERSION, 'rc' ) !== false ) {
+			$this->options['test_prereleases'] = true;
+		}
+
 		$this->internals['plugin_version'] = UMICH_OIDC_LOGIN_VERSION_INT;
 		\update_site_option( 'umich_oidc_internals', $this->internals );
+		\update_option( 'umich_oidc_settings', $this->options );  // save default values for any new options.
 	}
 
 
@@ -213,6 +223,15 @@ class Run {
 		}
 		$this->internals = \array_merge( $internal_defaults, $internals );
 
+		new \Umich\GithubUpdater\Init(
+			array(
+				'repo'           => 'its-webhosting/umich-oidc-login',
+				'slug'           => UMICH_OIDC_LOGIN_BASE_NAME,
+				'match_releases' => $this->options['test_prereleases'] ? 'includeBeta' : 'stable',
+				'changelog'      => 'CHANGELOG.md',
+			)
+		);
+
 		$this->do_plugin_upgrade_tasks();
 
 		$this->session = new \UMich_OIDC_Login\Core\PHP_Session( $this );
@@ -244,6 +263,32 @@ class Run {
 			\add_action( 'wp_ajax_umich-oidc-logout', array( $this->oidc, 'logout_and_redirect' ) );
 			\add_action( 'wp_ajax_nopriv_umich-oidc-logout', array( $this->oidc, 'logout_and_redirect' ) );
 
+			// Plugins page links.
+			\add_filter(
+				'plugin_row_meta',
+				function ( $links, $plugin_file ) {
+					if ( UMICH_OIDC_LOGIN_BASE_NAME === $plugin_file ) {
+						$links[] = '<a href="mailto:webmaster@umich.edu" target="_blank" title="Support">Support</a>';
+					}
+					return $links;
+				},
+				10,
+				2
+			);
+			\add_filter(
+				'plugin_action_links_' . UMICH_OIDC_LOGIN_BASE_NAME,
+				function ( $links ) {
+					$links[] = '<a href="' . \admin_url( 'options-general.php?page=umich_oidc-settings' ) . '">Settings</a>';
+					return $links;
+				}
+			);
+			\add_filter(
+				'network_admin_plugin_action_links_' . UMICH_OIDC_LOGIN_BASE_NAME,
+				function ( $links ) {
+					$links[] = '<a href="' . \network_admin_url( 'settings.php?page=umich_oidc-settings' ) . '">Settings</a>';
+					return $links;
+				}
+			);
 		}
 
 		\add_filter( 'allowed_redirect_hosts', array( $this->oidc, 'allowed_redirect_hosts' ) );
@@ -293,22 +338,31 @@ class Run {
 		\add_filter( 'xmlrpc_prepare_page', array( $this->restrict_access, 'xmlrpc_prepare_post' ), 0, 3 );
 		\add_filter( 'xmlrpc_prepare_comment', array( $this->restrict_access, 'xmlrpc_prepare_comment' ), 0, 2 );
 		\add_action( 'xmlrpc_call', array( $this->restrict_access, 'xmlrpc_call' ), 0, 3 );
+		\add_filter( 'pre_handle_404', array( $this->restrict_access, 'handle_404' ), 10000, 2 );
 
 		// Metabox to restrict access to pages and posts.
 		// Works in both Gutenberg and the Classic Editor.
 		$this->post_meta_box = new \UMich_OIDC_Login\Admin\Post_Meta_Box( $this );
 		\add_filter( 'add_meta_boxes', array( $this->post_meta_box, 'access_meta_box' ) );
 		\add_action( 'admin_enqueue_scripts', array( $this->post_meta_box, 'admin_scripts' ) );
-		\add_filter( 'save_post', array( $this->post_meta_box, 'access_meta_box_save' ) );
+		\add_action( 'save_post', array( $this->post_meta_box, 'access_meta_save' ), 10, 2 );
+		\add_filter( 'rest_request_before_callbacks', array( $this->post_meta_box, 'rest_request_before_callbacks' ), 0, 3 );
 
 		\register_post_meta(
 			'',
 			'_umich_oidc_access',
+			// We can't use 'validate_callback' below, see
+			// https://stackoverflow.com/questions/65217925/is-there-custom-validation-of-meta-values-in-wordpress-rest-api
+			// for details.
 			array(
-				'show_in_rest' => true,
-				'single'       => true,
-				'type'         => 'string',
-			)
+				'label'             => 'UMich OIDC Access',
+				'description'       => 'Restrict access to this post or page to specific groups.',
+				'single'            => true,
+				'type'              => 'string',
+				'auth_callback'     => array( $this->post_meta_box, 'access_meta_auth' ),
+				'sanitize_callback' => array( $this->post_meta_box, 'access_meta_sanitize_and_validate' ),
+				'show_in_rest'      => true,
+			),
 		);
 
 		$this->settings_page = new \UMich_OIDC_Login\Admin\Settings_Page( $this );

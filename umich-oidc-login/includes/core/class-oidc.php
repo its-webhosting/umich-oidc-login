@@ -164,7 +164,7 @@ class OIDC {
 		) {
 			\add_filter(
 				'wp_doing_ajax',
-				function ( $value ) {
+				function () {
 					return false;
 				},
 				10000
@@ -420,11 +420,17 @@ class OIDC {
 				// Avoid an authentication loop.
 				$return_url = \home_url();
 		}
-		log_message( "get_oidc_url: return_url={$return_url}" );
 
-		$verifier            = $this->create_verifier( $return_url );
-		$return_url          = \rawurlencode( $return_url );
-		$return_query_string = '&umich-oidc-verifier=' . $verifier . '&umich-oidc-return=' . $return_url;
+		$valid_return_url = \wp_validate_redirect( $return_url );
+		if ( '' === $valid_return_url ) {
+			$valid_return_url = \home_url();
+			log_message( "get_oidc_url: invalid return_url={$return_url} using home URL instead" );
+		}
+		log_message( "get_oidc_url: return_url={$valid_return_url}" );
+
+		$verifier            = $this->create_verifier( $return_url );    
+		$return_query_string = '&umich-oidc-verifier=' . $verifier . '&umich-oidc-return='
+				. \rawurlencode( $valid_return_url );
 
 		return \esc_url_raw( \get_admin_url( 1, 'admin-ajax.php?action=' . $action . $return_query_string ) );
 	}
@@ -862,6 +868,7 @@ class OIDC {
 			// No WordPress user is logged in.
 			return;
 		}
+		log_message( "also logging user={$user_id} out of WordPress" );
 
 		// remove the WordPress logout action that can call this method.
 		\UMich_OIDC_Login\Core\patch_wp_logout_action( 'remove' );

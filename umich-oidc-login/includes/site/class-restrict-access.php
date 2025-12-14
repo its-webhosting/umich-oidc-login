@@ -43,6 +43,13 @@ class Restrict_Access {
 	private $site_access_result = self::NOT_INITIALIZED;
 
 	/**
+	 * Save whether access was denied due to not being logged in when checking a list of posts.
+	 *
+	 * @var      integer  $list_access_redirect  self::DENIED_NOT_LOGGED_IN if we should redirect.
+	 */
+	private $list_access_redirect = self::NOT_INITIALIZED;
+
+	/**
 	 * Create and initialize the Restrict_Access object.
 	 *
 	 * @param object $ctx Context for this WordPress request / this run of the plugin.
@@ -73,16 +80,23 @@ class Restrict_Access {
 			return self::ALLOWED;
 		}
 
-		$oidc           = $ctx->oidc;
 		$oidc_user      = $ctx->oidc_user;
 		$logged_in_oidc = $oidc_user->logged_in();
 		$logged_in_wp   = \is_user_logged_in();
-		$logged_in      = $logged_in_oidc || $logged_in_wp;
+		log_message(
+			'checking access, required=' . \implode( ',', $access ) .
+			" logged_in_oidc={$logged_in_oidc}" .
+			" session_state={$oidc_user->session_state()}" .
+			" logged_in_wp={$logged_in_wp}"
+		);
+
+		$logged_in = $logged_in_oidc || $logged_in_wp;
 		if ( '_logged_in_' === $access[0] && $logged_in ) {
 			return self::ALLOWED;
 		}
 
-		if ( ! $logged_in ) {
+		if ( ! $logged_in_oidc ) {
+			// If the user is not logged in via OIDC, we can't check their groups.
 			return self::DENIED_NOT_LOGGED_IN;
 		}
 
@@ -128,6 +142,21 @@ class Restrict_Access {
 		$options = $ctx->options;
 
 		if ( self::DENIED_NOT_LOGGED_IN === $type ) {
+			/*
+			 * Special case: Some hosting providers, especially those that use Varnish, strip cookies from
+			 * requests for static assets in order to improve cache hit rates.  Avoid redirecting the user
+			 * when the request is for /favicon.ico which WordPress will handle and generate if the file
+			 * doesn't exist in the filesystem as that can cause an authenticated user to be continuously
+			 * reauthenticated.  Instead, return a 401.
+			 */
+			if (
+				( isset( $_SERVER['REQUEST_URI'] ) && '/favicon.ico' === $_SERVER['REQUEST_URI'] )
+				|| is_favicon()
+			) {
+				log_message( 'unauthenticated favicon.ico request, returning 401' );
+				\wp_die( 'Authentication required', 'Authentication required', array( 'response' => 401 ) );
+			}
+
 			switch ( $options['use_oidc_for_wp_users'] ) {
 				case 'yes':
 					$oidc->redirect( $oidc->get_oidc_url( 'login', '' ) ); // Does not return.
@@ -233,8 +262,8 @@ class Restrict_Access {
 	 * Called by the template_redirect action -- if the current request is
 	 * for a single post, we check the access here (rather than later in
 	 * the_content) so that we can redirect the user instead of having to
-	 * display an access denied method within site page.  This way, the
-	 * user won't see the site header, footer, sidebar and so on.
+	 * display an access-denied message within the site page.  This way,
+	 * the user won't see the site header, footer, sidebar and so on.
 	 *
 	 * @return void
 	 */
@@ -253,6 +282,9 @@ class Restrict_Access {
 			return;
 		}
 
+		if ( ! \is_singular() ) {
+			log_message( 'NOT SINGULAR' );
+		}
 		$post_id = \get_queried_object_id();
 		log_message( "restrict site single post id = {$post_id}" );
 		if ( $post_id <= 0 ) {
@@ -280,7 +312,7 @@ class Restrict_Access {
 		$post_id = isset( $post->ID ) ? $post->ID : 0;
 		log_message( "restrict excerpt = {$post_id}" );
 		if ( $post_id <= 0 ) {
-			return;
+			return '';
 		}
 
 		$ctx    = $this->ctx;
@@ -288,10 +320,10 @@ class Restrict_Access {
 		$result = $this->check_access( $access );
 		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
 			$url = $ctx->oidc->get_oidc_url( 'login', '' );
-			return "You need to <a href='{$url}'>log in</a> to view this content.";
+			return "(You need to <a href='{$url}'>log in</a> to view this content.)";
 		}
 		if ( self::DENIED_NOT_IN_GROUPS === $result ) {
-			return 'You do not have access to this content.';
+			return '(You do not have access to this content.)';
 		}
 
 		// Return and allow access.
@@ -308,16 +340,22 @@ class Restrict_Access {
 	 */
 	public function the_content( $content ) {
 
+		log_message( 'restricting the_content' );
 		$post = \get_post();
 		if ( \is_null( $post ) || ! isset( $post->ID ) ) {
 			return $content;
 		}
 
-		$access = $this->ctx->settings_page->post_access_groups( $post->ID );
+		$ctx    = $this->ctx;
+		$access = $ctx->settings_page->post_access_groups( $post->ID );
 		$result = $this->check_access( $access );
-		if ( self::ALLOWED !== $result ) {
-			// TODO: let the user set this message or return ''.
-			$content = "(You don't have access to this content.)";
+		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
+			$url = $ctx->oidc->get_oidc_url( 'login', '' );
+			return "(You need to <a href='{$url}'>log in</a> to view this content.)";
+		}
+		if ( self::DENIED_NOT_IN_GROUPS === $result ) {
+			// TODO: let the user set this message or have nothing displayed at all by returning ''.
+			return '(You do not have access to this content.)';
 		}
 
 		// Return and allow access.
@@ -339,22 +377,55 @@ class Restrict_Access {
 	 * have access to from showing up in search results from WordPress'
 	 * built-in search.
 	 *
-	 * @param string $posts The list of posts.
+	 * @param array $posts The list of posts.
 	 *
 	 * @return array The filtered list of posts that the current user has access to.
 	 */
 	public function restrict_list( $posts ) {
-		$allowed = array();
+		$allowed        = array();
+		$redirect_count = 0;
 		foreach ( $posts as $post ) {
 			$access = $this->ctx->settings_page->post_access_groups( $post->ID );
 			$result = $this->check_access( $access );
-			if ( self::ALLOWED === $result ) {
-				$allowed[] = $post;
+			switch ( $result ) {
+				case self::ALLOWED:
+					$allowed[] = $post;
+					log_message( "restrict_list - post {$post->ID} allowed" );
+					break;
+				case self::DENIED_NOT_LOGGED_IN:
+					log_message( "restrict_list - post {$post->ID} denied - not logged in" );
+					++$redirect_count;
+					break;
+				case self::DENIED_NOT_IN_GROUPS:
+					log_message( "restrict_list - post {$post->ID} denied - not in groups" );
+					break;
+				default:
+					log_message( "ERROR: restrict_list - post {$post->ID} denied: unexpected access check result" );
+					break;
 			}
+		}
+		if ( $redirect_count > 0 && count( $allowed ) === 0 && self::NOT_INITIALIZED === $this->list_access_redirect ) {
+			$this->list_access_redirect = self::DENIED_NOT_LOGGED_IN;
 		}
 		return $allowed;
 	}
 
+	/**
+	 * Intercept 404 errors and redirect the user to log in if the post
+	 * actually exists but the user is not seeing it because they are
+	 * not logged in.
+	 *
+	 * @param bool $preempt   Whether to short-circuit default header status handling. Default false.
+	 *  param \WP_Query $wp_query  WordPress Query object.
+	 *
+	 * @return bool Whether to short-circuit default header status handling. Default false.
+	 */
+	public function handle_404( $preempt /*, $wp_query */ ) {
+		if ( self::DENIED_NOT_LOGGED_IN === $this->list_access_redirect && ! is_favicon() ) {
+			$this->denial_redirect( self::DENIED_NOT_LOGGED_IN );
+		}
+		return $preempt;
+	}
 
 	/**
 	 * Generate a REST response for an error.
@@ -387,6 +458,7 @@ class Restrict_Access {
 	 */
 	private function rest_access( $id, $response ) {
 
+		log_message( 'restricting rest_access' );
 		$result = $this->check_site_access();
 		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
 			return $this->rest_error( 'rest_user_cannot_view', 'Authentication required', 401 );
@@ -416,25 +488,25 @@ class Restrict_Access {
 	 *
 	 * @param object $response The WP_REST_Response object.
 	 * @param object $post The WP_Post object.
-	 * @param object $request The WP_REST_Request object.
+	 *  param object $request The WP_REST_Request object.
 	 *
 	 * @return object The original response, if the current user has access to the post; otherwise, a permission denied response.
 	 */
-	public function rest_prepare_post( $response, $post, $request ) {
+	public function rest_prepare_post( $response, $post ) {
 		$id = isset( $post->ID ) ? $post->ID : 0;
 		return $this->rest_access( $id, $response );
 	}
 
 	/**
-	 * Restrict access to revistions via the REST API.
+	 * Restrict access to revisions via the REST API.
 	 *
 	 * @param object $response The WP_REST_Response object.
 	 * @param object $post The WP_Post object.
-	 * @param object $request The WP_REST_Request object.
+	 *  param object $request The WP_REST_Request object.
 	 *
 	 * @return object The original response, if the current user has access to the post; otherwise, a permission denied response.
 	 */
-	public function rest_prepare_revision( $response, $post, $request ) {
+	public function rest_prepare_revision( $response, $post ) {
 		$id = isset( $post->post_parent ) ? $post->post_parent : 0;
 		return $this->rest_access( $id, $response );
 	}
@@ -444,11 +516,11 @@ class Restrict_Access {
 	 *
 	 * @param object $response The WP_REST_Response object.
 	 * @param object $comment The WP_Comment object.
-	 * @param object $request The WP_REST_Request object.
+	 *  param object $request The WP_REST_Request object.
 	 *
 	 * @return object The original response, if the current user has access to the comment's post; otherwise, a permission denied response.
 	 */
-	public function rest_prepare_comment( $response, $comment, $request ) {
+	public function rest_prepare_comment( $response, $comment ) {
 		$id = isset( $comment->comment_post_ID ) ? $comment->comment_post_ID : 0;
 		return $this->rest_access( $id, $response );
 	}
@@ -472,7 +544,9 @@ class Restrict_Access {
 	 */
 	public function found_posts( $found_posts, $query ) {
 
+		log_message( 'restricting found_posts' );
 		if ( 'ids' !== $query->query_vars['fields'] || empty( $query->query_vars['post_type'] ) ) {
+			log_message( 'restricting found_posts: no ids or post types' );
 			return $found_posts;
 		}
 
@@ -480,19 +554,23 @@ class Restrict_Access {
 		if ( self::ALLOWED !== $result ) {
 			$query->posts      = array();
 			$query->post_count = 0;
+			log_message( 'restricting found_posts: site access denied' );
 			return 0;
 		}
 
 		if ( null === $query->posts ) {
+			log_message( 'restricting found_posts: query posts is null' );
 			return $found_posts;
 		}
 		if ( \is_integer( $query->posts ) ) {
 			$access = $this->ctx->settings_page->post_access_groups( $query->posts );
 			$result = $this->check_access( $access );
 			if ( self::ALLOWED === $result ) {
+				log_message( 'restricting found_posts: integer post allowed' );
 				return $found_posts;
 			}
 			$query->posts = null;
+			log_message( 'restricting found_posts: integer post denied' );
 			return 0;
 		}
 
@@ -511,6 +589,7 @@ class Restrict_Access {
 		}
 		$query->posts      = $posts;
 		$query->post_count = count( $posts );
+		log_message( "restricting found_posts: returning {$found_posts} posts" );
 		return $found_posts;
 	}
 
@@ -524,11 +603,12 @@ class Restrict_Access {
 	 *
 	 * @param array $_post  An array of modified post data.
 	 * @param array $post   An array of post data.
-	 * @param array $fields An array of post fields.
+	 *  param array $fields An array of post fields.
 	 *
 	 * @return array The filtered $_post
 	 */
-	public function xmlrpc_prepare_post( $_post, $post, $fields ) {
+	public function xmlrpc_prepare_post( $_post, $post ) {
+		log_message( 'restricting xmlrpc_prepare_post' );
 
 		// The page/post XMLRPC methods require login.
 		$result = $this->check_site_access();
@@ -587,6 +667,7 @@ class Restrict_Access {
 	 * @return array The filtered $_comment
 	 */
 	public function xmlrpc_prepare_comment( $_comment, $comment ) {
+		log_message( 'restricting xmlrpc_prepare_comment' );
 
 		// The comment XMLRPC methods require login.
 		$result = $this->check_site_access();
@@ -594,13 +675,13 @@ class Restrict_Access {
 			return $this->xmlrpc_block_comment( $_comment, 'You do not have access to this content.' );
 		}
 
-		$access = $this->ctx->settings_page->post_access_groups( $post['ID'] );
+		$access = $this->ctx->settings_page->post_access_groups( $comment['post_id'] );
 		$result = $this->check_access( $access );
 		if ( self::ALLOWED !== $result ) {
 			return $this->xmlrpc_block_comment( $_comment, 'You do not have access to this content.' );
 		}
 
-		return $_post;
+		return $_comment;
 	}
 
 	/**
@@ -612,6 +693,7 @@ class Restrict_Access {
 	 * @return void
 	 */
 	public function xmlrpc_call_access( $post_id, $server ) {
+		log_message( 'restricting xmlrpc_call_access' );
 
 		// Calls to $server->error() terminate the script.
 

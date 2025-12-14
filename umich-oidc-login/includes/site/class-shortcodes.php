@@ -31,12 +31,39 @@ class Shortcodes {
 	private $ctx;
 
 	/**
+	 * ID for the current shortcode, incremented for each additional shortcode. The value 0 is used in our JavaScript
+	 * to indicate "no shortcode present".
+	 *
+	 * @var      integer    $shortcode_id   ID for the current shortcode, or 0 if none.
+	 */
+	private $shortcode_id = 1;
+
+	/**
 	 * Create and initialize the Shortcodes object.
 	 *
 	 * @param object $ctx Context for this WordPress request / this run of the plugin.
 	 */
 	public function __construct( $ctx ) {
+
 		$this->ctx = $ctx;
+
+		// If the user is logged in to WordPress, we may need to preview raw shortcodes.
+		if ( \is_user_logged_in() ) {
+			\wp_enqueue_script(
+				'umich-oidc-shortcodes',
+				UMICH_OIDC_LOGIN_DIR_URL . '/assets/js/shortcode-protection.js',
+				array(),
+				UMICH_OIDC_LOGIN_VERSION_INT,
+				true
+			);
+			\wp_enqueue_style(
+				'umich-oidc-shortcodes-styles',
+				UMICH_OIDC_LOGIN_DIR_URL . '/assets/css/shortcode-protection.css',
+				array(),
+				UMICH_OIDC_LOGIN_VERSION_INT
+			);
+
+		}
 	}
 
 	/**
@@ -152,14 +179,15 @@ class Shortcodes {
 	 * @param string $atts Shortcode attributes.
 	 * @param string $content Shortcode content. Should always be empty since this shortcode should not be used as an enclosing shortcode.
 	 * @param string $tag Shortcode name.
+	 * @param bool   $safe Whether the shortcode is being used in a trusted context where HTML attributes are known to be safe.
 	 *
 	 * @return string Shortcode output - requested HTML element.
 	 */
-	private function element( $element, $atts = array(), $content = null, $tag = '' ) {
+	private function element( $element, $atts = array(), $content = null, $tag = '', $safe = false ) {
 
 		$ctx       = $this->ctx;
+		$orig_atts = $atts;
 		$atts      = \array_change_key_case( (array) $atts, CASE_LOWER );
-		$html_atts = $atts;
 
 		// override default attributes with user attributes.
 		$atts        = \shortcode_atts(
@@ -196,27 +224,90 @@ class Shortcodes {
 		$oidc = $ctx->oidc;
 		$url  = $oidc->get_oidc_url( $type, $return );
 
-		$text = \esc_html( $text );
-
 		$attributes = '';
-		foreach ( \array_keys( $html_atts ) as $a ) {
-			if ( ! \in_array( $a, array( 'type', 'text', 'return' ), true ) ) {
-				$name        = \esc_html( $a );
-				$value       = \esc_html( $html_atts[ $a ] );
-				$attributes .= " {$name}='{$value}'";
+		if ( $safe || true === $this->ctx->options['shortcode_html_attributes_allowed'] ) {
+			foreach ( \array_keys( $orig_atts ) as $a ) {
+				if (
+					! \in_array(
+						\strtolower( $a ),
+						array( 'type', 'return', 'text', 'text_login', 'text_logout' ),
+						true
+					)
+				) {
+					$name        = \esc_html( $a );
+					$value       = \esc_html( $orig_atts[ $a ] );
+					$attributes .= " {$name}='{$value}'";
+				}
 			}
 		}
 
+		$text = \esc_html( $text );
+
 		if ( 'a' === $element ) {
-			return "<a href='{$url}'{$attributes}>{$text}</a>";
-		}
-		if ( 'button' === $element ) {
-			$button = "<button onclick='window.location.href=\"{$url}\"'{$attributes}>{$text}</button>";
-			return $button;
+			$html = "<a href='{$url}'{$attributes}>{$text}</a>";
+		} elseif ( 'button' === $element ) {
+			$html = "<button onclick='window.location.href=\"{$url}\"'{$attributes}>{$text}</button>";
+		} else {
+			log_message( 'unrecognized element, suppressing button/link shortcode output' );
+			return '';
 		}
 
-		log_message( 'unrecognzed element, supressing button/link shortcode output' );
-		return '';
+		if ( $safe || '' === $attributes ) {
+			// As of UMICH OIDC Login 1.3.0, if there are no attributes, then the HTML cannot contain malicious content.
+			return $html;
+		}
+
+		/*
+		 * The shortcode could have malicious attributes, so only return the shortcode output if the post has
+		 * been published.  This assumes the post has been reviewed for malicious content (not just OIDC button/link
+		 * shortcodes, but also HTML from users with the unfiltered_html capability) before being approved and
+		 * published.
+		 */
+		$post = \get_post();
+		if ( $post && 'publish' !== \get_post_status( $post ) ) {
+			$wp_user = \wp_get_current_user();
+			if ( $wp_user->has_cap( 'edit_post', $post->ID ) ) {
+				// The user can edit this post, so show them the raw shortcode.
+
+				$attributes = \array_reduce(
+					\array_keys( $orig_atts ),
+					function ( $carry, $key ) use ( $orig_atts ) {
+						$value = $orig_atts[ $key ];
+						return $carry . " {$key}='{$value}'";
+					},
+					''
+				);
+
+				// Currently, this function only handles shortcodes without content.  This may change in the future.
+				$shortcode = \esc_html( "[{$tag}{$attributes}]" );
+
+				// Display the raw shortcode but let the user click on it to see the rendered output.
+				// phpcs:ignore -- base64_encode is fine here.
+				$b64_shortcode       = \base64_encode( $shortcode );
+				// phpcs:ignore -- base64_encode is fine here.
+				$b64_html            = \base64_encode( $html );
+				$preview_html        = <<<END
+<a href='#'
+    class='umich-oidc-shortcode-preview'
+    data-shortcode-id='{$this->shortcode_id}'
+    >{$shortcode}</a>
+<script type="text/javascript">
+    window.umich_oidc_shortcode_preview = window.umich_oidc_shortcode_preview || {};
+	window.umich_oidc_shortcode_preview['{$this->shortcode_id}'] = {
+		shortcode: '{$b64_shortcode}',
+		html: '{$b64_html}'
+	};
+</script>
+END;
+				$this->shortcode_id += 1;
+				return $preview_html;
+			}
+			// The post isn't published and the user can't edit it, so just remove the shortcode from the page.
+			return '';
+		}
+
+		// The post is published, so show the shortcode output.
+		return $html;
 	}
 
 	/**
@@ -276,7 +367,7 @@ class Shortcodes {
 			$tag
 		);
 		$type        = $atts['type'];
-		$default     = \esc_html( $atts['default'] );
+		$default     = $atts['default'];
 		$unprintable = $atts['unprintable'];
 		$separator   = $atts['separator'];
 		$dictionary  = $atts['dictionary'];
@@ -290,7 +381,7 @@ class Shortcodes {
 		$info      = $oidc_user->get_userinfo( $type, null );
 		if ( \is_null( $info ) ) {
 			log_message( "{$tag}: userinfo for {$type} is null" );
-			return $default;
+			return \esc_html( $default );
 		}
 
 		$output = $this->to_string( $info, $unprintable, $separator, $dictionary );
@@ -304,7 +395,7 @@ class Shortcodes {
 	 * is not logged in.
 	 *
 	 * @param string $atts Shortcode attributes.
-	 * @param string $content Shortcode content. Should always be empty since this shortcode should not be used as an enclosing shortcode.
+	 * @param string $content Shortcode content.
 	 * @param string $tag Shortcode name.
 	 *
 	 * @return string Shortcode output - content.
@@ -340,6 +431,13 @@ class Shortcodes {
 			$content = '<p>' . $content . '</p>';
 		}
 
+		/*
+		 * Despite https://developer.wordpress.org/plugins/shortcodes/enclosing-shortcodes/#processing-enclosed-content
+		 * saying "It is the responsibility of the handler function to secure the output," testing with WordPress 6.7.1
+		 * shows content saved by users who do not have the unfiltered_html capability does correctly get filtered.
+		 * And we want to leave the content unfiltered for users who do have that capability.
+		 */
+
 		return $content;
 	}
 
@@ -351,7 +449,7 @@ class Shortcodes {
 	 * is a WordPress administrator.
 	 *
 	 * @param string $atts Shortcode attributes.
-	 * @param string $content Shortcode content. Should always be empty since this shortcode should not be used as an enclosing shortcode.
+	 * @param string $content Shortcode content.
 	 * @param string $tag Shortcode name.
 	 *
 	 * @return string Shortcode output - content.
@@ -415,6 +513,13 @@ class Shortcodes {
 			$content = '<p>' . $content . '</p>';
 		}
 
+		/*
+		 * Despite https://developer.wordpress.org/plugins/shortcodes/enclosing-shortcodes/#processing-enclosed-content
+		 * saying "It is the responsibility of the handler function to secure the output," testing with WordPress 6.7.1
+		 * shows content saved by users who do not have the unfiltered_html capability does correctly get filtered.
+		 * And we want to leave the content unfiltered for users who do have that capability.
+		 */
+
 		return $content;
 	}
 
@@ -450,7 +555,7 @@ class Shortcodes {
 		);
 
 		$content .= '<div style="padding: 24px; background: #fff; border: 1px solid #c3c4c7;">';
-		$content .= $this->button( $atts, '', 'umich_oidc_button' );
+		$content .= $this->element( 'button', $atts, '', 'umich_oidc_button', $safe = true );
 		$content .= '</div>';
 		$content .= '<div style="width: 100%; text-align: center; padding-top: 1em;">&mdash; <i>or, log in with a local WordPress account</i> &mdash;';
 

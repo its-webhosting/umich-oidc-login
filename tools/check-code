@@ -43,10 +43,9 @@ run-composer-php8 global show wp-coding-standards/wpcs > /dev/null 2>&1
 result="$?"
 set -e
 if [ "${result}" -ne 0 ] ; then
-	  echo "===== installing wp-coding-standards/wpcs"
-	  # Use wpcs:dev-develop to get a pre-release version of wpcs 3.0
-	  run-composer-php8 global require --dev wp-coding-standards/wpcs:dev-develop
-	  # No need to set installed_paths with wpcs 3.0
+    echo "===== installing wp-coding-standards/wpcs"
+    run-composer-php8 global require --dev wp-coding-standards/wpcs:"^3.1"
+    # No need to set installed_paths with wpcs >= 3.0
 fi
 
 run-composer-php8 global exec -- phpcs --standard=WordPress \
