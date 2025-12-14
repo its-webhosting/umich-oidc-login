@@ -23,6 +23,10 @@ $settings_tab_general = array(
 			'yes'      => 'YES: Require WordPress users to use OIDC to log in to the WordPress dashboard.  This will also log them in to the website.',
 		),
 		'std'     => $option_defaults['use_oidc_for_wp_users'],
+		'show'    => array(
+			'single',
+			'network'
+		),
 	),
 	array(
 		'id'   => 'use_oidc_for_wp_users_description',
@@ -44,6 +48,10 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 </pre>
 </div>
 		',
+		'show'    => array(
+			'single',
+			'network'
+		),
 	),
 	array(
 		'id'      => 'login_action',

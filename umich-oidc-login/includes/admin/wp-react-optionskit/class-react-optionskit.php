@@ -53,6 +53,13 @@ class React_OptionsKit {
 	public $slug;
 
 	/**
+	 * The location of the options panel.
+	 *
+	 * @var string
+	 */
+	public $location;
+
+	/**
 	 * The slug for the function names of this panel.
 	 *
 	 * @var string
@@ -106,16 +113,32 @@ class React_OptionsKit {
 	 *
 	 * @param boolean $slug Unique identifier for this options page.
 	 */
-	public function __construct( $slug = false ) {
+	public function __construct( $slug = false, $location = null ) {
 
 		if ( ! $slug ) {
 			return;
 		}
 
-		$this->slug = $slug;
-		$this->func = str_replace( '-', '_', $slug );
+		switch( $location ) {
+			case 'network':
+				$slug .= '-'. $location;
+				break;
 
-		$GLOBALS[ $this->func . '_options' ] = get_option( $this->func . '_settings', true );
+			default:
+				$location = null;
+				break;
+		}
+
+		$this->slug     = $slug;
+		$this->location = $location;
+		$this->func     = str_replace( '-', '_', $slug );
+
+		if( $this->location == 'network' ) {
+			$GLOBALS[ $this->func . '_options' ] = get_site_option( $this->func . '_settings', true );
+		}
+		else {
+			$GLOBALS[ $this->func . '_options' ] = get_option( $this->func . '_settings', true );
+		}
 
 		$this->hooks();
 	}
@@ -196,10 +219,38 @@ class React_OptionsKit {
 	 */
 	private function hooks() {
 
-		add_action( 'admin_menu', array( $this, 'add_settings_page' ), apply_filters( $this->func . '_admin_menu_priority', 10 ) );
+		add_filter( $this->func .'_action_filter_name', array( $this, 'action_filter_name' ) );
+
+		if( $this->location == 'network' ) {
+			add_action( 'network_admin_menu',
+				array( $this, 'add_settings_page' ), apply_filters( $this->func . '_admin_menu_priority', 10 )
+			);
+		}
+		else {
+			add_action( 'admin_menu',
+				array( $this, 'add_settings_page' ), apply_filters( $this->func . '_admin_menu_priority', 10 )
+			);
+		}
+
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 100 );
 		add_action( 'rest_api_init', array( $this, 'register_rest_controller' ) );
+	}
+
+	public function action_filter_name( $name )
+	{
+		if( $this->location == 'network' ) {
+			switch( $name ) {
+				case 'admin_menu':
+					return 'network_admin_menu';
+					break;
+
+				default:
+					break;
+			}
+		}
+
+		return $name;
 	}
 
 	/**
@@ -251,21 +302,23 @@ class React_OptionsKit {
 		$menu = apply_filters(
 			$this->func . '_menu',
 			array(
-				'parent'     => 'options-general.php',
+				'parent'     => $this->location == 'network' ? 'settings.php' : 'options-general.php',
 				'page_title' => 'Settings Panel',
 				'menu_title' => 'Settings Panel',
 				'capability' => 'manage_options',
 			)
 		);
 
-		\add_submenu_page(
-			$menu['parent'],
-			$menu['page_title'],
-			$menu['menu_title'],
-			$menu['capability'],
-			$this->slug . '-settings',
-			array( $this, 'render_settings_page' )
-		);
+		if( $menu ) {
+			$page = add_submenu_page(
+				$menu['parent'],
+				$menu['page_title'],
+				$menu['menu_title'],
+				$menu['capability'],
+				$this->slug . '-settings',
+				array( $this, 'render_settings_page' )
+			);
+		}
 	}
 
 	/**
@@ -391,7 +444,7 @@ class React_OptionsKit {
 	 */
 	private function get_settings_tab_sections( $tab = false ) {
 
-		$tabs     = false;
+		$tabs	  = false;
 		$sections = $this->get_registered_settings_sections();
 
 		if ( $tab && ! empty( $sections[ $tab ] ) ) {
@@ -464,10 +517,19 @@ class React_OptionsKit {
 		// Check if the option for this panel exists into the database.
 		// If not, create an empty one.
 		// If option exists, merge with available settings.
-		if ( ! get_option( $this->func . '_settings' ) ) {
-			update_option( $this->func . '_settings', $settings );
-		} else {
-			$settings = array_merge( $settings, get_option( $this->func . '_settings' ) );
+		if( $this->location == 'network' ) {
+			if ( ! get_site_option( $this->func . '_settings' ) ) {
+				update_site_option( $this->func . '_settings', $settings );
+			} else {
+				$settings = array_merge( $settings, get_site_option( $this->func . '_settings' ) );
+			}
+		}
+		else {
+			if ( ! get_option( $this->func . '_settings' ) ) {
+				update_option( $this->func . '_settings', $settings );
+			} else {
+				$settings = array_merge( $settings, get_option( $this->func . '_settings' ) );
+			}
 		}
 
 		return apply_filters( $this->func . '_get_settings', $settings );

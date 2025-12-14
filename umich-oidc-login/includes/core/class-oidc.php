@@ -87,6 +87,15 @@ class OIDC {
 			}
 		}
 
+		// add multisite networks site domains to list
+		if( is_multisite() && (defined( 'SUBDOMAIN_INSTALL' ) && SUBDOMAIN_INSTALL) ) {
+			foreach( get_sites() as $site ) {
+				if( !in_array( $site->domain, $hosts ) ) {
+					$hosts[] = $site->domain;
+				}
+			}
+		}
+
 		return $hosts;
 	}
 
@@ -224,7 +233,7 @@ class OIDC {
 
 		if ( ! \array_key_exists( 'verifier_secret', $this->ctx->internals ) ) {
 			$this->ctx->internals['verifier_secret'] = \wp_generate_password( 32, true, true );
-			\update_option( 'umich_oidc_internals', $this->ctx->internals );
+			\update_site_option( 'umich_oidc_internals', $this->ctx->internals );
 		}
 		$verifier_secret = $this->ctx->internals['verifier_secret'];
 
@@ -419,15 +428,11 @@ class OIDC {
 		}
 		log_message( "get_oidc_url: return_url={$valid_return_url}" );
 
-		if ( 'home' === $return_to ) {
-			$return_query_string = '';
-		} else {
-			$verifier            = $this->create_verifier( $valid_return_url );
-			$return_query_string = '&umich-oidc-verifier=' . $verifier . '&umich-oidc-return='
+		$verifier            = $this->create_verifier( $return_url );    
+		$return_query_string = '&umich-oidc-verifier=' . $verifier . '&umich-oidc-return='
 				. \rawurlencode( $valid_return_url );
-		}
 
-		return \esc_url_raw( \admin_url( 'admin-ajax.php?action=' . $action . $return_query_string ) );
+		return \esc_url_raw( \get_admin_url( 1, 'admin-ajax.php?action=' . $action . $return_query_string ) );
 	}
 
 	/**
@@ -631,6 +636,34 @@ class OIDC {
 		log_message( $session->get( 'id_token' ) );
 		log_message( $userinfo );
 
+		if( is_multisite() ) {
+			$dest_blog_id = get_blog_id_from_url(
+				parse_url( $return_url, PHP_URL_HOST ),
+				'/'. (defined( 'SUBDOMAIN_INSTALL' ) && SUBDOMAIN_INSTALL ? '' : strtok( parse_url( $return_url, PHP_URL_PATH ), '/' ) .'/'),
+			);
+
+			if( get_current_blog_id() != $dest_blog_id ) {
+				$url_params = array(
+					'action'     => 'openid-connect-multisite',
+					'id'         => session_id(),
+					'sn'         => session_name(),
+					'data'       => json_encode(array(
+						'state'    => $session->get( 'state' ),
+						'id_token' => $session->get( 'id_token' ),
+						'userinfo' => $session->get( 'userinfo' )
+					)),
+					'return_url' => $return_url,
+					'verifier'   => null
+				);
+				$url_params['verifier'] = $this->create_verifier( $url_params['id'] . $url_params['sn'] . $url_params['return_url'] . $url_params['data'] );
+
+				unset( $url_params['data'] );
+
+				$return_url = \get_admin_url( $dest_blog_id, 'admin-ajax.php?'. http_build_query( $url_params ) );
+			}
+		}
+
+
 		$username_claim = $options['claim_for_username'];
 		if ( ! \property_exists( $userinfo, $username_claim ) ) {
 			$this->logout();
@@ -704,6 +737,99 @@ class OIDC {
 		\wp_set_current_user( $user->ID, $user->user_login );
 
 		$this->redirect( $return_url ); // Does not return.
+	}
+
+	/**
+	 * Multisite Login
+	 *
+	 * This handles passing authentication to another wp multisite site
+	 *
+	 * @return void
+	 */
+	public function login_multisite() {
+		$session_data = '';
+		$session_name = isset( $_GET['sn'] )         ? $_GET['sn']         : session_name();
+		$session_id   = isset( $_GET['id'] )         ? $_GET['id']         : '';
+		$return_url   = isset( $_GET['return_url'] ) ? $_GET['return_url'] : '';
+
+		if( isset( $_GET['verify'] ) ) {
+			$session_data = array();
+
+			if( $this->check_verifier( $_GET['verify'], $session_id ) ) {
+				$session_data = array_replace( $session_data, array(
+					'state'    => $this->ctx->session->get( 'state' ),
+					'id_token' => $this->ctx->session->get( 'id_token' ),
+					'userinfo' => $this->ctx->session->get( 'userinfo' )
+				));
+			}
+
+			header( 'Content-Type: application/json' );
+			echo json_encode( $session_data );
+			exit;
+		}
+
+		// get userinfo
+		$res = wp_remote_get(
+			get_admin_url( 1, 'admin-ajax.php?action=openid-connect-multisite&id='. $session_id .'&verify='. $this->create_verifier( $session_id ) ),
+			array(
+				'sslverify' => false,
+				'cookies'   => array(
+					new \WP_Http_Cookie(array(
+						'name'  => $session_name,
+						'value' => $session_id,
+					))
+				)
+			)
+		);
+
+		if( !is_wp_error( $res ) ) {
+			$session_data = wp_remote_retrieve_body( $res );
+		}
+
+		if( $this->check_verifier( $_GET['verifier'], $session_id . $session_name . $return_url . $session_data ) ) {
+			$session_data = json_decode( $session_data );
+
+			foreach( get_object_vars( $session_data ) as $key => $val ) {
+				$this->ctx->session->set( $key, $val );
+			}
+		}
+
+		$username   = $this->ctx->session->get( 'userinfo', (new \stdClass) )->sub;
+		$return_url = $return_url ?: home_url();
+
+		/*
+		 * Log into the corresponding WordPress account.
+		 */
+
+		$user = \get_user_by( 'login', $username );
+		if ( ! $user ) {
+			log_message( "No WordPress account for username {$username}, treating as OIDC-only user." );
+			if ( \str_starts_with( $return_url, \admin_url() ) ) {
+				$this->fatal_error(
+					'Access denied',
+					'No such WordPress user.'
+				);
+			}
+			$this->redirect( $return_url ); // Does not return.
+		}
+
+		if ( ! is_a( $user, 'WP_User' ) || ! $user->exists() ) {
+			$this->logout();
+			$this->fatal_error(
+				'WordPress user issue',
+				'WordPress did not return the expected information for the user.'
+			);
+		}
+
+		$expiration = time() + \apply_filters( 'auth_cookie_expiration', (int) $this->ctx->options['session_length'], $user->ID, false );
+		$manager    = \WP_Session_Tokens::get_instance( $user->ID );
+		$token      = $manager->create( $expiration );
+
+		\wp_set_auth_cookie( $user->ID, false, '', $token );
+		\do_action( 'wp_login', $user->user_login, $user );
+		\wp_set_current_user( $user->ID, $user->user_login );
+
+		$this->redirect( $return_url );
 	}
 
 	/**
