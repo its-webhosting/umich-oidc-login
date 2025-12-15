@@ -187,6 +187,8 @@ class Run {
 	 * @return void
 	 */
 	public function __construct() {
+		\add_action( 'shutdown', '\UMich_OIDC_Login\Core\output_log_messages' );
+
 		/*
 		 * \get_option() can return false if the option does not exist,
 		 * or it can return any other type if the plugin options got
