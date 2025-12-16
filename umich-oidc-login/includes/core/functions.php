@@ -9,9 +9,27 @@
 
 namespace UMich_OIDC_Login\Core;
 
+const LOG_NOTHING    = 0;
+const LOG_ERROR      = 1;
+const LOG_USER_EVENT = 2;  // major events (login, logout).
+const LOG_NOTICE     = 3;  // warnings.
+const LOG_INFO       = 4;  // details.
+const LOG_DEBUG      = 5;
+
+$log_level_name = array(
+	LOG_NOTHING    => 'NOTHING',
+	LOG_ERROR      => 'ERROR',
+	LOG_USER_EVENT => 'EVENT',
+	LOG_NOTICE     => 'NOTICE',
+	LOG_INFO       => 'INFO',
+	LOG_DEBUG      => 'DEBUG',
+);
+
+
 $start_timestamp = \microtime( true );
 $start_time_base = \hrtime( true );
 $logs            = array();
+$log_level       = LOG_DEBUG;
 
 /**
  * Write a diagnostic message to the WP_DEBUG log.
@@ -21,8 +39,7 @@ $logs            = array();
  * @returns void
  */
 function log_message( $message ) {
-	global $logs;
-	global $start_time_base;
+	global $logs, $start_time_base;
 
 	if ( true === WP_DEBUG ) {
 		if ( \is_array( $message ) || \is_object( $message ) ) {
@@ -31,9 +48,44 @@ function log_message( $message ) {
 		}
 		$logs[] = array(
 			'time_elapsed' => \hrtime( true ) - $start_time_base,
+			'level'        => 0,
 			'message'      => $message,
 		);
 	}
+}
+
+
+/**
+ * Log a message.
+ *
+ * Callers are encouraged to pass in a sprintf template for $message together with $params instead.  This avoids
+ * the runtime cost of doing interpolation (prior to the function call) unless the message will actually get logged.
+ *
+ * @param int           $level      One of LOG_ERROR, LOG_USER_EVENT, LOG_NOTICE, LOG_INFO, LOG_DEBUG.
+ * @param string|object $message    The message to log.
+ * @param mixed         ...$params  Values to substitute into $message placeholders.
+ *
+ * @returns void
+ */
+function log_umich_oidc( $level, $message, ...$params ) {
+	global $log_level, $logs, $start_time_base;
+
+	if ( $level > $log_level ) {
+		return;
+	}
+
+	if ( \is_array( $message ) || \is_object( $message ) ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
+		$message = \print_r( $message, true );
+	} elseif ( count( $params ) > 0 ) {
+		$message = \sprintf( $message, ...$params );
+	}
+
+	$logs[] = array(
+		'time_elapsed' => \hrtime( true ) - $start_time_base,
+		'level'        => $level,
+		'message'      => $message,
+	);
 }
 
 
@@ -43,8 +95,7 @@ function log_message( $message ) {
  * @returns void
  */
 function output_log_messages() {
-	global $logs;
-	global $start_timestamp;
+	global $logs, $start_timestamp, $log_level_name;
 
 	log_message( 'shutdown' );
 
@@ -69,7 +120,18 @@ function output_log_messages() {
 		}
 		$microsec = (int) ( 100000 * ( $ts - $ts_int ) );
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
-		\error_log( \sprintf( 'umich-oidc %s %06d %s %11s=%6s %s', $timestamp_str, $microsec, $request_id, $session_name, $session_id, $log['message'] ) );
+		\error_log(
+			\sprintf(
+				'umich-oidc %s %06d %s %11s=%6s %8s %s',
+				$timestamp_str,
+				$microsec,
+				$request_id,
+				$session_name,
+				$session_id,
+				( isset( $log_level_name[ $log['level'] ] ) ? $log_level_name[ $log['level'] ] : 'UNKNOWN' ),
+				$log['message']
+			)
+		);
 	}
 }
 
@@ -83,7 +145,7 @@ function output_log_messages() {
  *
  * @returns void
  */
-function patch_wp_logout_action( string $operation, object $instance = null ) {
+function patch_wp_logout_action( $operation, $instance = null ) {
 
 	static $saved_instance = null;
 
