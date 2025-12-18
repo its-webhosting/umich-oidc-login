@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use function UMich_OIDC_Login\Core\log_umich_oidc;
-use const UMich_OIDC_Login\Core\{ LOG_NOTHING, LOG_ERROR, LOG_USER_EVENT, LOG_NOTICE, LOG_INFO, LOG_DEBUG };
+use const UMich_OIDC_Login\Core\{ LEVEL_NOTHING, LEVEL_ERROR, LEVEL_USER_EVENT, LEVEL_NOTICE, LEVEL_INFO, LEVEL_DEBUG };
 
 /**
  * The main class used to run the plugin.
@@ -156,7 +156,7 @@ class Run {
 			return;
 		}
 
-		log_umich_oidc( LOG_ERROR, 'UMich OIDC Login plugin upgrade from version %s to %s', $this->internals['plugin_version'], UMICH_OIDC_LOGIN_VERSION_INT );
+		log_umich_oidc( LEVEL_ERROR, 'UMich OIDC Login plugin upgrade from version %s to %s', $this->internals['plugin_version'], UMICH_OIDC_LOGIN_VERSION_INT );
 
 		/*
 		 * Version 1.0.0 -> 1.1.0:
@@ -200,14 +200,14 @@ class Run {
 		 */
 		$options = \get_option( 'umich_oidc_settings' );
 		if ( ! \is_array( $options ) ) {
-			log_umich_oidc( LOG_ERROR, 'plugin options is not an array' );
+			log_umich_oidc( LEVEL_ERROR, 'plugin options is not an array' );
 			$options = array();
 		}
 
 		if ( is_multisite() ) {
 			$site_options = \get_site_option( 'umich_oidc_network_settings' );
 			if ( ! \is_array( $site_options ) ) {
-				log_umich_oidc( LOG_ERROR, 'plugin site options is not an array' );
+				log_umich_oidc( LEVEL_ERROR, 'plugin site options is not an array' );
 				$site_options = array();
 			}
 

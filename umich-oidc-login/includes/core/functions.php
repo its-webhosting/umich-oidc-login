@@ -9,27 +9,27 @@
 
 namespace UMich_OIDC_Login\Core;
 
-const LOG_NOTHING    = 0;
-const LOG_ERROR      = 1;
-const LOG_USER_EVENT = 2;  // major events (login, logout).
-const LOG_NOTICE     = 3;  // warnings.
-const LOG_INFO       = 4;  // details.
-const LOG_DEBUG      = 5;
+const LEVEL_NOTHING    = 0;
+const LEVEL_ERROR      = 1;
+const LEVEL_USER_EVENT = 2;  // major events (login, logout).
+const LEVEL_NOTICE     = 3;  // warnings.
+const LEVEL_INFO       = 4;  // details.
+const LEVEL_DEBUG      = 5;
 
 $log_level_name = array(
-	LOG_NOTHING    => 'NOTHING',
-	LOG_ERROR      => 'ERROR',
-	LOG_USER_EVENT => 'EVENT',
-	LOG_NOTICE     => 'NOTICE',
-	LOG_INFO       => 'INFO',
-	LOG_DEBUG      => 'DEBUG',
+	LEVEL_NOTHING    => 'NOTHING',
+	LEVEL_ERROR      => 'ERROR',
+	LEVEL_USER_EVENT => 'EVENT',
+	LEVEL_NOTICE     => 'NOTICE',
+	LEVEL_INFO       => 'INFO',
+	LEVEL_DEBUG      => 'DEBUG',
 );
 
 
 $start_timestamp = \microtime( true );
 $start_time_base = \hrtime( true );
 $logs            = array();
-$log_level       = LOG_DEBUG;
+$log_level       = LEVEL_DEBUG;
 
 /**
  * Write a diagnostic message to the WP_DEBUG log.
@@ -61,7 +61,7 @@ function log_message( $message ) {
  * Callers are encouraged to pass in a sprintf template for $message together with $params instead.  This avoids
  * the runtime cost of doing interpolation (prior to the function call) unless the message will actually get logged.
  *
- * @param int           $level      One of LOG_ERROR, LOG_USER_EVENT, LOG_NOTICE, LOG_INFO, LOG_DEBUG.
+ * @param int           $level      One of LEVEL_ERROR, LEVEL_USER_EVENT, LEVEL_NOTICE, LEVEL_INFO, LEVEL_DEBUG.
  * @param string|object $message    The message to log.
  * @param mixed         ...$params  Values to substitute into $message placeholders.
  *
@@ -97,7 +97,7 @@ function log_umich_oidc( $level, $message, ...$params ) {
 function output_log_messages() {
 	global $logs, $start_timestamp, $log_level_name;
 
-	log_message( 'shutdown' );
+	log_umich_oidc( LEVEL_DEBUG, 'shutdown' );
 
 	// The request ID is only for people to group log entries for a single request together, so we don't need it
 	// to be cryptographically secure.
@@ -154,7 +154,7 @@ function patch_wp_logout_action( $operation, $instance = null ) {
 	}
 
 	if ( ! \is_object( $saved_instance ) || 'UMich_OIDC_Login\Core\OIDC' !== get_class( $saved_instance ) ) {
-		log_message( 'ERROR: patch_wp_logout_action() has bad saved instance, plugin logic error' );
+		log_umich_oidc( LEVEL_ERROR,'plugin logic error: patch_wp_logout_action() has bad saved instance' );
 		return;
 	}
 
