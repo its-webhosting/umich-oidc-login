@@ -183,7 +183,7 @@ class PHP_Session {
 	public function destroy() {
 		if ( \headers_sent() ) {
 			// We're too late, just return.
-			log_umich_oidc( LEVEL_NOTICE 'attempted to destroy the PHP session but headers have already been sent' );
+			log_umich_oidc( LEVEL_NOTICE, 'attempted to destroy the PHP session but headers have already been sent' );
 			return;
 		}
 
