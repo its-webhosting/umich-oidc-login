@@ -9,6 +9,7 @@
 
 namespace UMich_OIDC_Login\Core;
 
+// enums require PHP 8.1.0 or later.
 const LEVEL_NOTHING    = 0;
 const LEVEL_ERROR      = 1;
 const LEVEL_USER_EVENT = 2;  // major events (login, logout).
@@ -30,29 +31,6 @@ $start_timestamp = \microtime( true );
 $start_time_base = \hrtime( true );
 $logs            = array();
 $log_level       = LEVEL_DEBUG;
-
-/**
- * Write a diagnostic message to the WP_DEBUG log.
- *
- * @param string|object $message The message to log.
- *
- * @returns void
- */
-function log_message( $message ) {
-	global $logs, $start_time_base;
-
-	if ( true === WP_DEBUG ) {
-		if ( \is_array( $message ) || \is_object( $message ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions
-			$message = \print_r( $message, true );
-		}
-		$logs[] = array(
-			'time_elapsed' => \hrtime( true ) - $start_time_base,
-			'level'        => 0,
-			'message'      => $message,
-		);
-	}
-}
 
 
 /**

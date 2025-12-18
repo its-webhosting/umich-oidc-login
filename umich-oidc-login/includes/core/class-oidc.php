@@ -14,7 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message;
 
 /**
  * University of Michigan OIDC
@@ -111,7 +110,7 @@ class OIDC {
 		global $wp;
 		$source_path = $wp->request ? $wp->request : ( isset( $_SERVER['REQUEST_URI'] ) ? \esc_url_raw( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '/' );
 		$source_path = '/' . ltrim( $source_path, '/' );
-		log_message( "redirecting from {$source_path} to {$url}" );
+		log_umich_oidc( LEVEL_INFO, 'redirecting from %s to %s', $source_path, $url );
 
 		// TODO: call wp_validate_redirect() to be safe.  This
 		// will require adding a filter for allowed_redirect_hosts
@@ -150,9 +149,9 @@ class OIDC {
 	 * @return void
 	 */
 	public function fatal_error( $header, $details ) {
-		log_message( "{$header}: {$details}" );
+		log_umich_oidc( LEVEL_ERROR, 'FATAL ERROR: %s: %s', $header, $details );
 
-		$this->logout();  // Be very safe and clear everyhing.
+		$this->logout();  // Be very safe and clear everything.
 
 		// wp_die() functions differently for page/post requests than
 		// for AJAX requests.  Force our callback actions to be treated
@@ -298,7 +297,7 @@ class OIDC {
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- We're doing our own verification and sanitization.
 		$return_url = \rawurldecode( $_REQUEST['umich-oidc-return'] );
-		log_message( "check_return_url: {$return_url}" );
+		log_umich_oidc( LEVEL_DEBUG, 'check_return_url: %s', $return_url );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- We're doing our own verification and sanitization.
 		if ( false === $this->check_verifier( $_REQUEST['umich-oidc-verifier'], $return_url ) ) {
 			$this->fatal_error( $error_header, 'Unsafe login/logout link (incorrect nonce).' );
@@ -357,7 +356,7 @@ class OIDC {
 		} elseif ( 'logout' === $type ) {
 			$action = 'umich-oidc-logout';
 		} else {
-			log_message( "ERROR: get_oidc_url unknown type={$type}" );
+			log_umich_oidc( LEVEL_ERROR, 'get_oidc_url unknown type: %s', $type );
 			return '';
 		}
 
@@ -424,11 +423,11 @@ class OIDC {
 		$valid_return_url = \wp_validate_redirect( $return_url );
 		if ( '' === $valid_return_url ) {
 			$valid_return_url = \home_url();
-			log_message( "get_oidc_url: invalid return_url={$return_url} using home URL instead" );
+			log_umich_oidc( LEVEL_NOTICE, 'get_oidc_url: invalid return_url=%s using home URL instead', $return_url );
 		}
-		log_message( "get_oidc_url: return_url={$valid_return_url}" );
+		log_umich_oidc( LEVEL_DEBUG, 'get_oidc_url: return_url=%s', $valid_return_url );
 
-		$verifier            = $this->create_verifier( $return_url );    
+		$verifier            = $this->create_verifier( $return_url );
 		$return_query_string = '&umich-oidc-verifier=' . $verifier . '&umich-oidc-return='
 				. \rawurlencode( $valid_return_url );
 
@@ -473,7 +472,13 @@ class OIDC {
 
 		}
 
-		log_message( "login_url called:\n    login_url={$login_url}\n    redirect={$redirect}\n    returning: {$url}" );
+		log_umich_oidc(
+			LEVEL_DEBUG,
+			"login_url called:\n    login_url=%s\n    redirect=%s\n    returning: %s",
+			$login_url,
+			$redirect,
+			$url
+		);
 		return $url;
 	}
 
@@ -556,7 +561,7 @@ class OIDC {
 	 */
 	public function login() {
 
-		log_message( 'starting authentication' );
+		log_umich_oidc( LEVEL_DEBUG, 'starting authentication' );
 		$ctx = $this->ctx;
 
 		$options          = $ctx->options;
@@ -580,7 +585,7 @@ class OIDC {
 			$return_url = $this->check_return_url( 'Login failed (setup)' );
 			$session->set( 'return_url', $return_url );
 			// Important: do not close the session here or Jumbojett OpenIDConnectClient will re-start it and lose the return URL.
-			log_message( "return URL set in session: {$return_url}" );
+			log_umich_oidc( LEVEL_DEBUG, 'return URL set in session: %S', $return_url );
 		}
 
 		try {
@@ -612,7 +617,7 @@ class OIDC {
 			);
 		}
 
-		log_message( 'getting userinfo' );
+		log_umich_oidc( LEVEL_DEBUG, 'getting userinfo' );
 		try {
 			$userinfo = $jj_oidc->requestUserInfo();
 		} catch ( \Exception $e ) {
@@ -627,14 +632,14 @@ class OIDC {
 		$session->set( 'userinfo', $userinfo );
 		$return_url = $session->get( 'return_url' );
 		if ( '' === $return_url ) {
-			log_message( 'NOTICE: No return URL in session' );
+			log_umich_oidc( LEVEL_NOTICE, 'No return URL in session' );
 			$return_url = \home_url();
 		}
 		$session->clear( 'return_url' );
 		$session->close();
 
-		log_message( $session->get( 'id_token' ) );
-		log_message( $userinfo );
+		log_umich_oidc( LEVEL_INFO, $session->get( 'id_token' ) );
+		log_umich_oidc( LEVEL_INFO, $userinfo );
 
 		if( is_multisite() ) {
 			$dest_blog_id = get_blog_id_from_url(
@@ -697,7 +702,7 @@ class OIDC {
 			\setcookie( 'wordpress_umich_oidc_login', 'logged-in', $cookie_options );
 		}
 
-		log_message( "Logged in OIDC username: {$username}" );
+		log_umich_oidc( LEVEL_USER_EVENT, 'Logged in OIDC username: %s', $username );
 
 		if ( 'no' === $options['use_oidc_for_wp_users'] ) {
 			// Just OIDC, no WordPress?  We're done.
@@ -710,7 +715,7 @@ class OIDC {
 
 		$user = \get_user_by( 'login', $username );
 		if ( ! $user ) {
-			log_message( "No WordPress account for username {$username}, treating as OIDC-only user." );
+			log_umich_oidc( LEVEL_NOTICE, 'No WordPress account for username %s, treating as OIDC-only user.', $username );
 			if ( \str_starts_with( $return_url, \admin_url() ) ) {
 				$this->fatal_error(
 					'Access denied',
@@ -803,7 +808,7 @@ class OIDC {
 
 		$user = \get_user_by( 'login', $username );
 		if ( ! $user ) {
-			log_message( "No WordPress account for username {$username}, treating as OIDC-only user." );
+			log_umich_oidc( LEVEL_NOTICE, 'No WordPress account for username %s, treating as OIDC-only user.', $username );
 			if ( \str_starts_with( $return_url, \admin_url() ) ) {
 				$this->fatal_error(
 					'Access denied',
@@ -839,7 +844,7 @@ class OIDC {
 	 */
 	public function logout() {
 
-		log_message( 'logging out' );
+		log_umich_oidc( LEVEL_USER_EVENT, 'logging out' );
 
 		// If the site is hosted on WP Engine, unset the login cookie.
 		if ( isset( $_SERVER['IS_WPE'] ) ) {
@@ -868,7 +873,7 @@ class OIDC {
 			// No WordPress user is logged in.
 			return;
 		}
-		log_message( "also logging user={$user_id} out of WordPress" );
+		log_umich_oidc( LEVEL_USER_EVENT, 'also logging user=%s out of WordPress', $user_id );
 
 		// remove the WordPress logout action that can call this method.
 		\UMich_OIDC_Login\Core\patch_wp_logout_action( 'remove' );
@@ -894,7 +899,7 @@ class OIDC {
 
 		$this->logout();
 
-		log_message( "logout complete, returning to {$return_url}" );
+		log_umich_oidc( LEVEL_INFO, 'logout complete, returning to %s', $return_url );
 		$this->redirect( $return_url ); // Does not return.
 	}
 }

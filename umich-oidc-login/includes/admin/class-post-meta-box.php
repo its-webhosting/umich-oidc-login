@@ -17,7 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message;
+use function UMich_OIDC_Login\Core\log_umich_oidc;
+use const UMich_OIDC_Login\Core\{ LEVEL_NOTHING, LEVEL_ERROR, LEVEL_USER_EVENT, LEVEL_NOTICE, LEVEL_INFO, LEVEL_DEBUG };
 
 /**
  * Post Meta Box for restricting access to pages and posts.
@@ -137,7 +138,7 @@ class Post_Meta_Box {
 			'restEndpoint'         => $rest_endpoint,
 		);
 		$settings_json = \wp_json_encode( $settings );
-		log_message( "UMich OIDC access meta box settings: $settings_json" );
+		log_umich_oidc( LEVEL_DEBUG, 'UMich OIDC access meta box settings: %s', $settings_json );
 
 		?>
 		<script type="text/javascript">
@@ -179,7 +180,7 @@ class Post_Meta_Box {
 	public function access_meta_auth( $allowed, $meta_key, $object_id ) {
 
 		if ( '_umich_oidc_access' !== $meta_key ) {
-			log_message( "WARNING: access_meta_auth called with wrong meta_key: $meta_key" );
+			log_umich_oidc( LEVEL_NOTICE, 'access_meta_auth called with wrong meta_key: %s', $meta_key );
 			return $allowed;
 		}
 
@@ -187,14 +188,14 @@ class Post_Meta_Box {
 		$post_id       = $parent_id ? $parent_id : $object_id;
 		$this->post_id = $post_id;
 		$post_type     = \get_post_type( $post_id );
-		log_message( "access_meta_auth called for $post_type $post_id (orig: $object_id)" );
+		log_umich_oidc( LEVEL_DEBUG, 'access_meta_auth called for %s %s (orig: %s)', $post_type, $post_id, $object_id );
 
 		if ( 'page' === $post_type && ! \current_user_can( 'edit_page', $post_id ) ) {
-			log_message( 'access_meta_auth denied: not allowed to edit_page' );
+			log_umich_oidc( LEVEL_NOTICE, 'access_meta_auth denied: not allowed to edit_page' );
 			return false;
 		}
 		if ( ! \current_user_can( 'edit_post', $post_id ) ) {
-			log_message( 'access_meta_auth denied: not allowed to edit_post' );
+			log_umich_oidc( LEVEL_NOTICE, 'access_meta_auth denied: not allowed to edit_post' );
 			return false;
 		}
 
@@ -246,7 +247,7 @@ class Post_Meta_Box {
 
 		$ctx = $this->ctx;
 
-		log_message( "access_meta_sanitize_and_validate called with $meta_key : $meta_value" );
+		log_umich_oidc( LEVEL_DEBUG, 'access_meta_sanitize_and_validate called with %s : %s', $meta_key, $meta_value );
 		if ( '_umich_oidc_access' !== $meta_key ) {
 			return $meta_value;
 		}
@@ -254,15 +255,15 @@ class Post_Meta_Box {
 		if ( 0 === (int) $this->post_id ) {
 			$this->post_id = \get_queried_object_id();
 			if ( 0 === (int) $this->post_id ) {
-				log_message( 'ERROR: access_meta_sanitize_and_validate: postID is still 0 in access_meta_sanitize' );
+				log_umich_oidc( LEVEL_NOTICE, 'access_meta_sanitize_and_validate: postID is still 0 in access_meta_sanitize' );
 				return $meta_value; // should never happen, but the user is authenticated and could also do this manually.
 			}
 		}
-		log_message( "post ID is $this->post_id" );
+		log_umich_oidc( LEVEL_DEBUG, 'post ID is %s', $this->post_id );
 
 		$available_groups = $ctx->settings_page->available_groups();
 		$current_groups   = \implode( ',', $ctx->settings_page->post_access_groups( $this->post_id ) );
-		log_message( "current access: $current_groups" );
+		log_umich_oidc( LEVEL_DEBUG, 'current access: %s', $current_groups );
 
 		$meta_value = \sanitize_text_field( \wp_unslash( $meta_value ) );
 		$groups     = ( '' !== $meta_value )
@@ -271,16 +272,16 @@ class Post_Meta_Box {
 
 		$n = \count( $groups );
 		if ( 0 === $n ) {
-			log_message( 'ERROR: access_meta_sanitize_and_validate: Must select at least one group.' );
+			log_umich_oidc( LEVEL_ERROR, 'access_meta_sanitize_and_validate: Must select at least one group.' );
 			return $current_groups;
 		}
 		if ( $n > 1 ) {
 			if ( \in_array( '_everyone_', $groups, true ) ) {
-				log_message( 'ERROR: access_meta_sanitize_and_validate: "( Everyone )" cannot be used together with other groups.' );
+				log_umich_oidc( LEVEL_ERROR, 'access_meta_sanitize_and_validate: "( Everyone )" cannot be used together with other groups.' );
 				return $current_groups;
 			}
 			if ( \in_array( '_logged_in_', $groups, true ) ) {
-				log_message( 'ERROR: access_meta_sanitize_and_validate: "( Logged-in Users )" cannot be used together with other groups.' );
+				log_umich_oidc( LEVEL_ERROR, 'access_meta_sanitize_and_validate: "( Logged-in Users )" cannot be used together with other groups.' );
 				return $current_groups;
 			}
 		}
@@ -293,7 +294,7 @@ class Post_Meta_Box {
 		);
 		foreach ( $groups as $group ) {
 			if ( ! \in_array( $group, $legal_vallues, true ) ) {
-				log_message( 'ERROR: Unknown group: access_meta_sanitize_and_validate: ' . esc_html( $group ) );
+				log_umich_oidc( LEVEL_ERROR, 'Unknown group: access_meta_sanitize_and_validate: %s', esc_html( $group ) );
 				return $current_groups;
 			}
 		}
@@ -315,20 +316,20 @@ class Post_Meta_Box {
 		if ( ! isset( $_REQUEST['umich_oidc_meta_nonce'] ) || ! isset( $_REQUEST['_umich_oidc_access'] ) ) {
 			return;
 		}
-		log_message( "access_meta_save called for $post_id" );
+		log_umich_oidc( LEVEL_DEBUG, 'access_meta_save called for %s', $post_id );
 
 		if ( ! \wp_verify_nonce( \sanitize_text_field( \wp_unslash( $_REQUEST['umich_oidc_meta_nonce'] ) ), 'umich_oidc_access_meta' ) ) {
-			log_message( "ERROR: bad nonce when saving post $post_id" );
+			log_umich_oidc( LEVEL_ERROR, 'bad nonce when saving post %s', $post_id );
 			return;
 		}
 
 		if ( \is_multisite() && \ms_is_switched() ) {
-			log_message( "skipping meta box save for post $post_id: multisite switch_to_blog() is active" );
+			log_umich_oidc( LEVEL_INFO, 'skipping meta box save for post %s: multisite switch_to_blog() is active', $post_id );
 			return;
 		}
 
 		if ( ! $this->access_meta_auth( false, '_umich_oidc_access', $post_id ) ) {
-			log_message( "ERROR: access denied when saving post $post_id" );
+			log_umich_oidc( LEVEL_ERROR, 'access denied when saving post %s', $post_id );
 			return;
 		}
 
@@ -341,8 +342,8 @@ class Post_Meta_Box {
 			'_umich_oidc_access'
 		);
 
-		log_message( "saving access for post $post_id: $access" );
+		log_umich_oidc( LEVEL_DEBUG, 'saving access for post %s: %s', $post_id, $access );
 		$result = \update_post_meta( $post_id, '_umich_oidc_access', $access );
-		log_message( "update_metadata result: $result" );
+		log_umich_oidc( LEVEL_DEBUG, 'update_metadata result: %s', $result );
 	}
 }

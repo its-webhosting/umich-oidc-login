@@ -14,7 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message;
+use function UMich_OIDC_Login\Core\log_umich_oidc;
+use const UMich_OIDC_Login\Core\{ LEVEL_NOTHING, LEVEL_ERROR, LEVEL_USER_EVENT, LEVEL_NOTICE, LEVEL_INFO, LEVEL_DEBUG };
 
 /**
  * UMich OIDC shortcodes
@@ -248,7 +249,7 @@ class Shortcodes {
 		} elseif ( 'button' === $element ) {
 			$html = "<button onclick='window.location.href=\"{$url}\"'{$attributes}>{$text}</button>";
 		} else {
-			log_message( 'unrecognized element, suppressing button/link shortcode output' );
+			log_umich_oidc( LEVEL_NOTICE, 'unrecognized element %s in button/link shortcode, suppressing shortcode output',  $element );
 			return '';
 		}
 
@@ -373,14 +374,14 @@ END;
 		$dictionary  = $atts['dictionary'];
 
 		if ( '' === $type ) {
-			log_message( "{$tag}: no userinfo type specified" );
+			log_umich_oidc( LEVEL_NOTICE, '%s: no userinfo type specified', $tag );
 			return $default;
 		}
 
 		$oidc_user = $ctx->oidc_user;
 		$info      = $oidc_user->get_userinfo( $type, null );
 		if ( \is_null( $info ) ) {
-			log_message( "{$tag}: userinfo for {$type} is null" );
+			log_umich_oidc( LEVEL_NOTICE, '%s: userinfo for %s is null', $type );
 			return \esc_html( $default );
 		}
 
@@ -497,12 +498,12 @@ END;
 		}
 
 		if ( 'umich_oidc_member' === $tag && 0 === $matches ) {
-			log_message( "{$tag}: no groups match, denying" );
+			log_umich_oidc( LEVEL_DEBUG, '%s: no groups match, denying', $tag );
 			return '';
 		}
 		if ( 'umich_oidc_not_member' === $tag && 0 !== $matches ) {
 			// all groups must not match.
-			log_message( "{$tag}: at least one group matches, denying" );
+			log_umich_oidc( LEVEL_DEBUG, '%s: at least one group matches, denying', $tag );
 			return '';
 		}
 

@@ -12,7 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message;
 
 /**
  * PHP session management.
@@ -51,7 +50,7 @@ class PHP_Session {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@ob_start();
 		\session_start();
-		log_message( 'session started' );
+		log_umich_oidc( LEVEL_DEBUG, 'session started' );
 
 		/**
 		 * Deal with duplicate cookie problem.  See
@@ -93,7 +92,7 @@ class PHP_Session {
 		 * suffer greatly.
 		 */
 		if ( ! \array_key_exists( \session_name(), $_COOKIE ) ) {
-			log_message( 'session init - no session cookie' );
+			log_umich_oidc( LEVEL_DEBUG, 'session init - no session cookie' );
 			return;
 		}
 
@@ -146,7 +145,7 @@ class PHP_Session {
 		 * suffer greatly.
 		 */
 		if ( ! \array_key_exists( \session_name(), $_COOKIE ) ) {
-			log_message( "session get {$key} - no session cookie" );
+			log_umich_oidc( LEVEL_DEBUG, 'session get %s: no session cookie', $key );
 			return $default_value;
 		}
 
@@ -184,7 +183,7 @@ class PHP_Session {
 	public function destroy() {
 		if ( \headers_sent() ) {
 			// We're too late, just return.
-			log_message( 'WARNING: attempted to destroy the PHP session but headers have already been sent.' );
+			log_umich_oidc( LEVEL_NOTICE 'attempted to destroy the PHP session but headers have already been sent' );
 			return;
 		}
 
@@ -226,7 +225,7 @@ class PHP_Session {
 			)
 		);
 		\session_destroy();
-		log_message( 'session cookie has been unset' );
+		log_umich_oidc( LEVEL_DEBUG, 'session cookie has been unset' );
 	}
 
 	/**
@@ -251,7 +250,7 @@ class PHP_Session {
 
 		// If no other plugin or package is using the session, destroy it.
 		if ( 0 === \count( $_SESSION ) ) {
-			log_message( 'session clear_all: destroying empty session' );
+			log_umich_oidc( LEVEL_DEBUG, 'session clear_all: destroying empty session' );
 			$this->destroy();
 		}
 	}
@@ -272,7 +271,7 @@ class PHP_Session {
 			return $headers;
 		}
 
-		log_message( 'session fix_headers: destroying empty session' );
+		log_umich_oidc( LEVEL_DEBUG, 'session fix_headers: destroying empty session' );
 		$this->destroy();
 
 		// Return headers without modification; they will not contain the PHP session cookie we just destroyed.

@@ -17,7 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message;
 
 /**
  * Authentication checks.
@@ -113,14 +112,14 @@ class Auth_Check {
 		$ctx = $this->ctx;
 
 		if ( \array_key_exists( 'wp-auth-check', $response ) ) {
-			log_message( 'oidc_auth_check: WordPress: ' . ( $response['wp-auth-check'] ? 'yes' : 'no' ) );
+			log_umich_oidc( LEVEL_DEBUG, 'oidc_auth_check: WordPress: %s', $response['wp-auth-check'] ? 'yes' : 'no' );
 			if ( $response['wp-auth-check'] ) {
 				return $response;
 			}
 		}
 
 		$session_state = $ctx->oidc_user->session_state();
-		log_message( "oidc_auth_check: OIDC: {$session_state}" );
+		log_umich_oidc( LEVEL_DEBUG, 'oidc_auth_check: OIDC: %s', $session_state );
 		$response['wp-auth-check'] = ( 'valid' === $session_state );
 
 		return $response;

@@ -14,7 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message;
 
 /**
  * Fired during plugin activation or deactivation.
@@ -72,7 +71,7 @@ class Setup {
 		 * The plugin is now safely activated.
 		 * Perform your activation actions here.
 		 */
-		log_message( '***** UMich OIDC Login plugin version ' . UMICH_OIDC_LOGIN_VERSION . ' activated *****' );
+		log_umich_oidc( LEVEL_ERROR, 'ACTIVATED UMich OIDC Login plugin version %s', UMICH_OIDC_LOGIN_VERSION );
 	}
 
 	/**
@@ -104,7 +103,7 @@ class Setup {
 		 * The plugin is now safely deactivated.
 		 * Perform your deactivation actions here.
 		 */
-		log_message( '***** UMich OIDC Login plugin version ' . UMICH_OIDC_LOGIN_VERSION . ' deactivated *****' );
+		log_umich_oidc( LEVEL_ERROR, 'DEACTIVATED UMich OIDC Login plugin version %s', UMICH_OIDC_LOGIN_VERSION );
 	}
 
 	/**

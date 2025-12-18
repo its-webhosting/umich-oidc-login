@@ -14,7 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message;
+use function UMich_OIDC_Login\Core\log_umich_oidc;
+use const UMich_OIDC_Login\Core\{ LEVEL_NOTHING, LEVEL_ERROR, LEVEL_USER_EVENT, LEVEL_NOTICE, LEVEL_INFO, LEVEL_DEBUG };
 
 /**
  * Enforces access restrictions
@@ -83,11 +84,13 @@ class Restrict_Access {
 		$oidc_user      = $ctx->oidc_user;
 		$logged_in_oidc = $oidc_user->logged_in();
 		$logged_in_wp   = \is_user_logged_in();
-		log_message(
-			'checking access, required=' . \implode( ',', $access ) .
-			" logged_in_oidc={$logged_in_oidc}" .
-			" session_state={$oidc_user->session_state()}" .
-			" logged_in_wp={$logged_in_wp}"
+		log_umich_oidc(
+			LEVEL_INFO,
+			'checking access: required=%s logged_in_oidc=%s session_state=%s logged_in_wp=%s',
+			\implode( ',', $access ),
+			$logged_in_oidc,
+			$oidc_user->session_state(),
+			$logged_in_wp
 		);
 
 		$logged_in = $logged_in_oidc || $logged_in_wp;
@@ -103,7 +106,7 @@ class Restrict_Access {
 		$user_groups = $oidc_user->groups();
 		$matches     = \count( \array_intersect( $access, $user_groups ) );
 		if ( 0 === $matches ) {
-			log_message( 'access denied: required=' . \implode( ',', $access ) . ' user=' . \implode( ',', $user_groups ) );
+			log_umich_oidc( LEVEL_INFO, 'access denied: required=%s user=%s', \implode( ',', $access ), \implode( ',', $user_groups ) );
 			return self::DENIED_NOT_IN_GROUPS;
 		}
 
@@ -153,7 +156,7 @@ class Restrict_Access {
 				( isset( $_SERVER['REQUEST_URI'] ) && '/favicon.ico' === $_SERVER['REQUEST_URI'] )
 				|| is_favicon()
 			) {
-				log_message( 'unauthenticated favicon.ico request, returning 401' );
+				log_umich_oidc( LEVEL_NOTICE, 'unauthenticated favicon.ico request, returning 401' );
 				\wp_die( 'Authentication required', 'Authentication required', array( 'response' => 401 ) );
 			}
 
@@ -208,7 +211,7 @@ class Restrict_Access {
 	 */
 	public function restrict_site() {
 
-		log_message( 'restricting site' );
+		log_umich_oidc( LEVEL_DEBUG, 'restricting site' );
 
 		// Always allow the AJAX calls for logging users in & out.
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- verification not needed
@@ -242,7 +245,7 @@ class Restrict_Access {
 	 */
 	public function restrict_feed( $content ) {
 
-		log_message( 'restricting feed' );
+		log_umich_oidc( LEVEL_DEBUG, 'restricting feed' );
 
 		$result = $this->check_site_access();
 		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
@@ -269,7 +272,7 @@ class Restrict_Access {
 	 */
 	public function restrict_site_single_post() {
 
-		log_message( 'restricting site single post' );
+		log_umich_oidc( LEVEL_DEBUG, 'restricting site single post' );
 
 		// Always allow the AJAX calls for logging users in & out.
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- verification not needed
@@ -283,10 +286,10 @@ class Restrict_Access {
 		}
 
 		if ( ! \is_singular() ) {
-			log_message( 'NOT SINGULAR' );
+			log_umich_oidc( LEVEL_DEBUG, 'NOT SINGULAR' );
 		}
 		$post_id = \get_queried_object_id();
-		log_message( "restrict site single post id = {$post_id}" );
+		log_umich_oidc( LEVEL_DEBUG, 'restrict site single post id = %s', $post_id );
 		if ( $post_id <= 0 ) {
 			return;
 		}
@@ -310,7 +313,7 @@ class Restrict_Access {
 	public function get_the_excerpt( $excerpt ) {
 		global $post;
 		$post_id = isset( $post->ID ) ? $post->ID : 0;
-		log_message( "restrict excerpt = {$post_id}" );
+		log_umich_oidc( LEVEL_DEBUG, 'restrict excerpt = %s', $post_id );
 		if ( $post_id <= 0 ) {
 			return '';
 		}
@@ -340,7 +343,7 @@ class Restrict_Access {
 	 */
 	public function the_content( $content ) {
 
-		log_message( 'restricting the_content' );
+		log_umich_oidc( LEVEL_DEBUG, 'restricting the_content' );
 		$post = \get_post();
 		if ( \is_null( $post ) || ! isset( $post->ID ) ) {
 			return $content;
@@ -390,17 +393,17 @@ class Restrict_Access {
 			switch ( $result ) {
 				case self::ALLOWED:
 					$allowed[] = $post;
-					log_message( "restrict_list - post {$post->ID} allowed" );
+					log_umich_oidc( LEVEL_INFO, 'restrict_list - post %s allowed', $post->ID );
 					break;
 				case self::DENIED_NOT_LOGGED_IN:
-					log_message( "restrict_list - post {$post->ID} denied - not logged in" );
+					log_umich_oidc( LEVEL_INFO, 'restrict_list - post %s denied: not logged in', $post->ID );
 					++$redirect_count;
 					break;
 				case self::DENIED_NOT_IN_GROUPS:
-					log_message( "restrict_list - post {$post->ID} denied - not in groups" );
+					log_umich_oidc( LEVEL_INFO, 'restrict_list - post %s denied: not in groups', $post->ID );
 					break;
 				default:
-					log_message( "ERROR: restrict_list - post {$post->ID} denied: unexpected access check result" );
+					log_umich_oidc( LEVEL_ERROR, 'restrict_list - post %s denied: unexpected access check result %s', $post->ID, $result );
 					break;
 			}
 		}
@@ -458,7 +461,7 @@ class Restrict_Access {
 	 */
 	private function rest_access( $id, $response ) {
 
-		log_message( 'restricting rest_access' );
+		log_umich_oidc( LEVEL_DEBUG, 'restricting rest_access' );
 		$result = $this->check_site_access();
 		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
 			return $this->rest_error( 'rest_user_cannot_view', 'Authentication required', 401 );
@@ -544,9 +547,9 @@ class Restrict_Access {
 	 */
 	public function found_posts( $found_posts, $query ) {
 
-		log_message( 'restricting found_posts' );
+		log_umich_oidc( LEVEL_DEBUG, 'restricting found_posts' );
 		if ( 'ids' !== $query->query_vars['fields'] || empty( $query->query_vars['post_type'] ) ) {
-			log_message( 'restricting found_posts: no ids or post types' );
+			log_umich_oidc( LEVEL_DEBUG, 'restricting found_posts: no ids or post types' );
 			return $found_posts;
 		}
 
@@ -554,23 +557,23 @@ class Restrict_Access {
 		if ( self::ALLOWED !== $result ) {
 			$query->posts      = array();
 			$query->post_count = 0;
-			log_message( 'restricting found_posts: site access denied' );
+			log_umich_oidc( LEVEL_DEBUG, 'restricting found_posts: site access denied' );
 			return 0;
 		}
 
 		if ( null === $query->posts ) {
-			log_message( 'restricting found_posts: query posts is null' );
+			log_umich_oidc( LEVEL_DEBUG, 'restricting found_posts: query posts is null' );
 			return $found_posts;
 		}
 		if ( \is_integer( $query->posts ) ) {
 			$access = $this->ctx->settings_page->post_access_groups( $query->posts );
 			$result = $this->check_access( $access );
 			if ( self::ALLOWED === $result ) {
-				log_message( 'restricting found_posts: integer post allowed' );
+				log_umich_oidc( LEVEL_DEBUG, 'restricting found_posts: integer post allowed' );
 				return $found_posts;
 			}
 			$query->posts = null;
-			log_message( 'restricting found_posts: integer post denied' );
+			log_umich_oidc( LEVEL_DEBUG, 'restricting found_posts: integer post denied' );
 			return 0;
 		}
 
@@ -589,7 +592,7 @@ class Restrict_Access {
 		}
 		$query->posts      = $posts;
 		$query->post_count = count( $posts );
-		log_message( "restricting found_posts: returning {$found_posts} posts" );
+		log_umich_oidc( LEVEL_DEBUG, 'restricting found_posts: returning %s posts', $found_posts );
 		return $found_posts;
 	}
 
@@ -608,7 +611,7 @@ class Restrict_Access {
 	 * @return array The filtered $_post
 	 */
 	public function xmlrpc_prepare_post( $_post, $post ) {
-		log_message( 'restricting xmlrpc_prepare_post' );
+		log_umich_oidc( LEVEL_DEBUG, 'restricting xmlrpc_prepare_post' );
 
 		// The page/post XMLRPC methods require login.
 		$result = $this->check_site_access();
@@ -667,7 +670,7 @@ class Restrict_Access {
 	 * @return array The filtered $_comment
 	 */
 	public function xmlrpc_prepare_comment( $_comment, $comment ) {
-		log_message( 'restricting xmlrpc_prepare_comment' );
+		log_umich_oidc( LEVEL_DEBUG, 'restricting xmlrpc_prepare_comment' );
 
 		// The comment XMLRPC methods require login.
 		$result = $this->check_site_access();
@@ -693,7 +696,7 @@ class Restrict_Access {
 	 * @return void
 	 */
 	public function xmlrpc_call_access( $post_id, $server ) {
-		log_message( 'restricting xmlrpc_call_access' );
+		log_umich_oidc( LEVEL_DEBUG, 'restricting xmlrpc_call_access' );
 
 		// Calls to $server->error() terminate the script.
 
@@ -738,8 +741,8 @@ class Restrict_Access {
 	 * @return void
 	 */
 	public function xmlrpc_call( $name, $args, $server ) {
-		log_message( "***** xmlrpc call: {$name}" );
-		log_message( $args );
+		log_umich_oidc( LEVEL_DEBUG, 'xmlrpc call: %s', $name );
+		log_umich_oidc( LEVEL_DEBUG, $args );
 
 		/*
 		 * We can't check the following XMLRPC methods here because

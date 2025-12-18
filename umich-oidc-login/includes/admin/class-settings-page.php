@@ -14,7 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message;
+use function UMich_OIDC_Login\Core\log_umich_oidc;
+use const UMich_OIDC_Login\Core\{ LEVEL_NOTHING, LEVEL_ERROR, LEVEL_USER_EVENT, LEVEL_NOTICE, LEVEL_INFO, LEVEL_DEBUG };
 
 /**
  * Admin dashboard settings page
@@ -273,7 +274,7 @@ class Settings_Page {
 	public function post_access_groups( $id ) {
 
 		$access = \get_post_meta( $id, '_umich_oidc_access', true );
-		log_message( "access list for post {$id}: \"{$access}\"" );
+		log_umich_oidc( LEVEL_INFO, 'access list for post %s: "%s"', $id, $access );
 
 		// If $access is empty, explode() will return an array with
 		// one element that is an empty string.
@@ -412,14 +413,16 @@ class Settings_Page {
 		if ( \is_wp_error( $request ) ) {
 			$msg = 'Does not appear to be an OpenID Identity Provider: unable to retrieve ' . \esc_url( $url ) . '/.well-known/openid-configuration';
 			$errors->add( 'provider_url', $msg );
-			log_message( $msg );
-			log_message( $request );
+			log_umich_oidc( LEVEL_ERROR, $msg );
+			log_umich_oidc( LEVEL_ERROR, $request );
 			return '';
 		}
 		$body = \wp_remote_retrieve_body( $request );
 		$json = \json_decode( $body );
 		if ( JSON_ERROR_NONE !== \json_last_error() ) {
-			$errors->add( 'provider_url', 'Does not appear to be an OpenID Identity Provider: ' . \esc_url( $url ) . '/.well-known/openid-configuration is not a valid JSON document.' );
+			$msg = 'Does not appear to be an OpenID Identity Provider: ' . \esc_url( $url ) . '/.well-known/openid-configuration is not a valid JSON document.';
+			$errors->add( 'provider_url', $msg );
+			log_umich_oidc( LEVEL_ERROR, $msg );
 			return '';
 		}
 		return $url;
@@ -491,7 +494,7 @@ class Settings_Page {
 		// Single quotes are legal in group names, unescape them.
 		$input = str_replace( "\\'", "'", $input );
 
-		log_message( "available groups: |$input|" );
+		log_umich_oidc( LEVEL_DEBUG, 'available groups: %s', $input );
 		return $input;
 	}
 
@@ -505,8 +508,8 @@ class Settings_Page {
 	 */
 	public function sanitize_group_choices( $input, $errors, $setting ) {
 
-		log_message( 'group choices: ' );
-		log_message( $input );
+		log_umich_oidc( LEVEL_DEBUG, 'group choices: ' );
+		log_umich_oidc( LEVEL_DEBUG, $input );
 		$field_id = $setting['id'];
 		if ( ! \is_array( $input ) ) {
 			$errors->add( $field_id, 'Internal error (not an array)' );

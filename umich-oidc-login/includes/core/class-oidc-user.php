@@ -17,7 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use function UMich_OIDC_Login\Core\log_message;
 
 /**
  * OIDC authenticated user.
@@ -94,7 +93,7 @@ class OIDC_User {
 		if ( 'unknown' === $session_state ) {
 			// For troubleshooting purposes, differentiate between a known session that the user is not logged
 			// into and a session for which we are unable to determine the state and hence set it to 'none'.
-			log_message( 'user init: no state saved in session, setting to none' );
+			log_umich_oidc( LEVEL_INFO, 'user init: no state saved in session, setting to none' );
 			$session_state = 'none';
 		}
 		$this->session_state = $session_state;
@@ -108,7 +107,7 @@ class OIDC_User {
 			// User is not logged in.
 			if ( 'expired' === $session_state && ! \wp_doing_ajax() ) {
 				// An AJAX request will not clear an expired session, but a regular page load will.
-				log_message( 'user init: page load, clearing expired session' );
+				log_umich_oidc( LEVEL_DEBUG, 'user init: page load, clearing expired session' );
 				$ctx->oidc->logout();
 				$this->session_state = 'none';
 				$session->set( 'state', 'none' );
@@ -120,7 +119,7 @@ class OIDC_User {
 		$options        = $ctx->options;
 		$session_length = $options['session_length'];
 		if ( \time() > ( ( (int) $id_token->iat ) + (int) $session_length ) ) {
-			log_message( "user init: OIDC session time ({$session_length} seconds) expired, logging user out" );
+			log_umich_oidc( LEVEL_USER_EVENT, 'user init: OIDC session time (%s seconds) expired, logging user out', $session_length );
 			$ctx->oidc->logout();
 			$this->id_token      = null;
 			$this->userinfo      = null;
@@ -131,7 +130,7 @@ class OIDC_User {
 		}
 
 		if ( ! \array_key_exists( 'claim_for_username', $options ) ) {
-			log_message( 'ERROR: plugin option claim_for_username not set' );
+			log_umich_oidc( LEVEL_ERROR,'plugin option claim_for_username not set' );
 			$this->session_state = 'none';
 			$session->set( 'state', 'none' );
 			$session->close();
@@ -139,7 +138,7 @@ class OIDC_User {
 		}
 		$username_claim = $options['claim_for_username'];
 		if ( ! \property_exists( $userinfo, $username_claim ) ) {
-			log_message( 'ERROR: user seemingly logged in, but can\'t find username information in userinfo' );
+			log_umich_oidc( LEVEL_ERROR, 'user seemingly logged in, but can\'t find username information in userinfo' );
 			$this->session_state = 'none';
 			$session->set( 'state', 'none' );
 			$session->close();
@@ -148,7 +147,7 @@ class OIDC_User {
 
 		$this->id_token = $id_token;
 		$this->userinfo = $userinfo;
-		log_message( "user init OK: {$this->session_state} {$userinfo->$username_claim}" );
+		log_umich_oidc( LEVEL_DEBUG, 'user init OK: %s %s', $this->session_state, $userinfo->$username_claim );
 	}
 
 	/**
@@ -181,7 +180,7 @@ class OIDC_User {
 			}
 		}
 
-		log_message( "looking up userinfo {$key}" );
+		log_umich_oidc( LEVEL_DEBUG, 'looking up userinfo %s', $key );
 		if ( '' === $key || ! \is_object( $this->userinfo ) || ! \property_exists( $this->userinfo, $key ) ) {
 			return $default_value;
 		}
@@ -230,11 +229,11 @@ class OIDC_User {
 
 		$groups = $this->get_userinfo( 'groups', null );
 		if ( \is_null( $groups ) ) {
-			log_message( 'groups is null' );
+			log_umich_oidc( LEVEL_INFO, 'groups is null' );
 			return array();
 		}
 		if ( ! \is_array( $groups ) ) {
-			log_message( 'groups is not array' );
+			log_umich_oidc( LEVEL_INFO, 'groups is not array' );
 			return array();
 		}
 
