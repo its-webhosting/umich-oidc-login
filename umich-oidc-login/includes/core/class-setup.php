@@ -71,6 +71,7 @@ class Setup {
 		 * The plugin is now safely activated.
 		 * Perform your activation actions here.
 		 */
+		Setup::create_db_tables();
 		log_umich_oidc( LEVEL_ERROR, 'ACTIVATED UMich OIDC Login plugin version %s', UMICH_OIDC_LOGIN_VERSION );
 	}
 
@@ -189,5 +190,39 @@ class Setup {
 		}
 
 		return false;
+	}
+
+
+	/**
+	 * Create the extra database tables the plugin needs.
+	 *
+	 * See https://developer.wordpress.org/plugins/creating-tables-with-plugins/ .
+	 *
+	 * @return void.
+	 */
+	public static function create_db_tables() {
+		global $wpdb;
+		log_umich_oidc( LEVEL_DEBUG, 'CREATING DB TABLES' );
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		// Note: `event_time` is in microseconds since the Unix epoch.
+
+		$charset_collate = $wpdb->get_charset_collate();
+
+		log_umich_oidc( LEVEL_DEBUG, '%s table creation results:', $table );
+		$table = $wpdb->prefix . 'umich_oidc_login_logs';
+		$sql   = "CREATE TABLE $table (
+            event_time bigint(20) unsigned NOT NULL,
+            request_id char(8) NOT NULL,
+            session_name varchar(64),
+            session_id varchar(64),
+            level int(2) unsigned NOT NULL,
+            message text NOT NULL,
+            PRIMARY KEY  (event_time)
+        ) $charset_collate;";
+
+		$result = dbDelta( $sql );
+		log_umich_oidc( LEVEL_ERROR, $result );
 	}
 }

@@ -159,6 +159,12 @@ class Run {
 		log_umich_oidc( LEVEL_ERROR, 'UMich OIDC Login plugin upgrade from version %s to %s', $this->internals['plugin_version'], UMICH_OIDC_LOGIN_VERSION_INT );
 
 		/*
+		 * Version 1.3.0 -> 2.0.0:
+		 * Add database table for plugin log messages.
+		 */
+		\UMich_OIDC_Login\Core\Setup::create_db_tables();
+
+		/*
 		 * Version 1.0.0 -> 1.1.0:
 		 * use_oidc_for_wp_users (no|optional|yes) replaces link_accounts (false|true).
 		 */

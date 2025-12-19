@@ -60,6 +60,9 @@ function umich_oidc_login_uninstall() {
 	 *
 	 * @see https://developer.wordpress.org/plugins/plugin-basics/uninstall-methods/#method-2-uninstall-php
 	 */
+	global $wpdb;
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}umich_oidc_login_logs" );
 }
 
 umich_oidc_login_uninstall();

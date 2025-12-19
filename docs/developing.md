@@ -148,6 +148,13 @@ env WDS_SOCKET_PORT=0 npx wp-scripts start \
     --live-reload --hot=true
 ```
 
+### Access the database
+
+```bash
+source .env
+mysql -h wp.internal -P 3306 --user=root --password="${DB_ROOT_PASSWORD}" wordpress
+```
+
 ### Clean up and start over
 
 Delete the WordPress database and all WordPress files.

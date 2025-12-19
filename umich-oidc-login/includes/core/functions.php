@@ -10,12 +10,14 @@
 namespace UMich_OIDC_Login\Core;
 
 // enums require PHP 8.1.0 or later.
+// The values are multiples of 10 so we can inset additional logging levels later without having to update all log
+// records in the database table, while still allowing numerical comparison of log levels for filtering purposes.
 const LEVEL_NOTHING    = 0;
-const LEVEL_ERROR      = 1;
-const LEVEL_USER_EVENT = 2;  // major events (login, logout).
-const LEVEL_NOTICE     = 3;  // warnings.
-const LEVEL_INFO       = 4;  // details.
-const LEVEL_DEBUG      = 5;
+const LEVEL_ERROR      = 10;
+const LEVEL_USER_EVENT = 20;  // major events (login, logout).
+const LEVEL_NOTICE     = 30;  // warnings.
+const LEVEL_INFO       = 40;  // details.
+const LEVEL_DEBUG      = 50;
 
 $log_level_name = array(
 	LEVEL_NOTHING    => 'NOTHING',
@@ -37,9 +39,9 @@ $log_level = LEVEL_DEBUG;
  * Callers are encouraged to pass in a sprintf template for $message together with $params instead.  This avoids
  * the runtime cost of doing interpolation (prior to the function call) unless the message will actually get logged.
  *
- * @param int           $level      One of LEVEL_ERROR, LEVEL_USER_EVENT, LEVEL_NOTICE, LEVEL_INFO, LEVEL_DEBUG.
- * @param string|object $message    The message to log.
- * @param mixed         ...$params  Values to substitute into $message placeholders.
+ * @param int                 $level      One of LEVEL_ERROR, LEVEL_USER_EVENT, LEVEL_NOTICE, LEVEL_INFO, LEVEL_DEBUG.
+ * @param string|object|array $message    The message to log.
+ * @param mixed               ...$params  Values to substitute into $message placeholders.
  *
  * @returns void
  */
@@ -61,9 +63,9 @@ function log_umich_oidc( $level, $message, ...$params ) {
 	$seconds      = (int) $timestamp;
 	$microseconds = (int) ( ( $timestamp - $seconds ) * 1000000 );
 	$logs[]       = array(
-		'when'    => $seconds * 1000000 + $microseconds,
-		'level'   => $level,
-		'message' => $message,
+		'event_time' => $seconds * 1000000 + $microseconds, // microseconds since the Unix epoch.
+		'level'      => $level,
+		'message'    => substr( $message, 0, 65500 ), // database TEXT field can hold up to 65,536 characters.
 	);
 }
 
@@ -74,8 +76,11 @@ function log_umich_oidc( $level, $message, ...$params ) {
  * @returns void
  */
 function output_log_messages() {
-	global $logs, $log_level_name;
+	global $wpdb, $logs, $log_level_name;
 
+	if ( true === WP_DEBUG ) {
+		$tick = \hrtime( true );
+	}
 	log_umich_oidc( LEVEL_DEBUG, 'shutdown' );
 
 	// The request ID is only for people to group log entries for a single request together, so we don't need it
@@ -90,26 +95,88 @@ function output_log_messages() {
 	$last_seconds    = 0;
 	$datetime_string = '';
 
-	foreach ( $logs as $log ) {
-		$seconds      = \intdiv( $log['when'], 1000000 );
-		$microseconds = $log['when'] % 1000000;
-		if ( $seconds !== $last_seconds ) {
-			$last_seconds = $seconds;
-			$datetime_string = \wp_date( 'c', $seconds );
-		}
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
-		\error_log(
-			\sprintf(
-				'umich-oidc %s %06d %s %11s=%6s %8s %s',
-				$datetime_string,
-				$microseconds,
-				$request_id,
-				$session_name,
-				$session_id,
-				( isset( $log_level_name[ $log['level'] ] ) ? $log_level_name[ $log['level'] ] : 'UNKNOWN' ),
-				$log['message']
-			)
+	/*
+	 * Getting the internal field `dbh` and using it to access the database directly using mysql_* functions is horrible.
+	 * But the string escaping $wpdb->prepare does (rather than binding parameters) is also horrible.
+	 * And we will often be inserting multiple rows and so can benefit a lot by only preparing the statement once.
+	 *
+	 * So...
+	 */
+	$table     = $wpdb->prefix . 'umich_oidc_login_logs';
+	$dbh       = $wpdb->__get( 'dbh' );
+	$log_to_db = true;
+
+	if ( $log_to_db ) {
+		// phpcs:ignore WordPress.DB.RestrictedFunctions
+		$stmt = \mysqli_prepare(
+			$dbh,
+			"INSERT INTO $table (event_time, request_id, session_name, session_id, level, message) VALUES (?, ?, ?, ?, ?, ?)"
 		);
+		if ( ! $stmt ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions,WordPress.DB.RestrictedFunctions
+			\error_log( 'umich_oidc_login database prepare failed: ' . \mysqli_error( $dbh ) );
+			$log_to_db = false;
+		}
+	}
+
+	$p_event_time   = 0;
+	$p_request_id   = $request_id;
+	$p_session_name = $session_name;
+	$p_session_id   = $session_id;
+	$p_level        = '';
+	$p_message      = '';
+	if ( $log_to_db ) {
+		// phpcs:ignore WordPress.DB.RestrictedFunctions
+		$result = \mysqli_stmt_bind_param( $stmt, 'dsssds', $p_event_time, $p_request_id, $p_session_name, $p_session_id, $p_level, $p_message );
+		if ( ! $result ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions,WordPress.DB.RestrictedFunctions
+			\error_log( 'umich_oidc_login database statement bind param failed: ' . \mysqli_error( $dbh ) );
+			$log_to_db = false;
+		}
+	}
+
+	foreach ( $logs as $log ) {
+
+		if ( true === WP_DEBUG ) {
+			$seconds      = \intdiv( $log['event_time'], 1000000 );
+			$microseconds = $log['event_time'] % 1000000;
+			if ( $seconds !== $last_seconds ) {
+				$last_seconds    = $seconds;
+				$datetime_string = \wp_date( 'c', $seconds );
+			}
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions
+			\error_log(
+				\sprintf(
+					'umich-oidc %s %06d %s %11s=%6s %8s %s',
+					$datetime_string,
+					$microseconds,
+					$request_id,
+					$session_name,
+					$session_id,
+					( isset( $log_level_name[ $log['level'] ] ) ? $log_level_name[ $log['level'] ] : 'UNKNOWN' ),
+					$log['message']
+				)
+			);
+		}
+
+		if ( $log_to_db ) {
+			$p_event_time = $log['event_time'];
+			$p_level      = $log['level'];
+			$p_message    = $log['message'];
+			// phpcs:ignore WordPress.DB.RestrictedFunctions
+			$result = \mysqli_stmt_execute( $stmt );
+			if ( ! $result ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions,WordPress.DB.RestrictedFunctions
+				\error_log( 'umich_oidc_login database insert failed: ' . \mysqli_error( $dbh ) );
+				$log_to_db = false;
+			}
+		}
+	}
+
+	if ( true === WP_DEBUG ) {
+		$tok = ( \hrtime( true ) - $tick ) / 1000000;
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
+		\error_log( "outputting logs took {$tok} ms" );
 	}
 }
 
