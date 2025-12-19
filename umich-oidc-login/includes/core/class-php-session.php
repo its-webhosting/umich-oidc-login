@@ -42,6 +42,7 @@ class PHP_Session {
 	 * @return void
 	 */
 	public function start() {
+		global $log_level;
 
 		if ( PHP_SESSION_NONE !== \session_status() ) {
 			return;
@@ -50,7 +51,10 @@ class PHP_Session {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@ob_start();
 		\session_start();
-		log_umich_oidc( LEVEL_DEBUG, 'session started' );
+		if ( LEVEL_DEBUG === $log_level ) {
+			$path = isset( $_SERVER['REQUEST_URI'] ) ? \sanitize_url( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '(unknown)';
+			log_umich_oidc( LEVEL_DEBUG, 'session started for request %s', $path );
+		}
 
 		/**
 		 * Deal with duplicate cookie problem.  See
@@ -86,13 +90,18 @@ class PHP_Session {
 	 * @return void
 	 */
 	public function init() {
+		global $log_level;
+
 		/*
 		 * Don't start a session unless one exists, otherwise
 		 * we'll always be bypassing caching and performance will
 		 * suffer greatly.
 		 */
 		if ( ! \array_key_exists( \session_name(), $_COOKIE ) ) {
-			log_umich_oidc( LEVEL_DEBUG, 'session init - no session cookie' );
+			if ( LEVEL_DEBUG === $log_level ) {
+				$path = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_url( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '(unknown)';
+				log_umich_oidc( LEVEL_DEBUG, 'session init (no session cookie) for request %s', $path );
+			}
 			return;
 		}
 
