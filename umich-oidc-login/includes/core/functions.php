@@ -27,10 +27,8 @@ $log_level_name = array(
 );
 
 
-$start_timestamp = \microtime( true );
-$start_time_base = \hrtime( true );
-$logs            = array();
-$log_level       = LEVEL_DEBUG;
+$logs      = array();
+$log_level = LEVEL_DEBUG;
 
 
 /**
@@ -46,7 +44,7 @@ $log_level       = LEVEL_DEBUG;
  * @returns void
  */
 function log_umich_oidc( $level, $message, ...$params ) {
-	global $log_level, $logs, $start_time_base;
+	global $log_level, $logs;
 
 	if ( $level > $log_level ) {
 		return;
@@ -59,10 +57,13 @@ function log_umich_oidc( $level, $message, ...$params ) {
 		$message = \sprintf( $message, ...$params );
 	}
 
-	$logs[] = array(
-		'time_elapsed' => \hrtime( true ) - $start_time_base,
-		'level'        => $level,
-		'message'      => $message,
+	$timestamp    = \microtime( true );
+	$seconds      = (int) $timestamp;
+	$microseconds = (int) ( ( $timestamp - $seconds ) * 1000000 );
+	$logs[]       = array(
+		'when'    => $seconds * 1000000 + $microseconds,
+		'level'   => $level,
+		'message' => $message,
 	);
 }
 
@@ -73,7 +74,7 @@ function log_umich_oidc( $level, $message, ...$params ) {
  * @returns void
  */
 function output_log_messages() {
-	global $logs, $start_timestamp, $log_level_name;
+	global $logs, $log_level_name;
 
 	log_umich_oidc( LEVEL_DEBUG, 'shutdown' );
 
@@ -84,25 +85,24 @@ function output_log_messages() {
 	// distinguish in long log entries, so we use wp_rand() instead.
 	$request_id = \substr( \sprintf( '%08x', \wp_rand() ), 0, 8 );
 
-	$session_name  = \substr( \session_name(), 0, 11 );
-	$session_id    = \substr( \session_id(), 0, 6 );
-	$timestamp_int = 0;
-	$timestamp_str = '';
+	$session_name    = \substr( \session_name(), 0, 11 );
+	$session_id      = \substr( \session_id(), 0, 6 );
+	$last_seconds    = 0;
+	$datetime_string = '';
 
 	foreach ( $logs as $log ) {
-		$ts     = $start_timestamp + (float) $log['time_elapsed'] / 10e9;
-		$ts_int = (int) $ts;
-		if ( $ts_int !== $timestamp_int ) {
-			$timestamp_int = $ts_int;
-			$timestamp_str = \wp_date( 'c', $timestamp_int );
+		$seconds      = \intdiv( $log['when'], 1000000 );
+		$microseconds = $log['when'] % 1000000;
+		if ( $seconds !== $last_seconds ) {
+			$last_seconds = $seconds;
+			$datetime_string = \wp_date( 'c', $seconds );
 		}
-		$microsec = (int) ( 100000 * ( $ts - $ts_int ) );
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
 		\error_log(
 			\sprintf(
 				'umich-oidc %s %06d %s %11s=%6s %8s %s',
-				$timestamp_str,
-				$microsec,
+				$datetime_string,
+				$microseconds,
 				$request_id,
 				$session_name,
 				$session_id,
@@ -132,7 +132,7 @@ function patch_wp_logout_action( $operation, $instance = null ) {
 	}
 
 	if ( ! \is_object( $saved_instance ) || 'UMich_OIDC_Login\Core\OIDC' !== get_class( $saved_instance ) ) {
-		log_umich_oidc( LEVEL_ERROR,'plugin logic error: patch_wp_logout_action() has bad saved instance' );
+		log_umich_oidc( LEVEL_ERROR, 'plugin logic error: patch_wp_logout_action() has bad saved instance' );
 		return;
 	}
 
