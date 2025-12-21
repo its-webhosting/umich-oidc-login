@@ -98,7 +98,7 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 		'desc'     => 'Allow only members of these groups (plus administrators) to access this site. Which groups show up here is determined by the <a href="#oidc/available_groups">Groups for Authorization</a> setting.',
 		'type'     => 'multiselect',
 		'labels'   => array( 'placeholder' => 'Select one or more groups...' ),
-		'options'  => $this->available_groups(),
+		'options'  => $this->ctx->restrict_access->available_groups(),
 		'validate' => 'umichOidcSettings.validateRestrictSite',
 		'std'      => $option_defaults['restrict_site'],
 	),

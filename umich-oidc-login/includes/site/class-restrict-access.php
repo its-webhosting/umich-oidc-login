@@ -60,6 +60,63 @@ class Restrict_Access {
 	}
 
 	/**
+	 * Return list of groups for restricting access to a post.
+	 *
+	 * @param int $id ID of the post to return the access list for.
+	 *
+	 * @return array
+	 */
+	public function post_access_groups( $id ) {
+
+		$access = \get_post_meta( $id, '_umich_oidc_access', true );
+		log_umich_oidc( LEVEL_INFO, 'access list for post %s: "%s"', $id, $access );
+
+		// If $access is empty, explode() will return an array with
+		// one element that is an empty string.
+		if ( '' === $access ) {
+			return array();
+		}
+		$access = \array_map( '\trim', \explode( ',', $access ) );
+
+		return $access;
+	}
+
+	/**
+	 * Return list of available groups for use in a multiselect field.
+	 *
+	 * @return array
+	 */
+	public function available_groups() {
+
+		$groups = array(
+			array(
+				'value' => '_everyone_',
+				'label' => '( Everyone )',
+			),
+			array(
+				'value' => '_logged_in_',
+				'label' => '( Logged-in Users )',
+			),
+		);
+
+		$options = $this->ctx->options;
+		if ( ! \array_key_exists( 'available_groups', $options ) || ! \is_string( $options['available_groups'] ) ) {
+			return $groups;
+		}
+		$available = \array_map( '\trim', \explode( ',', $options['available_groups'] ) );
+		foreach ( $available as $a ) {
+			if ( '' !== $a ) {
+				$groups[] = array(
+					'value' => $a,
+					'label' => $a,
+				);
+			}
+		}
+
+		return $groups;
+	}
+
+	/**
 	 * Check to see if the current user has the specified access.
 	 *
 	 * @param array $access List of groups that can access the resource being checked.
@@ -294,7 +351,7 @@ class Restrict_Access {
 			return;
 		}
 
-		$access = $this->ctx->settings_page->post_access_groups( $post_id );
+		$access = $this->post_access_groups( $post_id );
 		$result = $this->check_access( $access );
 		if ( self::ALLOWED !== $result ) {
 			$this->denial_redirect( $result );
@@ -318,11 +375,10 @@ class Restrict_Access {
 			return '';
 		}
 
-		$ctx    = $this->ctx;
-		$access = $ctx->settings_page->post_access_groups( $post_id );
+		$access = $this->post_access_groups( $post_id );
 		$result = $this->check_access( $access );
 		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
-			$url = $ctx->oidc->get_oidc_url( 'login', '' );
+			$url = $this->ctx->oidc->get_oidc_url( 'login', '' );
 			return "(You need to <a href='{$url}'>log in</a> to view this content.)";
 		}
 		if ( self::DENIED_NOT_IN_GROUPS === $result ) {
@@ -349,11 +405,10 @@ class Restrict_Access {
 			return $content;
 		}
 
-		$ctx    = $this->ctx;
-		$access = $ctx->settings_page->post_access_groups( $post->ID );
+		$access = $this->post_access_groups( $post->ID );
 		$result = $this->check_access( $access );
 		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
-			$url = $ctx->oidc->get_oidc_url( 'login', '' );
+			$url = $this->ctx->oidc->get_oidc_url( 'login', '' );
 			return "(You need to <a href='{$url}'>log in</a> to view this content.)";
 		}
 		if ( self::DENIED_NOT_IN_GROUPS === $result ) {
@@ -388,7 +443,7 @@ class Restrict_Access {
 		$allowed        = array();
 		$redirect_count = 0;
 		foreach ( $posts as $post ) {
-			$access = $this->ctx->settings_page->post_access_groups( $post->ID );
+			$access = $this->post_access_groups( $post->ID );
 			$result = $this->check_access( $access );
 			switch ( $result ) {
 				case self::ALLOWED:
@@ -474,7 +529,7 @@ class Restrict_Access {
 			return $response;
 		}
 
-		$access = $this->ctx->settings_page->post_access_groups( $id );
+		$access = $this->post_access_groups( $id );
 		$result = $this->check_access( $access );
 		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
 			return $this->rest_error( 'rest_user_cannot_view', 'Authentication required', 401 );
@@ -566,7 +621,7 @@ class Restrict_Access {
 			return $found_posts;
 		}
 		if ( \is_integer( $query->posts ) ) {
-			$access = $this->ctx->settings_page->post_access_groups( $query->posts );
+			$access = $this->post_access_groups( $query->posts );
 			$result = $this->check_access( $access );
 			if ( self::ALLOWED === $result ) {
 				log_umich_oidc( LEVEL_DEBUG, 'restricting found_posts: integer post allowed' );
@@ -579,7 +634,7 @@ class Restrict_Access {
 
 		$posts = array();
 		foreach ( $query->posts as $post ) {
-			$access = $this->ctx->settings_page->post_access_groups( $post );
+			$access = $this->post_access_groups( $post );
 			$result = $this->check_access( $access );
 			if ( self::ALLOWED === $result ) {
 				$posts[] = $post;
@@ -623,7 +678,7 @@ class Restrict_Access {
 			return $_post;
 		}
 
-		$access = $this->ctx->settings_page->post_access_groups( $post['ID'] );
+		$access = $this->post_access_groups( $post['ID'] );
 		$result = $this->check_access( $access );
 		if ( self::ALLOWED !== $result ) {
 			$msg                   = 'You do not have access to this content.';
@@ -678,7 +733,7 @@ class Restrict_Access {
 			return $this->xmlrpc_block_comment( $_comment, 'You do not have access to this content.' );
 		}
 
-		$access = $this->ctx->settings_page->post_access_groups( $comment['post_id'] );
+		$access = $this->post_access_groups( $comment['post_id'] );
 		$result = $this->check_access( $access );
 		if ( self::ALLOWED !== $result ) {
 			return $this->xmlrpc_block_comment( $_comment, 'You do not have access to this content.' );
@@ -712,7 +767,7 @@ class Restrict_Access {
 			return;
 		}
 
-		$access = $this->ctx->settings_page->post_access_groups( $post_id );
+		$access = $this->post_access_groups( $post_id );
 		$result = $this->check_access( $access );
 		if ( self::DENIED_NOT_LOGGED_IN === $result ) {
 			$server->error( 401, 'Authentication required' );

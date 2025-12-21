@@ -265,63 +265,6 @@ class Settings_Page {
 	}
 
 	/**
-	 * Return list of groups for restricting access to a post.
-	 *
-	 * @param int $id ID of the post to return the access list for.
-	 *
-	 * @return array
-	 */
-	public function post_access_groups( $id ) {
-
-		$access = \get_post_meta( $id, '_umich_oidc_access', true );
-		log_umich_oidc( LEVEL_INFO, 'access list for post %s: "%s"', $id, $access );
-
-		// If $access is empty, explode() will return an array with
-		// one element that is an empty string.
-		if ( '' === $access ) {
-			return array();
-		}
-		$access = \array_map( '\trim', \explode( ',', $access ) );
-
-		return $access;
-	}
-
-	/**
-	 * Return list of available groups for use in a multiselect field.
-	 *
-	 * @return array
-	 */
-	public function available_groups() {
-
-		$groups = array(
-			array(
-				'value' => '_everyone_',
-				'label' => '( Everyone )',
-			),
-			array(
-				'value' => '_logged_in_',
-				'label' => '( Logged-in Users )',
-			),
-		);
-
-		$options = $this->ctx->options;
-		if ( ! \array_key_exists( 'available_groups', $options ) || ! \is_string( $options['available_groups'] ) ) {
-			return $groups;
-		}
-		$available = \array_map( '\trim', \explode( ',', $options['available_groups'] ) );
-		foreach ( $available as $a ) {
-			if ( '' !== $a ) {
-				$groups[] = array(
-					'value' => $a,
-					'label' => $a,
-				);
-			}
-		}
-
-		return $groups;
-	}
-
-	/**
 	 * Register settings for the plugin.
 	 *
 	 * @param array $settings Default settings.
@@ -330,6 +273,7 @@ class Settings_Page {
 	 */
 	public function registered_settings( $settings, $location = 'site' ) {
 
+		log_umich_oidc( LEVEL_DEBUG, 'loading settings page (registered_settings)' );
 		$option_defaults = $this->ctx->option_defaults;
 
 		// Use require rather than require_once to ensure new values are calculated each time.
@@ -364,6 +308,13 @@ class Settings_Page {
 			}
 
 			$settings[ $tKey ] = array_values( $settings[ $tKey ] );
+		}
+
+		// Fail-safe: make sure the cron job is scheduled whenever the plugin settings page is loaded, since something
+		// might have un-scheduled it since the time the plugin was activated. This is less of a performance hit than
+		// checking on every page load, or even every admin page load.
+		if ( ! \wp_next_scheduled( 'umich_oidc_login_cron_daily' ) ) {
+			\wp_schedule_event( \time(), 'daily', 'umich_oidc_login_cron_daily' );
 		}
 
 		return $settings;

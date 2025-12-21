@@ -71,7 +71,13 @@ class Setup {
 		 * The plugin is now safely activated.
 		 * Perform your activation actions here.
 		 */
-		Setup::create_db_tables();
+
+		self::create_db_tables();
+
+		if ( ! \wp_next_scheduled( 'umich_oidc_login_cron_daily' ) ) {
+			\wp_schedule_event( \time(), 'daily', 'umich_oidc_login_cron_daily' );
+		}
+
 		log_umich_oidc( LEVEL_ERROR, 'ACTIVATED UMich OIDC Login plugin version %s', UMICH_OIDC_LOGIN_VERSION );
 	}
 
@@ -104,6 +110,9 @@ class Setup {
 		 * The plugin is now safely deactivated.
 		 * Perform your deactivation actions here.
 		 */
+
+		\wp_clear_scheduled_hook( 'umich_oidc_login_cron_daily' );
+
 		log_umich_oidc( LEVEL_ERROR, 'DEACTIVATED UMich OIDC Login plugin version %s', UMICH_OIDC_LOGIN_VERSION );
 	}
 

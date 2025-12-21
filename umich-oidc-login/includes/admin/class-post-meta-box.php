@@ -91,7 +91,7 @@ class Post_Meta_Box {
 		$post_type_name_singular = ! empty( $post_type_object->labels->singular_name )
 			? $post_type_object->labels->singular_name
 			: $post_type;
-		$access                  = $ctx->settings_page->post_access_groups( $post->ID );
+		$access                  = $ctx->restrict_access->post_access_groups( $post->ID );
 
 		$rest_namespace = 'wp/v2';
 		$rest_base      = $post_type;
@@ -132,7 +132,7 @@ class Post_Meta_Box {
 
 		$settings      = array(
 			'postTypeNameSingular' => \esc_html( $post_type_name_singular ),
-			'availableGroups'      => $ctx->settings_page->available_groups(),
+			'availableGroups'      => $ctx->restict_access->available_groups(),
 			'selectedGroups'       => $selected,
 			'autosave'             => $ctx->options['autosave'],
 			'restEndpoint'         => $rest_endpoint,
@@ -261,8 +261,8 @@ class Post_Meta_Box {
 		}
 		log_umich_oidc( LEVEL_DEBUG, 'post ID is %s', $this->post_id );
 
-		$available_groups = $ctx->settings_page->available_groups();
-		$current_groups   = \implode( ',', $ctx->settings_page->post_access_groups( $this->post_id ) );
+		$available_groups = $ctx->restrict_access->available_groups();
+		$current_groups   = \implode( ',', $ctx->restrict_access->post_access_groups( $this->post_id ) );
 		log_umich_oidc( LEVEL_DEBUG, 'current access: %s', $current_groups );
 
 		$meta_value = \sanitize_text_field( \wp_unslash( $meta_value ) );
@@ -286,14 +286,14 @@ class Post_Meta_Box {
 			}
 		}
 
-		$legal_vallues = array_map(
+		$legal_values = array_map(
 			function ( $v ) {
 				return $v['value'];
 			},
 			$available_groups
 		);
 		foreach ( $groups as $group ) {
-			if ( ! \in_array( $group, $legal_vallues, true ) ) {
+			if ( ! \in_array( $group, $legal_values, true ) ) {
 				log_umich_oidc( LEVEL_ERROR, 'Unknown group: access_meta_sanitize_and_validate: %s', esc_html( $group ) );
 				return $current_groups;
 			}

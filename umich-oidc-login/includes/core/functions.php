@@ -90,10 +90,8 @@ function output_log_messages() {
 	// distinguish in long log entries, so we use wp_rand() instead.
 	$request_id = \substr( \sprintf( '%08x', \wp_rand() ), 0, 8 );
 
-	$session_name    = \substr( \session_name(), 0, 11 );
-	$session_id      = \substr( \session_id(), 0, 6 );
-	$last_seconds    = 0;
-	$datetime_string = '';
+	$session_name = \substr( \session_name(), 0, 11 );
+	$session_id   = \substr( \session_id(), 0, 6 );
 
 	/*
 	 * Getting the internal field `dbh` and using it to access the database directly using mysql_* functions is horrible.
@@ -106,6 +104,12 @@ function output_log_messages() {
 	$dbh       = $wpdb->__get( 'dbh' );
 	$log_to_db = true;
 
+	$p_event_time   = 0;
+	$p_request_id   = $request_id;
+	$p_session_name = $session_name;
+	$p_session_id   = $session_id;
+	$p_level        = '';
+	$p_message      = '';
 	if ( $log_to_db ) {
 		// phpcs:ignore WordPress.DB.RestrictedFunctions
 		$stmt = \mysqli_prepare(
@@ -117,15 +121,6 @@ function output_log_messages() {
 			\error_log( 'umich_oidc_login database prepare failed: ' . \mysqli_error( $dbh ) );
 			$log_to_db = false;
 		}
-	}
-
-	$p_event_time   = 0;
-	$p_request_id   = $request_id;
-	$p_session_name = $session_name;
-	$p_session_id   = $session_id;
-	$p_level        = '';
-	$p_message      = '';
-	if ( $log_to_db ) {
 		// phpcs:ignore WordPress.DB.RestrictedFunctions
 		$result = \mysqli_stmt_bind_param( $stmt, 'dsssds', $p_event_time, $p_request_id, $p_session_name, $p_session_id, $p_level, $p_message );
 		if ( ! $result ) {
@@ -138,18 +133,11 @@ function output_log_messages() {
 	foreach ( $logs as $log ) {
 
 		if ( true === WP_DEBUG ) {
-			$seconds      = \intdiv( $log['event_time'], 1000000 );
-			$microseconds = $log['event_time'] % 1000000;
-			if ( $seconds !== $last_seconds ) {
-				$last_seconds    = $seconds;
-				$datetime_string = \wp_date( 'c', $seconds );
-			}
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions
 			\error_log(
 				\sprintf(
-					'umich-oidc %s %06d %s %11s=%6s %8s %s',
-					$datetime_string,
-					$microseconds,
+					'%06d umich-oidc %s %11s=%6s %8s %s',
+					$log['event_time'] % 1000000, // microseconds (rest of timestamp supplied by error_log()).
 					$request_id,
 					$session_name,
 					$session_id,

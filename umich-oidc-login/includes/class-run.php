@@ -189,6 +189,34 @@ class Run {
 
 
 	/**
+	 * Run daily cron tasks.
+	 *
+	 * @return void
+	 */
+	public function cron_daily() {
+		global $wpdb;
+		log_umich_oidc( LEVEL_DEBUG, 'running daily cron job');
+
+		// Delete logs older than 1 day.
+		// 1 day is a temporary placeholder until we add log retention period to the UI.
+		$timestamp    = \microtime( true );
+		$seconds      = (int) $timestamp;
+		$microseconds = (int) ( ( $timestamp - $seconds ) * 1000000 );
+		$seconds      = $seconds - 86400;  // 1 day
+		$cutoff       = $seconds * 1000000 + $microseconds; // microseconds since the Unix epoch.
+
+		$table = $wpdb->prefix . 'umich_oidc_login_logs';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$result = $wpdb->query( $wpdb->prepare( "DELETE FROM `$table` WHERE event_time < %d", $cutoff ) );
+		if ( is_bool( $result ) && false === result ) {
+			log_umich_oidc( LEVEL_ERROR, 'daily cron job to delete old logs failed: %s', $wpdb->last_error );
+		} else {
+			log_umich_oidc( LEVEL_DEBUG, '%d old log rows deleted from database', (int) $result );
+		}
+	}
+
+
+	/**
 	 * Initialize the plugin.
 	 *
 	 * @return void
@@ -255,6 +283,10 @@ class Run {
 
 		$this->oidc = new \UMich_OIDC_Login\Core\OIDC( $this );
 		if ( \is_admin() ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			if ( isset( $_SERVER['REQUEST_URI'] ) && ! str_contains( $_SERVER['REQUEST_URI'], '/admin-ajax.php' ) && ! str_contains( $_SERVER['REQUEST_URI'], '/admin-post.php' ) ) {
+				$this->settings_page = new \UMich_OIDC_Login\Admin\Settings_Page( $this );
+			}
 
 			// Login handler.
 			//
@@ -264,7 +296,7 @@ class Run {
 			\add_action( 'wp_ajax_openid-connect-authorize', array( $this->oidc, 'login' ) );
 			\add_action( 'wp_ajax_nopriv_openid-connect-authorize', array( $this->oidc, 'login' ) );
 
-			// Multisite handler
+			// Multisite handler.
 			\add_action( 'wp_ajax_openid-connect-multisite', array( $this->oidc, 'login_multisite' ) );
 			\add_action( 'wp_ajax_nopriv_openid-connect-multisite', array( $this->oidc, 'login_multisite' ) );
 
@@ -374,6 +406,6 @@ class Run {
 			),
 		);
 
-		$this->settings_page = new \UMich_OIDC_Login\Admin\Settings_Page( $this );
+		\add_action( 'umich_oidc_login_cron_daily', array( $this, 'cron_daily' ) );
 	}
 }
