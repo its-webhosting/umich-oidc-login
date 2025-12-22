@@ -432,6 +432,9 @@ function SettingsField( { setting } ) {
 		case 'html':
 			return <div id={ setting.id }>{ parse( setting.html ) }</div>;
 
+		case 'table-dynamic-fullwidth':
+			return <div id={ setting.id }>{ parse( setting.html ) }</div>;
+
 		default:
 			return <span>{ setting.type } field not implemented</span>;
 	}
@@ -439,16 +442,27 @@ function SettingsField( { setting } ) {
 
 function TabFields( { tabName } ) {
 	const fieldSettings = window.optionsKitSettings.settings[ tabName ];
-	const settings = fieldSettings?.map( ( setting ) => (
-		<Row key={ setting.id } className="optionskit-field-row">
-			<Col lg={ 2 } className="optionskit-field-label">
-				<label htmlFor={ setting.id }>{ setting.name }</label>
-			</Col>
-			<Col lg={ 10 } className="optionskit-field">
-				<SettingsField setting={ setting } />
-			</Col>
-		</Row>
-	) );
+	const settings = fieldSettings?.map( ( setting ) => {
+		if ( setting.type === 'table-dynamic-fullwidth' ) {
+			return (
+				<Row key={ setting.id } className="optionskit-field-row">
+					<Col lg={ 12 } className="optionskit-field">
+						<SettingsField setting={ setting } />
+					</Col>
+				</Row>
+			);
+		}
+		return (
+			<Row key={ setting.id } className="optionskit-field-row">
+				<Col lg={ 2 } className="optionskit-field-label">
+					<label htmlFor={ setting.id }>{ setting.name }</label>
+				</Col>
+				<Col lg={ 10 } className="optionskit-field">
+					<SettingsField setting={ setting } />
+				</Col>
+			</Row>
+		)
+	} );
 
 	return (
 		<div className="optionskit-form-wrapper">
