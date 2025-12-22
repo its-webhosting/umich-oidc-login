@@ -18,6 +18,9 @@ import {
 } from '@wordpress/components';
 import Select from 'react-select';
 import parse from 'html-react-parser';
+import 'react-tabulator/lib/styles.css'; // required styles
+import 'react-tabulator/lib/css/tabulator.min.css'; // theme
+import { ReactTabulator } from 'react-tabulator';
 import './TabFields.scss';
 
 // from Jason Bunting, https://stackoverflow.com/a/359910
@@ -433,7 +436,26 @@ function SettingsField( { setting } ) {
 			return <div id={ setting.id }>{ parse( setting.html ) }</div>;
 
 		case 'table-dynamic-fullwidth':
-			return <div id={ setting.id }>{ parse( setting.html ) }</div>;
+			const columns = [
+				{ title: 'Date/time', field: 'event_time', width: 150 },
+				{ title: 'Request ID', field: 'request_id' },
+				{ title: 'Session name', field: 'session_name' },
+				{ title: 'Session ID', field: 'session_id' },
+				{ title: 'Level', field: 'level' },
+				{ title: 'Message', field: 'message' },
+			];
+			var data = [
+				{ 'event_time': '2024-06-01 12:00:00', 'request_id': 'abc123', 'session_name': 'Session A', 'session_id': 'sess001', 'level': 'Info', 'message': 'User logged in.' },
+			];
+			return (
+				<>
+					<ReactTabulator
+						data={ data }
+						columns={ columns }
+						layout={ 'fitData' }
+					/>
+				</>
+			);
 
 		default:
 			return <span>{ setting.type } field not implemented</span>;
