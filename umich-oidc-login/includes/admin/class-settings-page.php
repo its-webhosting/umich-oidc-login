@@ -227,6 +227,7 @@ class Settings_Page {
 			'general'    => 'General',
 			'oidc'       => 'OIDC',
 			'shortcodes' => 'Shortcodes',
+			'logs'       => 'Logs',
 		);
 
 		if( is_multisite() ) {
@@ -248,6 +249,7 @@ class Settings_Page {
 			'general'    => 'General',
 			'oidc'       => 'OIDC',
 			'shortcodes' => 'Shortcodes',
+			'logs'       => 'Logs',
 		);
 
 		return $tabs;
@@ -280,11 +282,13 @@ class Settings_Page {
 		require 'settings-tab-general.php';    // sets $settings_tab_general.
 		require 'settings-tab-oidc.php';       // sets $settings_tab_oidc.
 		require 'settings-tab-shortcodes.php'; // sets $settings_tab_shortcodes.
+		require 'settings-tab-logs.php';    // sets $settings_tab_logs.
 
 		$settings = array(
 			'general'    => $settings_tab_general,
 			'oidc'       => $settings_tab_oidc,
 			'shortcodes' => $settings_tab_shortcodes,
+			'logs'       => $settings_tab_logs,
 		);
 
 		if( is_multisite() && ($location == 'site') ) {
