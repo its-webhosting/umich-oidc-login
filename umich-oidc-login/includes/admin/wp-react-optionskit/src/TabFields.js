@@ -90,6 +90,7 @@ function OptionsKitSelectInput( { description, options, validate, ...props } ) {
 					helpers.setValue( v, true );
 				} }
 				__nextHasNoMarginBottom
+				__next40pxDefaultSize
 			/>
 			{ meta.error && meta.touched && (
 				<Notice status="error" isDismissible={ false }>
@@ -296,6 +297,7 @@ function SettingsField( { setting } ) {
 								? setting.validate
 								: defaultValidation
 						}
+						__next40pxDefaultSize
 					/>
 				</>
 			);

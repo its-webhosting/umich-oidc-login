@@ -93,7 +93,7 @@ run-wp plugin install wp-native-php-sessions --activate
 Make sure everything works by visiting https://wp.internal/
 
 And log in at https://wp.internal/wp-admin/
-* Make sure everything is OK in the admin dashbaord.
+* Make sure everything is OK in the admin dashboard.
 * Update core, plugins, and themes to latest.
 
 ## UMICH OIDC Login plugin
@@ -139,6 +139,11 @@ This currently uses Node.js >= 20 installed on the local system, not from a Dock
 ```bash
 TOP=$(pwd)
 cd umich-oidc-login/includes/admin/wp-react-optionskit
+rm -rf build dist node_modules package-lock.json
+npm install --include dev  # ensure @wordpress/scripts devDependency gets installed
+npx wp-scripts start  # no hot reloading
+
+# Hot reloading:
 # --hot=true must be last command line option
 env WDS_SOCKET_PORT=0 npx wp-scripts start \
     --host="wp.internal" --server-type=https \
