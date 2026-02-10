@@ -18,9 +18,6 @@ import {
 } from '@wordpress/components';
 import Select from 'react-select';
 import parse from 'html-react-parser';
-import 'react-tabulator/lib/styles.css'; // required styles
-import 'react-tabulator/lib/css/tabulator.min.css'; // theme
-import { ReactTabulator } from 'react-tabulator';
 import './TabFields.scss';
 
 // from Jason Bunting, https://stackoverflow.com/a/359910
@@ -444,16 +441,24 @@ function SettingsField( { setting } ) {
 				{ title: 'Level', field: 'level' },
 				{ title: 'Message', field: 'message' },
 			];
+			/*
 			var data = [
 				{ 'event_time': '2024-06-01 12:00:00', 'request_id': 'abc123', 'session_name': 'Session A', 'session_id': 'sess001', 'level': 'Info', 'message': 'User logged in.' },
 			];
-			return (
-				<>
-					<ReactTabulator
-						data={ data }
+									//data={ data }
+				return (<ReactTabulator
 						columns={ columns }
 						layout={ 'fitData' }
+						height={ '300px' }
+						ajaxURL={ '/wp-json/wprok/umich_oidc/v1/logs' }
+						progressiveLoad={ 'scroll' }
+						paginationsize={ 20 }
+						placeholder={ '<center>Loading...</center>' }
 					/>
+			*/
+			return (
+				<>
+					<p>Hi</p>
 				</>
 			);
 
