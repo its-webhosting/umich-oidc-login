@@ -1,5 +1,12 @@
 # UMich OIDC Login Changelog
 
+## 1.3.1-beta1
+February 13, 2026
+
+* Adds a gated beta feature for automatically creating WordPress user accounts for users who log in via OIDC. Most of the functionality university units need around WordPress user account creation is still missing. Contact webmaster@umich.edu for details.
+* Updates dependencies.
+
+
 ## 1.3.0
 November 21, 2025
 

@@ -2,8 +2,8 @@
 Contributors: markmont
 Tags: access-control,OIDC,content restriction,groups,login
 Requires at least: 6.0.0
-Tested up to: 6.8.3
-Stable tag: 1.3.0
+Tested up to: 6.9.1
+Stable tag: 1.3.1-beta1
 Requires PHP: 7.3
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -114,6 +114,10 @@ If you don't remember your WordPress user account password, you can set a new on
 For a list of all plugin releases and the changes in each release, see the file [CHANGELOG.md in the GitHub repo](https://github.com/its-webhosting/umich-oidc-login/blob/main/CHANGELOG.md)
 
 == Upgrade Notice ==
+
+= 1.3.1-beta1 =
+* Adds a gated beta feature for automatically creating WordPress user accounts for users who log in via OIDC. Most of the functionality university units need around WordPress user account creation is still missing. Contact webmaster@umich.edu for details.
+* Updates dependencies.
 
 = 1.3.0 =
 * [SECURITY] vulnerability fix. Please update to 1.3.0 or later as soon as possible.
