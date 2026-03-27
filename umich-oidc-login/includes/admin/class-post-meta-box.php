@@ -132,7 +132,7 @@ class Post_Meta_Box {
 
 		$settings      = array(
 			'postTypeNameSingular' => \esc_html( $post_type_name_singular ),
-			'availableGroups'      => $ctx->restict_access->available_groups(),
+			'availableGroups'      => $ctx->restrict_access->available_groups(),
 			'selectedGroups'       => $selected,
 			'autosave'             => $ctx->options['autosave'],
 			'restEndpoint'         => $rest_endpoint,
