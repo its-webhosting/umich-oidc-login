@@ -28,7 +28,6 @@
     "html-react-parser": "5.2.17",
     "lodash.debounce": "4.0.8",
     "react-fast-compare": "3.2.2",
-    "react-grid-system": "8.2.1",
     "react-select": "5.10.2",
     "react-tabulator": "0.21"
   },

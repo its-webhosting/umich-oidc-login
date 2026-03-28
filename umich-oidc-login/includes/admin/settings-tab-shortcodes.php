@@ -74,10 +74,11 @@ The shortcodes below can be used in your content, widgets, and themes to control
 		',
 	),
 	array(
-		'id'   => 'shortcodes_button',
-		'name' => 'umich_oidc_button',
-		'type' => 'html',
-		'html' => "
+		'id'             => 'shortcodes_button',
+		'name'           => 'umich_oidc_button',
+		'nameForceBreak' => 'yes',
+		'type'           => 'html',
+		'html'           => "
 <div id='umich_oidc_button'><code>[umich_oidc_button type=\"login\" text=\"Log in\" return=\"here\" <i>HTML_ATTRIBUTES</i>]</code></div>
 <p>Generates a login or logout button.</p>
 <p><b>Example:</b> <code>[umich_oidc_button type=\"login\"]</code> will be replaced by a button that users can use to log in.</p>
@@ -93,10 +94,11 @@ The shortcodes below can be used in your content, widgets, and themes to control
 		",
 	),
 	array(
-		'id'   => 'shortcodes_link',
-		'name' => 'umich_oidc_link',
-		'type' => 'html',
-		'html' => "
+		'id'             => 'shortcodes_link',
+		'name'           => 'umich_oidc_link',
+		'nameForceBreak' => 'yes',
+		'type'           => 'html',
+		'html'           => "
 <div id='umich_oidc_link'><code>[umich_oidc_link type=\"login\" text=\"Log in\" return=\"here\" <i>HTML_ATTRIBUTES</i>]</code></div>
 <p>Generate a login or logout link.</p>
 <p><b>Example:</b> <code>[umich_oidc_link type=\"login\"]</code> will be replaced by a link that users can use to log in.</p>
@@ -112,10 +114,11 @@ The shortcodes below can be used in your content, widgets, and themes to control
 		",
 	),
 	array(
-		'id'   => 'shortcodes_logged_in',
-		'name' => 'umich_oidc_logged_in',
-		'type' => 'html',
-		'html' => '
+		'id'             => 'shortcodes_logged_in',
+		'name'           => 'umich_oidc_logged_in',
+		'nameForceBreak' => 'yes',
+		'type'           => 'html',
+		'html'           => '
 <div id="umich_oidc_logged_in"><code>[umich_oidc_logged_in flow="paragraph"] <i>CONTENT</i> [/umich_oidc_logged_in]</code></div>
 <p>Display content only if the user is logged in via OIDC and/or WordPress.</p>
 <p><b>Example:</b> <code>[umich_oidc_logged_in]Welcome, authenticated user![/umich_oidc_logged_in]</code> will be replaced by nothing if the visitor is not logged in.  If the visitor is logged in, "Welcome, authenticated user!" will be displayed.</p>
@@ -126,10 +129,11 @@ The shortcodes below can be used in your content, widgets, and themes to control
 		',
 	),
 	array(
-		'id'   => 'shortcodes_member',
-		'name' => 'umich_oidc_member',
-		'type' => 'html',
-		'html' => '
+		'id'             => 'shortcodes_member',
+		'name'           => 'umich_oidc_member',
+		'nameForceBreak' => 'yes',
+		'type'           => 'html',
+		'html'           => '
 <div id="umich_oidc_member"><code>[umich_oidc_member groups="<i>GROUP A, GROUP B, GROUP C</i>" flow="paragraph"] <i>CONTENT</i> [/umich_oidc_member]</code></div>
 <p>Display content only if the user is logged in via OIDC and is a member of at least one of the specified groups, or is a WordPress administrator (WordPress administrators are considered members of all groups).</p>
 <p><b>Example:</b> <code>[umich_oidc_member groups="diag-squirrel-fans"]Be ready to take photos![/umich_oidc_member]</code> will be replaced by nothing if the visitor is not logged in via OIDC or is not a member of the group diag-squirrel-fans.  If the visitor is logged and a member of the group, "Be ready to take photos!" will be displayed.</p>
@@ -141,10 +145,11 @@ The shortcodes below can be used in your content, widgets, and themes to control
 		',
 	),
 	array(
-		'id'   => 'shortcodes_not_logged_in',
-		'name' => 'umich_oidc_not_logged_in',
-		'type' => 'html',
-		'html' => '
+		'id'             => 'shortcodes_not_logged_in',
+		'name'           => 'umich_oidc_not_logged_in',
+		'nameForceBreak' => 'yes',
+		'type'           => 'html',
+		'html'           => '
 <div id="umich_oidc_not_logged_in"><code>[umich_oidc_not_logged_in flow="paragraph"] <i>CONTENT</i> [/umich_oidc_not_logged_in]</code></div>
 <p>Display content only if the user is NOT logged in via either OIDC or WordPress.</p>
 <p><b>Example:</b> <code>[umich_oidc_not_logged_in]Log in to see restricted content.[/umich_oidc_not_logged_in]</code> will be replaced "Log in to see restricted content." if the visitor is not logged in. If the visitor is logged in, the shortcode wil be replaced by nothing.</p>
@@ -155,10 +160,11 @@ The shortcodes below can be used in your content, widgets, and themes to control
 		',
 	),
 	array(
-		'id'   => 'shortcodes_not_member',
-		'name' => 'umich_oidc_not_member',
-		'type' => 'html',
-		'html' => '
+		'id'             => 'shortcodes_not_member',
+		'name'           => 'umich_oidc_not_member',
+		'nameForceBreak' => 'yes',
+		'type'           => 'html',
+		'html'           => '
 <div id="umich_oidc_not_member"><code>[umich_oidc_not_member groups="<i>GROUP A, GROUP B, GROUP C</i>" flow="paragraph"] <i>CONTENT</i> [/umich_oidc_not_member]</code></div>
 <p>Display content only if the user is logged in via OIDC and is NOT a member of any of the specified groups.  This content will never be displayed for WordPress administrators, since they are considered to be members of all groups even if not logged in via OIDC.</p>
 <p><b>Example:</b> <code>[umich_oidc_not_member groups="diag-squirrel-fans"]Consider joining Squirrel Club![/umich_oidc_member]</code> will be replaced by nothing if the visitor is not logged in via OIDC or is member of the group diag-squirrel-fans.  If the visitor is logged and a member of the group, nothing will be displayed.</p>
@@ -170,10 +176,11 @@ The shortcodes below can be used in your content, widgets, and themes to control
 		',
 	),
 	array(
-		'id'   => 'shortcodes_url',
-		'name' => 'umich_oidc_url',
-		'type' => 'html',
-		'html' => "
+		'id'             => 'shortcodes_url',
+		'name'           => 'umich_oidc_url',
+		'nameForceBreak' => 'yes',
+		'type'           => 'html',
+		'html'           => "
 <div id='umich_oidc_url'><code>[umich_oidc_url type=\"login\" return=\"here\"]</code></div>
 <p>Generate a URL of the specified type.  The URL will not be clickable unless you put it in a link or button.</p>
 <p><b>Example:</b> <code>[umich_oidc_userinfo type=\"login\"]</code> will be replaced with a URL that can be used to log the user in.</p>
@@ -188,10 +195,11 @@ $return_attribute_description
 		",
 	),
 	array(
-		'id'   => 'shortcodes_userinfo',
-		'name' => 'umich_oidc_userinfo',
-		'type' => 'html',
-		'html' => '
+		'id'             => 'shortcodes_userinfo',
+		'name'           => 'umich_oidc_userinfo',
+		'nameForceBreak' => 'yes',
+		'type'           => 'html',
+		'html'           => '
 <div id="umich_oidc_userinfo"><code>[umich_oidc_userinfo type="<i>WHAT</i>" default="" unprintable="???" separator=", " dictionary="="]</code></div>
 <p>Display information about the user who is currently logged in via OIDC.  The shortcode name <code>umich_oidc_user_info</code> will also work.</p>
 <p><b>Example:</b> <code>[umich_oidc_userinfo type="given_name"]</code> will be replaced by the user\'s first name, if they are logged in, and will be replaced with nothing if they are not logged in.</p>

@@ -6,7 +6,6 @@
  */
 
 import { useField } from 'formik';
-import { Container, Row, Col } from 'react-grid-system';
 import {
 	BaseControl,
 	TextControl,
@@ -472,30 +471,36 @@ function TabFields( { tabName } ) {
 	const settings = fieldSettings?.map( ( setting ) => {
 		if ( setting.type === 'table-dynamic-fullwidth' ) {
 			return (
-				<Row key={ setting.id } className="optionskit-field-row">
-					<Col lg={ 12 } className="optionskit-field">
+				<div key={ setting.id } className="optionskit-field-row">
+					<div className="optionskit-field">
 						<SettingsField setting={ setting } />
-					</Col>
-				</Row>
+					</div>
+				</div>
 			);
 		}
 		return (
-			<Row key={ setting.id } className="optionskit-field-row">
-				<Col lg={ 2 } className="optionskit-field-label">
+			<div key={ setting.id } className="optionskit-field-row">
+				<div
+					className={
+						setting.nameForceBreak
+							? 'optionskit-field-label force-break'
+							: 'optionskit-field-label'
+					}
+				>
 					<label htmlFor={ setting.id }>{ setting.name }</label>
-				</Col>
-				<Col lg={ 10 } className="optionskit-field">
+				</div>
+				<div className="optionskit-field">
 					<SettingsField setting={ setting } />
-				</Col>
-			</Row>
-		)
+				</div>
+			</div>
+		);
 	} );
 
 	return (
 		<div className="optionskit-form-wrapper">
-			<Container fluid className="form-table">
+			<div className="form-table">
 				{ settings }
-			</Container>
+			</div>
 		</div>
 	);
 }
