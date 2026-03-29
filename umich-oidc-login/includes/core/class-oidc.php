@@ -664,7 +664,7 @@ class OIDC {
 			);
 		}
 		if ( true === $options['create_wp_user_for_oidc_user_beta'] && ! \str_ends_with( $email, '@umich.edu' ) ) {
-			log_umich_oidc( LEVEL_ERROR, "Overriding username {$username} with email {$email} to avoid username conflicts (because email does not end with @umich.edu)" );
+			log_umich_oidc( LEVEL_USER_EVENT, "Overriding username {$username} with email {$email} to avoid username conflicts (because email does not end with @umich.edu)" );
 			$username                  = $email;
 			$userinfo->$username_claim = $username;
 		}
@@ -740,7 +740,7 @@ class OIDC {
 		$user = \get_user_by( 'login', $username );
 		if ( ! $user ) {
 			if ( true === $options['create_wp_user_for_oidc_user_beta'] ) {
-				log_umich_oidc( LEVEL_NOTICE, "No WordPress account for username {$username}, creating one." );
+				log_umich_oidc( LEVEL_USER_EVENT, "No WordPress account for username {$username}, creating one." );
 				$given_name_claim  = $options['claim_for_given_name'];
 				$given_name        = \property_exists( $userinfo, $given_name_claim ) ? $userinfo->$given_name_claim : '';
 				$family_name_claim = $options['claim_for_family_name'];
