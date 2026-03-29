@@ -105,6 +105,7 @@ function output_log_messages() {
 	$log_to_db = true;
 
 	$p_event_time   = 0;
+	$p_log_num      = \wp_rand( 0, 9_999_999 ); // Log sequence number within request. Random starting number for extra primary key uniqueness.
 	$p_request_id   = $request_id;
 	$p_session_name = $session_name;
 	$p_session_id   = $session_id;
@@ -114,7 +115,7 @@ function output_log_messages() {
 		// phpcs:ignore WordPress.DB.RestrictedFunctions
 		$stmt = \mysqli_prepare(
 			$dbh,
-			"INSERT INTO $table (event_time, request_id, session_name, session_id, level, message) VALUES (?, ?, ?, ?, ?, ?)"
+			"INSERT INTO $table (event_time, log_num, request_id, session_name, session_id, level, message) VALUES (?, ?, ?, ?, ?, ?, ?)"
 		);
 		if ( ! $stmt ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions,WordPress.DB.RestrictedFunctions
@@ -122,7 +123,7 @@ function output_log_messages() {
 			$log_to_db = false;
 		}
 		// phpcs:ignore WordPress.DB.RestrictedFunctions
-		$result = \mysqli_stmt_bind_param( $stmt, 'dsssds', $p_event_time, $p_request_id, $p_session_name, $p_session_id, $p_level, $p_message );
+		$result = \mysqli_stmt_bind_param( $stmt, 'ddsssds', $p_event_time, $p_log_num, $p_request_id, $p_session_name, $p_session_id, $p_level, $p_message );
 		if ( ! $result ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions,WordPress.DB.RestrictedFunctions
 			\error_log( 'umich_oidc_login database statement bind param failed: ' . \mysqli_error( $dbh ) );
@@ -158,6 +159,7 @@ function output_log_messages() {
 				\error_log( 'umich_oidc_login database insert failed: ' . \mysqli_error( $dbh ) );
 				$log_to_db = false;
 			}
+			++$p_log_num;
 		}
 	}
 

@@ -219,16 +219,17 @@ class Setup {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
-		log_umich_oidc( LEVEL_DEBUG, '%s table creation results:', $table );
 		$table = $wpdb->prefix . 'umich_oidc_login_logs';
+		log_umich_oidc( LEVEL_DEBUG, '%s table creation results:', $table );
 		$sql   = "CREATE TABLE $table (
             event_time bigint(20) unsigned NOT NULL,
+            log_num int(10) unsigned NOT NULL,
             request_id char(8) NOT NULL,
             session_name varchar(64),
             session_id varchar(64),
             level int(2) unsigned NOT NULL,
             message text NOT NULL,
-            PRIMARY KEY  (event_time)
+            PRIMARY KEY  (event_time, log_num, request_id)
         ) $charset_collate;";
 
 		$result = dbDelta( $sql );
