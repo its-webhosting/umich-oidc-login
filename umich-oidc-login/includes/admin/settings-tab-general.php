@@ -54,6 +54,20 @@ wp user update YOUR-WORDPRESS-USERNAME --user_pass="PUT-YOUR-NEW-PASSWORD-HERE"
 		),
 	),
 	array(
+		'id'    => 'create_wp_user_for_oidc_user_beta',
+		'name'  => 'Automatically create WordPress user accounts',
+		'label' => 'Create a WordPress user with role "Subscriber" for people who log in using OIDC',
+		'desc'  => '
+If enabled, people who log in via OIDC will have a WordPress user account automatically created for them if they don\'t
+already have one. The new accounts will be assigned the "Subscriber" role, and their passwords will be randomized and discarded.
+<br /><br />
+This setting requires that "Use OIDC for WordPress Users" be set to "OPTIONAL" or "YES" above. The WordPress password
+or role can be changed after the account is created, and those changes will persist.
+',
+		'type'  => 'toggle',
+		'std'   => $option_defaults['create_wp_user_for_oidc_user_beta'],
+	),
+	array(
 		'id'      => 'login_action',
 		'name'    => 'Post-Login Action',
 		'desc'    => 'Where to send people after they successfully log in, if not otherwise specified by the logout button/link/URL.',

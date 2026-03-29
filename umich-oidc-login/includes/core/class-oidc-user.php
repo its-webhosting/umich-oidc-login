@@ -217,7 +217,7 @@ class OIDC_User {
 	}
 
 	/**
-	 * Returm the list of groups the user is in (is a member of).
+	 * Return the list of groups the user is in (is a member of).
 	 *
 	 * @return array
 	 */

@@ -62,6 +62,7 @@ class Run {
 		'shortcode_html_attributes_allowed' => false,
 		'autosave'                          => true,
 		'test_prereleases'                  => false,
+		'create_wp_user_for_oidc_user_beta' => false,
 	);
 
 	/**

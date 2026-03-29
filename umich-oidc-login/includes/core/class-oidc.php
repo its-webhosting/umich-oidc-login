@@ -627,47 +627,8 @@ class OIDC {
 			);
 		}
 
-		$session->set( 'state', 'valid' );
-		$session->set( 'id_token', $jj_oidc->getIdTokenPayload() );
-		$session->set( 'userinfo', $userinfo );
-		$return_url = $session->get( 'return_url' );
-		if ( '' === $return_url ) {
-			log_umich_oidc( LEVEL_NOTICE, 'No return URL in session' );
-			$return_url = \home_url();
-		}
-		$session->clear( 'return_url' );
-		$session->close();
-
 		log_umich_oidc( LEVEL_INFO, $session->get( 'id_token' ) );
 		log_umich_oidc( LEVEL_INFO, $userinfo );
-
-		if( is_multisite() ) {
-			$dest_blog_id = get_blog_id_from_url(
-				parse_url( $return_url, PHP_URL_HOST ),
-				'/'. (defined( 'SUBDOMAIN_INSTALL' ) && SUBDOMAIN_INSTALL ? '' : strtok( parse_url( $return_url, PHP_URL_PATH ), '/' ) .'/'),
-			);
-
-			if( get_current_blog_id() != $dest_blog_id ) {
-				$url_params = array(
-					'action'     => 'openid-connect-multisite',
-					'id'         => session_id(),
-					'sn'         => session_name(),
-					'data'       => json_encode(array(
-						'state'    => $session->get( 'state' ),
-						'id_token' => $session->get( 'id_token' ),
-						'userinfo' => $session->get( 'userinfo' )
-					)),
-					'return_url' => $return_url,
-					'verifier'   => null
-				);
-				$url_params['verifier'] = $this->create_verifier( $url_params['id'] . $url_params['sn'] . $url_params['return_url'] . $url_params['data'] );
-
-				unset( $url_params['data'] );
-
-				$return_url = \get_admin_url( $dest_blog_id, 'admin-ajax.php?'. http_build_query( $url_params ) );
-			}
-		}
-
 
 		$username_claim = $options['claim_for_username'];
 		if ( ! \property_exists( $userinfo, $username_claim ) ) {
@@ -678,12 +639,75 @@ class OIDC {
 			);
 		}
 		$username = $userinfo->$username_claim;
-		if ( ! \is_string( $username ) || '' === $username ) {
+		if ( ! \is_string( $username ) || '' === \trim( $username ) ) {
 			$this->logout();
 			$this->fatal_error(
 				'Login failed (userinfo)',
 				'Unable to determine username.'
 			);
+		}
+
+		$email_claim = $options['claim_for_email'];
+		if ( ! \property_exists( $userinfo, $email_claim ) ) {
+			$this->logout();
+			$this->fatal_error(
+				'Login failed (userinfo)',
+				'OIDC claim mapping for "email" not present in userinfo.'
+			);
+		}
+		$email = $userinfo->$email_claim;
+		if ( ! \is_string( $email ) || '' === \trim( $email ) ) {
+			$this->logout();
+			$this->fatal_error(
+				'Login failed (userinfo)',
+				'Unable to determine email address.'
+			);
+		}
+		if ( true === $options['create_wp_user_for_oidc_user_beta'] && ! \str_ends_with( $email, '@umich.edu' ) ) {
+			log_umich_oidc( LEVEL_ERROR, "Overriding username {$username} with email {$email} to avoid username conflicts (because email does not end with @umich.edu)" );
+			$username                  = $email;
+			$userinfo->$username_claim = $username;
+		}
+
+		$session->set( 'state', 'valid' );
+		$session->set( 'id_token', $jj_oidc->getIdTokenPayload() );
+		$session->set( 'userinfo', $userinfo );
+		$return_url = $session->get( 'return_url' );
+		if ( '' === $return_url ) {
+			log_umich_oidc( LEVEL_NOTICE, 'NOTICE: No return URL in session' );
+			$return_url = \home_url();
+		}
+		$session->clear( 'return_url' );
+		$session->close();
+
+		if ( is_multisite() ) {
+			$dest_blog_id = get_blog_id_from_url(
+				parse_url( $return_url, PHP_URL_HOST ),  // TODO: use wp_parse_url instead.
+				'/'. (defined( 'SUBDOMAIN_INSTALL' ) && SUBDOMAIN_INSTALL ? '' : strtok( parse_url( $return_url, PHP_URL_PATH ), '/' ) .'/'), // TODO: use wp_parse_url instead.
+			);
+
+			if ( get_current_blog_id() !== $dest_blog_id ) {
+				$url_params = array(
+					'action'     => 'openid-connect-multisite',
+					'id'         => session_id(),
+					'sn'         => session_name(),
+					'data'       => json_encode( // TODO: use wp_json_encode instead.
+						array(
+							'state'    => $session->get( 'state' ),
+							'id_token' => $session->get( 'id_token' ),
+							'userinfo' => $session->get( 'userinfo' ),
+						)
+					),
+					'return_url' => $return_url,
+					'verifier'   => null,
+				);
+
+				$url_params['verifier'] = $this->create_verifier( $url_params['id'] . $url_params['sn'] . $url_params['return_url'] . $url_params['data'] );
+
+				unset( $url_params['data'] );
+
+				$return_url = \get_admin_url( $dest_blog_id, 'admin-ajax.php?' . http_build_query( $url_params ) );
+			}
 		}
 
 		/*
@@ -710,19 +734,59 @@ class OIDC {
 		}
 
 		/*
-		 * Log into the corresponding WordPress account.
+		 * Log into the corresponding WordPress account, creating it if necessary.
 		 */
 
 		$user = \get_user_by( 'login', $username );
 		if ( ! $user ) {
-			log_umich_oidc( LEVEL_NOTICE, 'No WordPress account for username %s, treating as OIDC-only user.', $username );
-			if ( \str_starts_with( $return_url, \admin_url() ) ) {
-				$this->fatal_error(
-					'Access denied',
-					'No such WordPress user.'
+			if ( true === $options['create_wp_user_for_oidc_user_beta'] ) {
+				log_umich_oidc( LEVEL_NOTICE, "No WordPress account for username {$username}, creating one." );
+				$given_name_claim  = $options['claim_for_given_name'];
+				$given_name        = \property_exists( $userinfo, $given_name_claim ) ? $userinfo->$given_name_claim : '';
+				$family_name_claim = $options['claim_for_family_name'];
+				$family_name       = \property_exists( $userinfo, $family_name_claim ) ? $userinfo->$family_name_claim : '';
+				$full_name_claim   = $options['claim_for_full_name'];
+				if ( \property_exists( $userinfo, $full_name_claim ) ) {
+					$display_name = $userinfo->$full_name_claim;
+				} elseif ( $given_name || $family_name ) {
+					$display_name = \trim( $given_name . ' ' . $family_name );
+				} else {
+					$display_name = $username;
+				}
+				$user_data = array(
+					'user_login'   => $username,
+					'user_pass'    => \wp_generate_password( 32, true, true ),
+					'user_email'   => $email,
+					'display_name' => $display_name,
+					'first_name'   => $given_name,
+					'last_name'    => $family_name,
 				);
+				$user_id   = \wp_insert_user( $user_data );
+				if ( \is_wp_error( $user_id ) ) {
+					$this->logout();
+					$this->fatal_error(
+						'Login failed (WordPress account creation)',
+						'Failed to create a WordPress account for the user. Error details: ' . $user_id->get_error_message()
+					);
+				}
+				$user = \get_user_by( 'login', $username );
+				if ( ! $user ) {
+					$this->logout();
+					$this->fatal_error(
+						'Login failed (WordPress account creation)',
+						'Failed to retrieve the WordPress account that was just created for the user.'
+					);
+				}
+			} else {
+				log_umich_oidc( LEVEL_NOTICE, "No WordPress account for username {$username}, treating as OIDC-only user." );
+				if ( \str_starts_with( $return_url, \admin_url() ) ) {
+					$this->fatal_error(
+						'Access denied',
+						'No such WordPress user.'
+					);
+				}
+				$this->redirect( $return_url ); // Does not return.
 			}
-			$this->redirect( $return_url ); // Does not return.
 		}
 
 		if ( ! is_a( $user, 'WP_User' ) || ! $user->exists() ) {

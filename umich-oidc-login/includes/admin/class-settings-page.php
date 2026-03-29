@@ -186,6 +186,15 @@ class Settings_Page {
 				'content' => 'UMich OIDC Login strongly recommends using'. ( is_multisite() ? ' and <a href="'. get_admin_url( 1, '/network/plugins.php' ).'">network activiating</a> ' : ' ' ) .'the <a href="https://wordpress.org/plugins/wp-native-php-sessions/" target="_blank">WordPress Native PHP Sessions</a> plugin to prevent conflicts with other WordPress plugins that also use PHP sessions, and to ensure correct operation when the site has multiple web servers.',
 			);
 		}
+
+		if ( defined( 'UMICH_OIDC_BETA_ENABLE_WP_ACCOUNTS' ) ) {
+			$notices[] = array(
+				'id'      => 'old-accounts-gate',
+				'status'  => 'notice',
+				'content' => 'Please remove the <code>define()</code> for <code>UMICH_OIDC_BETA_ENABLE_WP_ACCOUNTS</code> from <code>wp-config.php</code> since it is no longer used.',
+			);
+		}
+
 		return $notices;
 	}
 
