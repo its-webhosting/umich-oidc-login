@@ -196,7 +196,7 @@ class Run {
 	 */
 	public function cron_daily() {
 		global $wpdb;
-		log_umich_oidc( LEVEL_DEBUG, 'running daily cron job');
+		log_umich_oidc( LEVEL_DEBUG, 'running daily cron job' );
 
 		// Delete logs older than 1 day.
 		// 1 day is a temporary placeholder until we add log retention period to the UI.
@@ -283,11 +283,25 @@ class Run {
 		}
 
 		$this->oidc = new \UMich_OIDC_Login\Core\OIDC( $this );
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( isset( $_SERVER['REQUEST_URI'] )
+			&& (
+				(
+					\is_admin()
+					// phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+					&& ! str_contains( $_SERVER['REQUEST_URI'], '/admin-ajax.php' )
+					// phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+					&& ! str_contains( $_SERVER['REQUEST_URI'], '/admin-post.php' )
+				)
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+				|| str_contains( $_SERVER['REQUEST_URI'], '/wp-json/wprok/umich_oidc/v1/records/' )
+			)
+		) {
+			$this->settings_page = new \UMich_OIDC_Login\Admin\Settings_Page( $this );
+		}
+
 		if ( \is_admin() ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			if ( isset( $_SERVER['REQUEST_URI'] ) && ! str_contains( $_SERVER['REQUEST_URI'], '/admin-ajax.php' ) && ! str_contains( $_SERVER['REQUEST_URI'], '/admin-post.php' ) ) {
-				$this->settings_page = new \UMich_OIDC_Login\Admin\Settings_Page( $this );
-			}
 
 			// Login handler.
 			//
